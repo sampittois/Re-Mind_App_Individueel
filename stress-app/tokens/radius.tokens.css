@@ -1,0 +1,87 @@
+:root {
+
+/* ================================= */
+/* BORDER WIDTH */
+/* ================================= */
+
+--border-width-none: 0px;
+--border-width-sm: 1px;
+--border-width-md: 2px;
+--border-width-xl: 5px;
+
+/* ================================= */
+/* BORDER STYLE */
+/* ================================= */
+
+--border-style-solid: solid;
+
+/* ================================= */
+/* BORDER RADIUS */
+/* ================================= */
+
+--radius-none: 0px;
+--radius-xs: 6px;     /* checkbox */
+--radius-sm: 10px;    /* buttons / alerts / inputs */
+--radius-md: 14px;    /* toggle */
+--radius-lg: 20px;    /* cards */
+--radius-full: 9999px;
+--radius-circle: 50%;
+
+/* ================================================= */
+/* BORDER COLOR TOKENS */
+/* ================================================= */
+
+--border-color-token-default: var(--border-300);
+--border-color-token-green: var(--border-green-300);
+--border-color-token-brand: var(--primary-300);
+--border-color-token-success: var(--success-300);
+--border-color-token-warning: var(--warning-300);
+--border-color-token-error: var(--error-300);
+--border-color-token-info: var(--info-300);
+
+/* ================================================= */
+/* BORDER SEMANTIC TOKENS */
+/* ================================================= */
+
+/* Container */
+--border-container-width: var(--border-width-xl);
+--border-container-style: var(--border-style-solid);
+--border-container-radius: var(--radius-lg);
+--border-container-color: var(--border-color-token-default);
+
+/* Control */
+--border-control-width: var(--border-width-md);
+--border-control-style: var(--border-style-solid);
+--border-control-radius: var(--radius-sm);
+--border-control-color: var(--border-color-token-default);
+
+/* Checkbox */
+--border-checkbox-width: var(--border-width-md);
+--border-checkbox-style: var(--border-style-solid);
+--border-checkbox-radius: var(--radius-xs);
+--border-checkbox-color: var(--border-color-token-default);
+
+/* Toggle track */
+--border-toggle-width: var(--border-width-md);
+--border-toggle-style: var(--border-style-solid);
+--border-toggle-radius: var(--radius-md);
+--border-toggle-color: var(--border-color-token-default);
+
+/* Round */
+--border-round-radius: var(--radius-circle);
+
+
+/* ================================================= */
+/* STATE BORDER TOKENS */
+/* ================================================= */
+
+--border-state-success: var(--border-color-token-success);
+--border-state-warning: var(--border-color-token-warning);
+--border-state-error: var(--border-color-token-error);
+--border-state-info: var(--border-color-token-info);
+--border-state-focus: var(--border-color-token-brand);
+--border-state-default: var(--border-color-token-default);
+--border-state-hover: var(--border-color-token-green);
+--border-state-disabled: var(--border-color-token-default);
+
+}

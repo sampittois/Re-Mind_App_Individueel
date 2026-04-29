@@ -1,0 +1,81 @@
+:root {
+
+/* ================================= */
+/* SHADOW FOUNDATIONS */
+/* ================================= */
+
+/* Offset */
+
+--shadow-offset-none-x: 0px;
+--shadow-offset-none-y: 0px;
+
+--shadow-offset-sm-x: 0px;
+--shadow-offset-sm-y: 2px;
+
+/* Blur */
+
+--shadow-blur-sm: 4px;
+
+/* Spread */
+
+--shadow-spread-none: 0px;
+--shadow-spread-glow: 4px;
+
+/* Opacity */
+
+--shadow-opacity-soft: 0.25;
+
+/* ================================= */
+/* SHADOW SEMANTIC COLORS */
+/* ================================= */
+
+--shadow-color-button-hover: var(--primary-200);
+--shadow-color-input-hover: var(--text-secondary-200);
+--shadow-color-image: var(--primary-200);
+--shadow-color-dropdown-hover: var(--highlight-100);
+--shadow-color-nav: var(--highlight-200);
+
+/* ================================= */
+/* COMPONENT SHADOWS */
+/* ================================= */
+
+/* Button hover */
+--shadow-button-hover:
+  var(--shadow-offset-sm-x)
+  var(--shadow-offset-sm-y)
+  var(--shadow-blur-sm)
+  var(--shadow-spread-none)
+  var(--shadow-color-button-hover);
+
+/* Input hover */
+--shadow-input-hover:
+  var(--shadow-offset-sm-x)
+  var(--shadow-offset-sm-y)
+  var(--shadow-blur-sm)
+  var(--shadow-spread-none)
+  var(--shadow-color-input-hover);
+
+/* Dropdown glow */
+--shadow-dropdown-glow:
+  var(--shadow-offset-none-x)
+  var(--shadow-offset-none-y)
+  var(--shadow-blur-sm)
+  var(--shadow-spread-glow)
+  var(--shadow-color-dropdown-hover);
+
+/* Image shadow */
+--shadow-img-default:
+  var(--shadow-offset-sm-x)
+  var(--shadow-offset-sm-y)
+  var(--shadow-blur-sm)
+  var(--shadow-spread-none)
+  var(--shadow-color-image);
+
+/* Nav shadow */
+--shadow-nav-dropdown:
+  var(--shadow-offset-sm-x)
+  var(--shadow-offset-sm-y)
+  var(--shadow-blur-sm)
+  var(--shadow-spread-none)
+  var(--shadow-color-nav);
+}
