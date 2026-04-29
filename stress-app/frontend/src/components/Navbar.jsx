@@ -1,11 +1,12 @@
 import "./navbar.css";
+import logo from "../assets/logo_primary.png";
 
 export default function Navbar({ currentPage, setCurrentPage }) {
   return (
     <header className="nav">
       <div className="navInner">
         <div className="brand">
-          <span className="brandMark">Logo</span>
+          <img src={logo} alt="Re:Mind" className="brandLogo" />
         </div>
 
         <nav className="links">
@@ -17,12 +18,12 @@ export default function Navbar({ currentPage, setCurrentPage }) {
             Home
           </button>
 
-          <button className="link" type="button">
-            Dagrapport
-          </button>
-
-          <button className="link" type="button">
-            Weekrapport
+          <button
+            className={`link ${currentPage === "reports" ? "active" : ""}`}
+            onClick={() => setCurrentPage("reports")}
+            type="button"
+          >
+            Rapporten
           </button>
 
           <button
@@ -34,7 +35,12 @@ export default function Navbar({ currentPage, setCurrentPage }) {
           </button>
         </nav>
 
-        <button className="profile" aria-label="Profiel" type="button"></button>
+        <button className="profile" aria-label="Profiel" type="button">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </button>
       </div>
     </header>
   );

@@ -42,23 +42,24 @@ export default function App() {
         <main className="page">
           <h1 className="greeting">Hallo {name}!</h1>
 
-          <section className="section">
-            <div className="rating-cards-container">
-              <RatingCard 
-                label="Hoe hoog is je stressniveau nu?"
-                icon="📈"
-                onRate={setStressLevel}
-              />
-              <RatingCard 
-                label="Wat is jouw energie level nu?"
-                icon="⚡"
-                onRate={setEnergyLevel}
-              />
+          <section className="section home-top-section">
+            <div className="rating-timer-container">
+              <div className="rating-cards-container">
+                <RatingCard 
+                  label="Hoe hoog is je stressniveau nu?"
+                  icon="📈"
+                  onRate={setStressLevel}
+                />
+                <RatingCard 
+                  label="Wat is jouw energie level nu?"
+                  icon="⚡"
+                  onRate={setEnergyLevel}
+                />
+              </div>
+              <div className="timer-section">
+                <WorkTimerCard />
+              </div>
             </div>
-          </section>
-
-          <section className="section">
-            <WorkTimerCard />
           </section>
 
           <StatsSection 

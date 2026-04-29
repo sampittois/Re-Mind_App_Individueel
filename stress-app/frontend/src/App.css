@@ -614,26 +614,53 @@ a {
    Rating Cards (Homescreen)
 ========================= */
 
-.rating-cards-container {
+.home-top-section {
+  margin-top: 22px;
+}
+
+.rating-timer-container {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 24px;
+  align-items: start;
 }
 
 @media (max-width: 900px) {
-  .rating-cards-container {
+  .rating-timer-container {
     grid-template-columns: 1fr;
   }
+}
+
+.rating-cards-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+}
+
+.timer-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.timer-section .card {
+  background: var(--card);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius);
+  padding: 28px;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .rating-card {
   background: #f5e6d3;
   border: 1px solid #e8d4bf;
   border-radius: 18px;
-  padding: 18px;
+  padding: 14px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .rating-label {
@@ -641,23 +668,23 @@ a {
   align-items: center;
   gap: 10px;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
   color: #2b2b2b;
 }
 
 .rating-icon {
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .rating-scale {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   justify-content: space-between;
 }
 
 .rating-dot {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: #d4c4b0;
   border: none;
@@ -696,8 +723,14 @@ a {
 }
 
 @media (max-width: 900px) {
-  .stats-grid {
-    grid-template-columns: 1fr;
+  .stats-grid {;
+  gap: 18px;
+  max-width: 500px;
+}
+
+.stats-grid .stat-block:nth-child(3) {
+  grid-column: 1 / -1;
+  max-width: 100%mplate-columns: 1fr;
   }
 }
 
