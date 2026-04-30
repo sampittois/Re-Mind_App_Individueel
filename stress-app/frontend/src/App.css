@@ -1,19 +1,9 @@
-:root {
-  --bg: #f2f2f2;
-  --bar: #d9d9d9;
-  --card: #ffffff;
-  --ink: #111;
-  --muted: #555;
-  --stroke: #cfcfcf;
-  --radius: 18px;
-}
-
 * { box-sizing: border-box; }
 body { 
   margin: 0; 
-  font-family: system-ui, Segoe UI, Roboto, Arial; 
-  background: var(--bg); 
-  color: var(--ink); 
+  font-family: var(--font-family-body); 
+  background: var(--surface-page); 
+  color: var(--text-primary); 
 }
 
 a { 
@@ -58,9 +48,9 @@ a {
 }
 
 .card {
-  background: var(--card);
-  border: 1px solid var(--stroke);
-  border-radius: var(--radius);
+  background: var(--surface-card);
+  border: var(--border-width-sm) solid var(--border-color-default);
+  border-radius: var(--border-container-radius);
   padding: 18px;
 }
 
@@ -69,21 +59,21 @@ a {
   margin: 0 0 10px;
 }
 
-.muted { color: var(--muted); }
+.muted { color: var(--text-secondary); }
 
 .btn {
-  border: 1px solid #aaa;
-  background: #fff;
-  color: #111;
-  border-radius: 999px;
+  border: var(--border-width-sm) solid var(--border-color-default);
+  background: var(--surface-card);
+  color: var(--text-primary);
+  border-radius: var(--radius-full);
   padding: 10px 16px;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
 }
 
 .btnPrimary {
-  background: #fff;
-  border: 2px solid #777;
+  background: var(--surface-card);
+  border: var(--border-width-md) solid var(--border-color-brand);
 }
 
 .btnStack {
@@ -102,7 +92,7 @@ a {
 
 .bigTime {
   font-size: 44px;
-  font-weight: 900;
+  font-weight: var(--font-weight-extrabold);
   letter-spacing: 1px;
 }
 
@@ -119,21 +109,21 @@ a {
 .statBlock {
   text-align: center;
   padding: 10px;
-  border-radius: 14px;
-  border: 1px solid var(--stroke);
+  border-radius: var(--radius-md);
+  border: var(--border-width-sm) solid var(--border-color-default);
 }
 
 .statTop {
   text-decoration: underline;
-  font-weight: 800;
+  font-weight: var(--font-weight-extrabold);
   margin-bottom: 10px;
 }
 
 .adviceBox {
-  border: 2px solid #222;
-  border-radius: 14px;
+  border: var(--border-width-md) solid var(--text-primary);
+  border-radius: var(--radius-md);
   padding: 14px 16px;
-  background: #fff;
+  background: var(--surface-card);
   max-width: 900px;
 }
 
@@ -164,17 +154,17 @@ a {
 
 .pause-tab {
   padding: 12px 30px;
-  border-radius: 999px;
-  border: 1.5px solid #9a9a9a;
-  background: #ffffff;
+  border-radius: var(--radius-full);
+  border: var(--border-width-sm) solid var(--border-color-default);
+  background: var(--surface-card);
   cursor: pointer;
   font-size: 15px;
-  color: #000;
+  color: var(--text-primary);
 }
 
 .pause-tab.active {
-  background: #d9d9d9;
-  border-color: #d9d9d9;
+  background: var(--surface-section);
+  border-color: var(--surface-section);
 }
 
 /* Grid */
@@ -196,16 +186,16 @@ a {
 .pause-card {
   position: relative;
   display: flex;
-  border: 1.5px solid #2b2b2b;
-  border-radius: 18px;
+  border: var(--border-width-sm) solid var(--text-primary);
+  border-radius: var(--border-container-radius);
   overflow: hidden;
-  background: white;
+  background: var(--surface-card);
   min-height: 120px;
 }
 
 .pause-iconBox {
   width: 120px;
-  background: #e1e1e1;
+  background: var(--surface-section);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -227,7 +217,7 @@ a {
 .pause-content h3 {
   margin: 0;
   font-size: 18px;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 /* Favorite button */
@@ -237,9 +227,9 @@ a {
   right: -14px;
   width: 40px;
   height: 40px;
-  border-radius: 999px;
-  border: 1.5px solid #2b2b2b;
-  background: #e1e1e1;
+  border-radius: var(--radius-full);
+  border: var(--border-width-sm) solid var(--text-primary);
+  background: var(--surface-section);
   cursor: pointer;
   font-size: 18px;
   line-height: 1;
@@ -249,8 +239,8 @@ a {
 }
 
 .pause-favBtn.active {
-  background: #d9d9d9;
-  color: #000;
+  background: var(--surface-section);
+  color: var(--text-primary);
 }
 
 /* Responsive */
@@ -311,13 +301,13 @@ a {
 
 .filter-btn {
   padding: 12px 30px;
-  border-radius: 999px;
-  border: 1.5px solid #9a9a9a;
-  background: #ffffff;
+  border-radius: var(--radius-full);
+  border: var(--border-width-sm) solid var(--border-color-default);
+  background: var(--surface-card);
   cursor: pointer;
   font-size: 15px;
-  font-weight: 500;
-  color: #000;
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
 }
 
 .filter-btn.active {
