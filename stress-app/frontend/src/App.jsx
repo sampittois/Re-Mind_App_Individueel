@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import "./App.css";
+import "./styles/App.css";
 
 import Navbar from "./components/Navbar";
 import WorkTimerCard from "./components/WorkTimerCard";

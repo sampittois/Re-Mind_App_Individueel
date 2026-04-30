@@ -1,4 +1,4 @@
-import "./navbar.css";
+import "../styles/navbar.css";
 import logo from "../assets/logo_primary.png";
 
 export default function Navbar({ currentPage, setCurrentPage }) {
