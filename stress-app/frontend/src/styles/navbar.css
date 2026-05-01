@@ -2,7 +2,7 @@
   background: var(--highlight-light);
   border-bottom: 1px solid var(--border);
   font-family: var(--font-family-body);
-  height: 80px;
+  height: 64px;
 }
 
 .nav button:not(.profile) {
@@ -61,6 +61,7 @@
 .link { 
   background: none;
   border: none;
+  font-family: var(--font-family-body);
   font-weight: 600;
   font-size: 15px;
   color: var(--text);
