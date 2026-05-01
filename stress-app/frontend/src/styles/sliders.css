@@ -137,8 +137,8 @@
 }
 
 /* Filled Dots (up to selected) - default sage for positions 2-5 */
-/* Stress slider: only the selected dot becomes highlighted/darker and larger */
-.stress-slider-card .slider-dot.active {
+/* Active dot styling applied to all slider cards (stress & energy use identical active look) */
+.slider-card .slider-dot.active {
   transform: scale(1.6);
   background: #769382; /* active dark sage */
   box-shadow: 0 4px 12px rgba(118, 147, 130, 0.12);
@@ -147,16 +147,14 @@
 
 /* Other dots remain the highlight color; the connecting line stays highlight-colored */
 
-/* Energy Slider Specific */
-.energy-slider-card .slider-dot.filled {
-  border-color: var(--secondary);
-  background: var(--secondary);
-}
-
-.energy-slider-card .slider-dot.active {
-  border-color: var(--secondary);
-  background: var(--secondary);
-  box-shadow: 0 0 0 3px var(--surface-card);
+/* Energy card should visually match the stress card */
+.energy-slider-card {
+  background: #f4edd9;
+  border: 2px solid #a8bfaf;
+  border-radius: 20px;
+  padding: 20px;
+  width: 400px;
+  box-sizing: border-box;
 }
 
 /* Responsive */

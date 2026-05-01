@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "../styles/sliders.css";
+import energyIcon from "../assets/energieLevel.svg";
 
 export default function EnergySlider({ label, icon, onEnergyChange }) {
   const [energyLevel, setEnergyLevel] = useState(1);
@@ -12,9 +13,10 @@ export default function EnergySlider({ label, icon, onEnergyChange }) {
   return (
     <div className="slider-card energy-slider-card">
       <div className="slider-label">
-        {icon && <span className="slider-icon">{icon}</span>}
-        <span>{label}</span>
+        <img src={energyIcon} alt="Energy icon" className="slider-icon-img" />
+        <span className="slider-header-text">{label}</span>
       </div>
+
       <div className="slider-scale-container">
         <div className="slider-numbers">
           {[1, 2, 3, 4, 5].map((num) => (
@@ -23,15 +25,17 @@ export default function EnergySlider({ label, icon, onEnergyChange }) {
             </span>
           ))}
         </div>
+
         <div className="slider-dots-wrapper">
           <div className="slider-line"></div>
           <div className="slider-dots">
             {[1, 2, 3, 4, 5].map((value) => (
               <button
                 key={value}
-                className={`slider-dot ${energyLevel === value ? "active" : ""} ${energyLevel >= value ? "filled" : ""}`}
+                className={`slider-dot pos-${value} ${energyLevel === value ? "active" : ""}`}
                 onClick={() => handleClick(value)}
                 aria-label={`Set energy level to ${value}`}
+                aria-pressed={energyLevel === value}
               />
             ))}
           </div>
