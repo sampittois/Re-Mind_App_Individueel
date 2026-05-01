@@ -56,8 +56,8 @@
 
 .pause-suggestion-card__body h3 {
 	margin: 0;
-	font-family: var(--font-family-heading);
-	font-size: 24px;
+	font-family: var(--font-family-body);
+	font-size: var(--font-size-sm);
 	line-height: 1.1;
 	font-weight: var(--font-weight-regular);
 	color: var(--text);
@@ -73,7 +73,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	border-radius: 999px;
+	border-radius: var(--radius-full);
 	border: 2px solid var(--primary);
 	background: var(--highlight-light);
 	color: var(--primary);
@@ -113,20 +113,21 @@
 
 .pause-suggestions__cta {
 	width: 200px;
-	min-height: 56px;
-	padding: 0 22px;
+	height: 48px;
+	padding: 0 20px;
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
-	gap: var(--space-3);
+	justify-content: center;
+	gap: var(--space-2);
 	border: 2px solid var(--border);
-	border-radius: 999px;
+	border-radius: var(--radius-md);
 	background: var(--background);
 	color: var(--text);
-	font-family: var(--font-family-heading);
-	font-size: 22px;
+	font-family: var(--font-family-body);
+	font-size: var(--font-size-xs);
 	line-height: 1;
-	font-weight: var(--font-weight-regular);
+	font-weight: var(--font-weight-semibold);
+	white-space: nowrap;
 }
 
 .pause-suggestions__cta:hover {

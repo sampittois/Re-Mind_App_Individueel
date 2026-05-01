@@ -43,7 +43,7 @@ export default function App() {
           <PauseSuggestions showViewMore={false} />
         </main>
       ) : (
-        <main className="page">
+        <main className="page home-page">
           <h1 className="greeting">Hallo {name}!</h1>
 
           <section className="section home-top-section">

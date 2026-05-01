@@ -117,19 +117,20 @@ a {
   gap: var(--space-4);
 }
 
+.home-page {
+  max-width: 1600px;
+}
+
 .home-panels {
-  display: flex;
+  display: grid;
+  grid-template-columns: 400px minmax(0, 1fr);
+  gap: var(--space-8);
   align-items: flex-start;
-  gap: var(--space-10);
-  flex-wrap: wrap;
 }
 
-.home-panels > .stats-section {
-  flex: 0 0 400px;
-}
-
+.home-panels > .stats-section,
 .home-panels > .pause-suggestions {
-  flex: 1 1 820px;
+  min-width: 0;
 }
 
 .pause-page-shell {
