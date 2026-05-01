@@ -16,23 +16,23 @@ export default function App() {
   const [stressLevel, setStressLevel] = useState(3);
   const [energyLevel, setEnergyLevel] = useState(2);
 
-  const [currentPage, setCurrentPage] = useState("home"); 
+  const [currentPage, setCurrentPage] = useState("home");
   const [selectedExercise, setSelectedExercise] = useState(null);
-  
+
 
   return (
     <div className="app">
       <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
 
       {currentPage === "exercise-detail" ? (
-        <BreathingExerciseDetail 
-          exerciseId={selectedExercise} 
+        <BreathingExerciseDetail
+          exerciseId={selectedExercise}
           onBack={() => setCurrentPage("breathing")}
           onChangeMethod={() => setCurrentPage("breathing")}
         />
       ) : currentPage === "breathing" ? (
-        <BreathingExercises 
-          onBack={() => setCurrentPage("pause")} 
+        <BreathingExercises
+          onBack={() => setCurrentPage("pause")}
           onSelectExercise={(id) => {
             setSelectedExercise(id);
             setCurrentPage("exercise-detail");
@@ -47,15 +47,14 @@ export default function App() {
           <section className="section home-top-section">
             <div className="rating-timer-container">
               <div className="rating-cards-container">
-                <RatingCard 
+                <StressSlider
                   label="Hoe hoog is je stressniveau nu?"
-                  icon="📈"
-                  onRate={setStressLevel}
+                  onStressChange={setStressLevel}
                 />
-                <RatingCard 
+                <EnergySlider
                   label="Wat is jouw energie level nu?"
                   icon="⚡"
-                  onRate={setEnergyLevel}
+                  onEnergyChange={setEnergyLevel}
                 />
               </div>
               <div className="timer-section">
@@ -64,7 +63,7 @@ export default function App() {
             </div>
           </section>
 
-          <StatsSection 
+          <StatsSection
             stress={stressLevel}
             energy={energyLevel}
             pausesTaken={3}

@@ -1,7 +1,8 @@
 import { useState } from "react";
-import "./sliders.css";
+import "../styles/sliders.css";
+import stressIcon from "../assets/stressLevel.svg";
 
-export default function StressSlider({ label, icon, onStressChange }) {
+export default function StressSlider({ label, onStressChange }) {
   const [stressLevel, setStressLevel] = useState(1);
 
   const handleClick = (value) => {
@@ -12,7 +13,7 @@ export default function StressSlider({ label, icon, onStressChange }) {
   return (
     <div className="slider-card stress-slider-card">
       <div className="slider-label">
-        {icon && <span className="slider-icon">{icon}</span>}
+        <img src={stressIcon} alt="Stress icon" className="slider-icon-img" />
         <span>{label}</span>
       </div>
       <div className="slider-scale-container">

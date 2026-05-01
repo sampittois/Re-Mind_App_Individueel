@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./sliders.css";
+import "../styles/sliders.css";
 
 export default function EnergySlider({ label, icon, onEnergyChange }) {
   const [energyLevel, setEnergyLevel] = useState(1);
