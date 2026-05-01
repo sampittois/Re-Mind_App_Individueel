@@ -1,65 +1,34 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import "../styles/pauseSuggestions.css";
 import PauseCard from "./PauseCard";
 
-import lungs from "../assets/ademhaling.png";
+import breathing from "../assets/ademhaling.png";
+import stretching from "../assets/stretchen.png";
+import eyeReset from "../assets/oogReset.png";
 
 const DATA = [
-  { id: "breath", type: "lang", title: "Ademhaling", icon: lungs },
+  { id: "breath", title: "Ademhaling", icon: breathing },
+  { id: "stretch", title: "Stretchen", icon: stretching },
+  { id: "eye-reset", title: "Oog reset", icon: eyeReset },
 ];
 
-export default function PauseSuggestions({ onNavigateToBreathing }) {
-  const [tab, setTab] = useState("kort"); // "kort" | "lang" | "fav"
+export default function PauseSuggestions({ onViewMore, showViewMore = true }) {
   const [favorites, setFavorites] = useState(() => new Set());
 
-  const filtered = useMemo(() => {
-    if (tab === "fav") return DATA.filter((x) => favorites.has(x.id));
-    return DATA.filter((x) => x.type === tab);
-  }, [tab, favorites]);
-
-  const columnsClass = tab === "lang" ? "cols-2" : "cols-3";
-
   return (
-    <main className="pause-page">
-      <h1>Pauzesuggesties</h1>
+    <section className="pause-suggestions">
+      <h2 className="pause-suggestions__title">Pauzesuggesties</h2>
 
-      <div className="pause-tabs">
-        <button
-          className={`pause-tab ${tab === "kort" ? "active" : ""}`}
-          onClick={() => setTab("kort")}
-          type="button"
-        >
-          Korte pauzes
-        </button>
-
-        <button
-          className={`pause-tab ${tab === "lang" ? "active" : ""}`}
-          onClick={() => setTab("lang")}
-          type="button"
-        >
-          Lange pauzes
-        </button>
-
-        <button
-          className={`pause-tab ${tab === "fav" ? "active" : ""}`}
-          onClick={() => setTab("fav")}
-          type="button"
-        >
-          Favorieten
-        </button>
-      </div>
-
-      <section className={`pause-grid ${columnsClass}`}>
-        {filtered.map((item) => {
-          const isFav = favorites.has(item.id);
+      <div className="pause-suggestions__grid">
+        {DATA.map((item) => {
+          const isFavorite = favorites.has(item.id);
 
           return (
             <PauseCard
               key={item.id}
               icon={item.icon}
               title={item.title}
-              isFavorite={isFav}
-              onClick={item.id === "breath" && onNavigateToBreathing ? onNavigateToBreathing : undefined}
+              isFavorite={isFavorite}
               onToggleFavorite={() => {
                 setFavorites((prev) => {
                   const next = new Set(prev);
@@ -71,7 +40,14 @@ export default function PauseSuggestions({ onNavigateToBreathing }) {
             />
           );
         })}
-      </section>
-    </main>
+      </div>
+
+      {showViewMore ? (
+        <button className="pause-suggestions__cta" onClick={onViewMore} type="button">
+          <span>Bekijk meer</span>
+          <span aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right-icon lucide-chevron-right"><path d="m9 18 6-6-6-6"/></svg></span>
+        </button>
+      ) : null}
+    </section>
   );
 }

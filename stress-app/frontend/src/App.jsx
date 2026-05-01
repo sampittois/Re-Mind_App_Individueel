@@ -39,7 +39,9 @@ export default function App() {
           }}
         />
       ) : currentPage === "pause" ? (
-        <PauseSuggestions onNavigateToBreathing={() => setCurrentPage("breathing")} />
+        <main className="pause-page-shell">
+          <PauseSuggestions showViewMore={false} />
+        </main>
       ) : (
         <main className="page">
           <h1 className="greeting">Hallo {name}!</h1>
@@ -53,7 +55,6 @@ export default function App() {
                 />
                 <EnergySlider
                   label="Wat is jouw energie level nu?"
-                  icon="⚡"
                   onEnergyChange={setEnergyLevel}
                 />
               </div>
@@ -63,36 +64,16 @@ export default function App() {
             </div>
           </section>
 
-          <StatsSection
-            stress={stressLevel}
-            energy={energyLevel}
-            pausesTaken={3}
-            pausesSkipped={1}
-          />
+          <div className="home-panels">
+            <StatsSection
+              stress={stressLevel}
+              energy={energyLevel}
+              pausesTaken={3}
+              pausesSkipped={1}
+            />
 
-          <section className="section">
-            <h2 className="section-title">Pauzesuggesties</h2>
-            <div className="pause-suggestions-preview">
-              <div className="pause-card-mini">
-                <div className="pause-card-icon">🫁</div>
-                <div className="pause-card-title">Ademhaling</div>
-                <button className="pause-card-fav">♡</button>
-              </div>
-              <div className="pause-card-mini">
-                <div className="pause-card-icon">🧘</div>
-                <div className="pause-card-title">Stretchen</div>
-                <button className="pause-card-fav">♡</button>
-              </div>
-              <div className="pause-card-mini">
-                <div className="pause-card-icon">👁</div>
-                <div className="pause-card-title">Oog reset</div>
-                <button className="pause-card-fav">♡</button>
-              </div>
-            </div>
-            <button className="btn-view-more" onClick={() => setCurrentPage("pause")}>
-              Bekijk meer <span>›</span>
-            </button>
-          </section>
+            <PauseSuggestions onViewMore={() => setCurrentPage("pause")} />
+          </div>
         </main>
       )}
     </div>

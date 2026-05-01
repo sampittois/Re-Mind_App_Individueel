@@ -117,6 +117,27 @@ a {
   gap: var(--space-4);
 }
 
+.home-panels {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-10);
+  flex-wrap: wrap;
+}
+
+.home-panels > .stats-section {
+  flex: 0 0 400px;
+}
+
+.home-panels > .pause-suggestions {
+  flex: 1 1 820px;
+}
+
+.pause-page-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-6);
+}
+
 @media (max-width: 900px) {
   .statsRow { grid-template-columns: 1fr; }
 }
