@@ -7,6 +7,8 @@ import PauseSuggestions from "./components/PauseSuggestions";
 import BreathingExercises from "./components/BreathingExercises";
 import BreathingExerciseDetail from "./components/BreathingExerciseDetail";
 import RatingCard from "./components/RatingCard";
+import StressSlider from "./components/StressSlider";
+import EnergySlider from "./components/EnergySlider";
 import StatsSection from "./components/StatsSection";
 
 export default function App() {
