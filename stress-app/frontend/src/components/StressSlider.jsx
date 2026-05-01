@@ -32,7 +32,7 @@ export default function StressSlider({ label, onStressChange }) {
             {[1, 2, 3, 4, 5].map((value) => (
               <button
                 key={value}
-                className={`slider-dot pos-${value} ${stressLevel === value ? "active" : ""} ${stressLevel >= value ? "filled" : ""}`}
+                className={`slider-dot pos-${value} ${stressLevel === value ? "active" : ""}`}
                 onClick={() => handleClick(value)}
                 aria-label={`Set stress level to ${value}`}
                 aria-pressed={stressLevel === value}

@@ -58,13 +58,21 @@
   display: flex;
   flex-direction: column;
   gap: 16px; /* vertical stack gap between header and slider */
+  position: relative; /* allow absolute positioning of numbers */
 }
 
 /* Numbers Row */
 .slider-numbers {
-  display: flex;
-  justify-content: space-between;
-  padding: 0 8px;
+  position: absolute;
+  top: 0;
+  left: 8px;
+  right: 8px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0;
+  padding: 0; /* padding handled by left/right */
+  pointer-events: none; /* numbers shouldn't block clicks on dots */
+  align-items: center;
 }
 
 .slider-number {
@@ -72,8 +80,9 @@
   font-size: 18px;
   font-weight: 400;
   color: #596e62;
-  width: 20%;
+  flex: 1 1 0;
   text-align: center;
+  box-sizing: border-box;
 }
 
 /* Dots Wrapper */
@@ -82,14 +91,16 @@
   height: 40px;
   display: flex;
   align-items: center;
+  margin-top: 28px; /* increased gap so numbers sit comfortably above dots */
 }
 
 /* Connecting Line */
 .slider-line {
   position: absolute;
   top: 50%;
-  left: 8px;
-  right: 8px;
+  /* start/end at dot centers: padding (8px) + half dot width (6px) */
+  left: calc(8px + 6px);
+  right: calc(8px + 6px);
   height: 4px; /* track height */
   background: #e4ebe6; /* light sage */
   border-radius: 2px;
@@ -101,9 +112,10 @@
 .slider-dots {
   position: relative;
   z-index: 2;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   width: 100%;
+  padding: 0 8px; /* match numbers padding so centers align */
 }
 
 /* Slider Dot - base is small (12px) to match 2-5 positions */
@@ -112,14 +124,12 @@
   height: 12px;
   border-radius: 50%;
   border: none;
-  background: transparent;
+  background: #a8bfaf; /* default highlight color for dots */
   cursor: pointer;
-  transition: all 0.16s ease;
+  transition: transform 0.16s ease, background 0.16s ease;
   padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  display: block;
+  margin: 0 auto; /* center within grid column */
 }
 
 .slider-dot:hover {
@@ -127,31 +137,15 @@
 }
 
 /* Filled Dots (up to selected) - default sage for positions 2-5 */
-.stress-slider-card .slider-dot.filled {
-  background: #a8bfaf; /* small sage */
+/* Stress slider: only the selected dot becomes highlighted/darker and larger */
+.stress-slider-card .slider-dot.active {
+  transform: scale(1.6);
+  background: #769382; /* active dark sage */
+  box-shadow: 0 4px 12px rgba(118, 147, 130, 0.12);
+  z-index: 3;
 }
 
-/* Position 1 when active (selected) - larger dark sage */
-.stress-slider-card .slider-dot.pos-1.active {
-  width: 20px;
-  height: 20px;
-  background: #769382; /* dark sage */
-}
-
-/* When pos-1 is filled but not active (i.e., selected value > 1) keep small sage */
-.stress-slider-card .slider-dot.pos-1.filled {
-  width: 12px;
-  height: 12px;
-  background: #a8bfaf;
-}
-
-/* Active Dot (currently selected) - subtle emphasis for non-pos-1 selections */
-.slider-dot.active:not(.pos-1) {
-  transform: scale(1.25);
-  box-shadow: 0 0 0 4px rgba(168, 191, 175, 0.15);
-}
-
-/* Stress Slider specific active/fill overrides handled above for colors and sizes */
+/* Other dots remain the highlight color; the connecting line stays highlight-colored */
 
 /* Energy Slider Specific */
 .energy-slider-card .slider-dot.filled {
@@ -189,6 +183,12 @@
 
   .slider-dots-wrapper {
     height: 36px;
+  }
+
+  .slider-line {
+    /* responsive: dots become larger; half of 28px is 14px */
+    left: calc(8px + 14px);
+    right: calc(8px + 14px);
   }
 
   .slider-number {
