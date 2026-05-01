@@ -30,14 +30,24 @@
 
 .breathingLogo__layer {
   border-radius: 50%;
+  animation: breatheOuter 8s ease-in-out infinite;
 }
 
-.breathingLogo--active .breathingLogo__layer--outer {
-  animation: breatheOuter 4s ease-in-out infinite;
+.breathingLogo__layer--outer {
+  background: var(--highlight-hover);
 }
 
-.breathingLogo--active .breathingLogo__layer--inner {
-  animation: breatheInner 4s ease-in-out infinite;
+.breathingLogo__layer--inner {
+  background: var(--highlight-light);
+  animation: breatheInner 8s ease-in-out infinite;
+}
+
+.breathingLogo__ring {
+  overflow: visible;
+}
+
+.breathingLogo__ring circle:last-child {
+  transition: stroke-dashoffset 900ms linear;
 }
 
 @keyframes breatheOuter {
@@ -62,30 +72,6 @@
   }
 }
 
-.breathingLogo__layer--outer {
-  background: var(--highlight-hover);
-}
-
-.breathingLogo__layer--inner {
-  background: var(--highlight-light);
-}
-
-.breathingLogo__ring {
-  overflow: visible;
-}
-
-.breathingLogo__ring circle:last-child {
-  transition: stroke-dashoffset 900ms linear;
-}
-
-/* when active class toggles, minor scale for crispness (sizes are controlled inline)
-   kept separate to allow CSS-only fallback animations */
-
-
-.breathingLogo--active .breathingLogo__icon {
-  animation: breatheIcon 4s ease-in-out infinite;
-}
-
 @keyframes breatheIcon {
   0%, 100% {
     transform: translate(-50%, -50%) scale(1);
@@ -95,10 +81,12 @@
   }
 }
 
+
 .breathingLogo__icon {
   width: 80px;
   height: 80px;
   object-fit: contain;
+  animation: breatheIcon 8s ease-in-out infinite;
 }
 
 .bigTime {
