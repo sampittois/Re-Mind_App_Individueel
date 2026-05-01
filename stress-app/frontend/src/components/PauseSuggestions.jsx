@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import "../styles/pauseSuggestions.css";
 import PauseCard from "./PauseCard";
 
 import lungs from "../assets/ademhaling.png";
