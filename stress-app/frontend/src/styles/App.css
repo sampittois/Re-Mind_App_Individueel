@@ -99,28 +99,6 @@ a {
   border: var(--border-width-md) solid var(--border-color-brand);
 }
 
-.btnStack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  align-items: flex-start;
-}
-
-.hrRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-}
-
-.bigTime {
-  font-family: var(--text-heading-1-font-family);
-  font-size: var(--text-heading-1-font-size);
-  line-height: var(--text-heading-1-line-height);
-  font-weight: var(--text-heading-1-font-weight);
-  letter-spacing: var(--text-heading-1-letter-spacing);
-}
-
 .statsRow {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;

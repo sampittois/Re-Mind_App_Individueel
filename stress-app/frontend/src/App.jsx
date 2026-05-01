@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import "./styles/App.css";
 
 import Navbar from "./components/Navbar";
-import WorkTimerCard from "./components/WorkTimerCard";
+import Timer from "./components/Timer";
 import PauseSuggestions from "./components/PauseSuggestions";
 import BreathingExercises from "./components/BreathingExercises";
 import BreathingExerciseDetail from "./components/BreathingExerciseDetail";
@@ -58,7 +58,7 @@ export default function App() {
                 />
               </div>
               <div className="timer-section">
-                <WorkTimerCard />
+                <Timer />
               </div>
             </div>
           </section>

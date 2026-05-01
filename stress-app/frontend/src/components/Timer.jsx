@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import swirl from "../assets/swirl.png";
+import "../styles/timer.css";
 
 function formatTime(totalSeconds) {
   const m = Math.floor(totalSeconds / 60);
@@ -6,49 +8,59 @@ function formatTime(totalSeconds) {
   return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
 }
 
-function CircleProgress({ progress = 0 }) {
-  // progress: 0..1
-  const size = 140;
-  const stroke = 70;
-  const r = (size - stroke) / 2; // radius van de cirkel, rekening houdend met stroke
-  const c = 2 * Math.PI * r; // omtrek van de cirkel
-  const dash = c * (1 - Math.max(0, Math.min(1, progress))); 
+function BreathingLogo({ progress = 0, active = false }) {
+  const outerSize = active ? 220 : 280;
+  const innerSize = active ? 200 : 240;
+  const timerSize = 200;
+  const timerStroke = 4;
+  const radius = (timerSize - timerStroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const safeProgress = Math.max(0, Math.min(1, progress));
+  const strokeDashoffset = circumference * (1 - safeProgress);
 
   return (
-    <svg width={size} height={size} aria-label="Timer progress">
-      <circle // dikke grijze cirkel
-        cx={size / 2}
-        cy={size / 2}
-        r={r}
-        stroke="#eee"
-        strokeWidth={stroke}
-        fill="#eee"
+    <div className={`breathingLogo${active ? " breathingLogo--active" : ""}`} aria-hidden="true">
+      <div
+        className="breathingLogo__layer breathingLogo__layer--outer"
+        style={{ width: outerSize, height: outerSize }}
       />
-      <circle // dunne groene cirkel die de voortgang toont
-        cx={size / 2}
-        cy={size / 2}
-        r={r}
-        stroke="#ccc"
-        strokeWidth={stroke}
-        fill="transparent"
-        strokeDasharray={c}
-        strokeDashoffset={dash}
-        transform={`rotate(-90 ${size / 2} ${size / 2})`}
+      <div
+        className="breathingLogo__layer breathingLogo__layer--inner"
+        style={{ width: innerSize, height: innerSize }}
       />
-      {/* dunne “wijzer” */}
-      {/* <line
-        x1={size / 2}
-        y1={size / 2}
-        x2={size / 2}
-        y2={size / 2 - r + 6}
-        stroke="#46696F"
-        strokeWidth="2"
-      /> */}
-    </svg>
+      <svg
+        className="breathingLogo__ring"
+        width={timerSize}
+        height={timerSize}
+        viewBox={`0 0 ${timerSize} ${timerSize}`}
+      >
+        <circle
+          cx={timerSize / 2}
+          cy={timerSize / 2}
+          r={radius}
+          stroke="var(--border-color-default)"
+          strokeWidth={timerStroke}
+          fill="none"
+        />
+        <circle
+          cx={timerSize / 2}
+          cy={timerSize / 2}
+          r={radius}
+          stroke="var(--primary-dark)"
+          strokeWidth={timerStroke}
+          fill="none"
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          transform={`rotate(-90 ${timerSize / 2} ${timerSize / 2})`}
+        />
+      </svg>
+      <img className="breathingLogo__icon" src={swirl} alt="" />
+    </div>
   );
 }
 
-export default function WorkTimerCard() {
+export default function Timer() {
   const [workStarted, setWorkStarted] = useState(false);
   const [onBreak, setOnBreak] = useState(false);
   const [finished, setFinished] = useState(false);
@@ -56,8 +68,7 @@ export default function WorkTimerCard() {
   const [workSeconds, setWorkSeconds] = useState(0);
   const [breakSeconds, setBreakSeconds] = useState(0);
 
-  // Voor de cirkel: neem bijvoorbeeld een “dag” van 8 uur als referentie
-  const dayTargetSeconds = 8 * 60; //*60
+  const dayTargetSeconds = 8 * 60 * 60;
 
   useEffect(() => {
     let timer = null;
@@ -77,9 +88,10 @@ export default function WorkTimerCard() {
   const mainTime = useMemo(() => formatTime(workSeconds), [workSeconds]);
 
   const progress = useMemo(() => {
-    // toon voortgang van werkdag (0..1)
     return Math.min(1, workSeconds / dayTargetSeconds);
   }, [workSeconds]);
+
+  const logoActive = workStarted || finished;
 
   const startDay = () => {
     setWorkStarted(true);
@@ -100,7 +112,7 @@ export default function WorkTimerCard() {
   return (
     <div className="card" style={{ borderRadius: 22, padding: 22 }}>
       <div className="hrRow">
-        <CircleProgress progress={progress} />
+        <BreathingLogo progress={progress} active={logoActive} />
 
         <div style={{ minWidth: 140, display: "flex", justifyContent: "center" }}>
           <div className="bigTime">{workStarted ? mainTime : "--:--"}</div>
@@ -146,10 +158,12 @@ export default function WorkTimerCard() {
           {finished && (
             <>
               <div style={{ fontWeight: 900 }}>Je bent klaar voor vandaag!</div>
-              <button className="btn btnPrimary" onClick={() => alert("Reflectie (demo)")} >
+              <button className="btn btnPrimary" onClick={() => alert("Reflectie (demo)")}> 
                 Vul nu de reflectie in
               </button>
-              <button className="btn" onClick={startDay}>Start nieuwe werkdag</button>
+              <button className="btn" onClick={startDay}>
+                Start nieuwe werkdag
+              </button>
             </>
           )}
         </div>

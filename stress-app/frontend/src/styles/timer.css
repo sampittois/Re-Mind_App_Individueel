@@ -1,0 +1,64 @@
+.hrRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.btnStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.breathingLogo {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  flex: 0 0 auto;
+}
+
+.breathingLogo__layer,
+.breathingLogo__ring,
+.breathingLogo__icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.breathingLogo__layer {
+  border-radius: 50%;
+  transition: width 560ms ease, height 560ms ease;
+}
+
+.breathingLogo__layer--outer {
+  background: var(--highlight-hover);
+}
+
+.breathingLogo__layer--inner {
+  background: var(--highlight-light);
+}
+
+.breathingLogo__ring {
+  overflow: visible;
+}
+
+.breathingLogo__ring circle:last-child {
+  transition: stroke-dashoffset 1000ms linear;
+}
+
+.breathingLogo__icon {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+}
+
+.bigTime {
+  font-family: var(--text-heading-1-font-family);
+  font-size: var(--text-heading-1-font-size);
+  line-height: var(--text-heading-1-line-height);
+  font-weight: var(--text-heading-1-font-weight);
+  letter-spacing: var(--text-heading-1-letter-spacing);
+}
