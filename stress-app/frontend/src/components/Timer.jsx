@@ -91,7 +91,7 @@ export default function Timer() {
     return Math.min(1, workSeconds / dayTargetSeconds);
   }, [workSeconds]);
 
-  const logoActive = workStarted || finished;
+  const logoActive = workStarted && !onBreak && !finished;
 
   const startDay = () => {
     setWorkStarted(true);
