@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap');
+
 /* Slider Cards */
 .slider-card {
   background: var(--surface-card);
@@ -30,11 +32,32 @@
   object-fit: contain;
 }
 
+/* Stress card tokens (overrides for the stress slider) */
+.stress-slider-card {
+  background: #f4edd9;
+  border: 2px solid #a8bfaf;
+  border-radius: 20px;
+  padding: 20px;
+  width: 400px;
+  box-sizing: border-box;
+}
+
+.stress-slider-card .slider-label {
+  gap: 12px;
+}
+
+.slider-header-text {
+  font-family: Nunito, var(--font-family-body);
+  font-size: 20px;
+  font-weight: 400;
+  color: #1a1a1a;
+}
+
 /* Scale Container */
 .slider-scale-container {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: 16px; /* vertical stack gap between header and slider */
 }
 
 /* Numbers Row */
@@ -45,10 +68,10 @@
 }
 
 .slider-number {
-  font-family: var(--text-body-regular-font-family);
-  font-size: var(--text-body-regular-font-size);
-  font-weight: var(--text-body-regular-font-weight);
-  color: var(--text-secondary);
+  font-family: Nunito, var(--text-body-regular-font-family);
+  font-size: 18px;
+  font-weight: 400;
+  color: #596e62;
   width: 20%;
   text-align: center;
 }
@@ -67,8 +90,9 @@
   top: 50%;
   left: 8px;
   right: 8px;
-  height: 2px;
-  background: var(--border-color-default);
+  height: 4px; /* track height */
+  background: #e4ebe6; /* light sage */
+  border-radius: 2px;
   transform: translateY(-50%);
   z-index: 1;
 }
@@ -82,15 +106,15 @@
   width: 100%;
 }
 
-/* Slider Dot */
+/* Slider Dot - base is small (12px) to match 2-5 positions */
 .slider-dot {
-  width: 32px;
-  height: 32px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  border: 2px solid var(--border-color-default);
-  background: var(--surface-page);
+  border: none;
+  background: transparent;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.16s ease;
   padding: 0;
   display: flex;
   align-items: center;
@@ -99,35 +123,35 @@
 }
 
 .slider-dot:hover {
-  transform: scale(1.1);
+  transform: scale(1.15);
 }
 
-/* Filled Dots (up to selected) */
-.slider-dot.filled {
-  border-color: var(--text-secondary);
-  background: var(--text-secondary);
-}
-
-/* Active Dot (currently selected) */
-.slider-dot.active {
-  border-width: 3px;
-  border-color: var(--primary);
-  background: var(--primary);
-  box-shadow: 0 0 0 3px var(--surface-card);
-  transform: scale(1.05);
-}
-
-/* Stress Slider Specific */
+/* Filled Dots (up to selected) - default sage for positions 2-5 */
 .stress-slider-card .slider-dot.filled {
-  border-color: var(--primary);
-  background: var(--primary);
+  background: #a8bfaf; /* small sage */
 }
 
-.stress-slider-card .slider-dot.active {
-  border-color: var(--primary);
-  background: var(--primary);
-  box-shadow: 0 0 0 3px var(--surface-card);
+/* Position 1 when active (selected) - larger dark sage */
+.stress-slider-card .slider-dot.pos-1.active {
+  width: 20px;
+  height: 20px;
+  background: #769382; /* dark sage */
 }
+
+/* When pos-1 is filled but not active (i.e., selected value > 1) keep small sage */
+.stress-slider-card .slider-dot.pos-1.filled {
+  width: 12px;
+  height: 12px;
+  background: #a8bfaf;
+}
+
+/* Active Dot (currently selected) - subtle emphasis for non-pos-1 selections */
+.slider-dot.active:not(.pos-1) {
+  transform: scale(1.25);
+  box-shadow: 0 0 0 4px rgba(168, 191, 175, 0.15);
+}
+
+/* Stress Slider specific active/fill overrides handled above for colors and sizes */
 
 /* Energy Slider Specific */
 .energy-slider-card .slider-dot.filled {

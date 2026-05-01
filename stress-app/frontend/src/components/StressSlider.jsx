@@ -14,8 +14,9 @@ export default function StressSlider({ label, onStressChange }) {
     <div className="slider-card stress-slider-card">
       <div className="slider-label">
         <img src={stressIcon} alt="Stress icon" className="slider-icon-img" />
-        <span>{label}</span>
+        <span className="slider-header-text">{label}</span>
       </div>
+
       <div className="slider-scale-container">
         <div className="slider-numbers">
           {[1, 2, 3, 4, 5].map((num) => (
@@ -24,15 +25,17 @@ export default function StressSlider({ label, onStressChange }) {
             </span>
           ))}
         </div>
-        <div className="slider-dots-wrapper">
+
+        <div className="slider-dots-wrapper" style={{ marginTop: 18 }}>
           <div className="slider-line"></div>
           <div className="slider-dots">
             {[1, 2, 3, 4, 5].map((value) => (
               <button
                 key={value}
-                className={`slider-dot ${stressLevel === value ? "active" : ""} ${stressLevel >= value ? "filled" : ""}`}
+                className={`slider-dot pos-${value} ${stressLevel === value ? "active" : ""} ${stressLevel >= value ? "filled" : ""}`}
                 onClick={() => handleClick(value)}
                 aria-label={`Set stress level to ${value}`}
+                aria-pressed={stressLevel === value}
               />
             ))}
           </div>
