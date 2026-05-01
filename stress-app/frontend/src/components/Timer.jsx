@@ -110,7 +110,7 @@ export default function Timer() {
   const endBreak = () => setOnBreak(false);
 
   return (
-    <div className="card" style={{ borderRadius: 22, padding: 22 }}>
+    <div className="timer-card">
       <div className="hrRow">
         <BreathingLogo progress={progress} active={logoActive} />
 
@@ -121,10 +121,10 @@ export default function Timer() {
         <div className="btnStack">
           {!workStarted && !finished && (
             <>
-              <button className="btn btnPrimary" onClick={startDay}>
+              <button className="btn" onClick={startDay}>
                 Start werkdag
               </button>
-              <div className="muted" style={{ fontWeight: 700, fontSize: 12 }}>
+              <div className="muted">
                 Je kan op elk moment pauzeren
               </div>
             </>
@@ -132,7 +132,7 @@ export default function Timer() {
 
           {workStarted && !finished && !onBreak && (
             <>
-              <button className="btn btnPrimary" onClick={takeBreak}>
+              <button className="btn" onClick={takeBreak}>
                 Neem een pauze
               </button>
               <button className="btn" onClick={endDay}>
@@ -143,13 +143,13 @@ export default function Timer() {
 
           {workStarted && !finished && onBreak && (
             <>
-              <button className="btn btnPrimary" onClick={endBreak}>
+              <button className="btn" onClick={endBreak}>
                 Beëindig pauze
               </button>
               <button className="btn" onClick={endDay}>
                 Beëindig werkdag
               </button>
-              <div className="muted" style={{ fontSize: 12 }}>
+              <div className="muted">
                 Pauzetijd: {formatTime(breakSeconds)}
               </div>
             </>
@@ -157,8 +157,8 @@ export default function Timer() {
 
           {finished && (
             <>
-              <div style={{ fontWeight: 900 }}>Je bent klaar voor vandaag!</div>
-              <button className="btn btnPrimary" onClick={() => alert("Reflectie (demo)")}> 
+              <div className="finished-message">Je bent klaar voor vandaag!</div>
+              <button className="btn" onClick={() => alert("Reflectie (demo)")}>
                 Vul nu de reflectie in
               </button>
               <button className="btn" onClick={startDay}>

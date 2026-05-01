@@ -21,7 +21,8 @@ a {
 
 .page {
   max-width: 1100px;
-  margin: 0 auto;
+  margin-left: auto;
+  margin-right: auto;
   padding: var(--space-7) var(--space-6) var(--space-10);
 }
 
@@ -40,11 +41,22 @@ a {
 }
 
 /* Rating cards layout */
+.rating-timer-container {
+  display: flex;
+  gap: var(--space-6);
+  align-items: flex-start;
+}
+
 .rating-cards-container {
   display: flex;
   flex-direction: column;
   gap: var(--space-4); /* 16px gap between sliders */
   align-items: flex-start;
+  flex: 1;
+}
+
+.timer-section {
+  flex: 0 0 auto;
 }
 
 .sectionTitle { 

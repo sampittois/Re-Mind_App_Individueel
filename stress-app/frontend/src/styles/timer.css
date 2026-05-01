@@ -5,11 +5,51 @@
   gap: var(--space-4);
 }
 
+.timer-card {
+  max-width: 800px;
+  background: var(--highlight-light);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+}
+
 .btnStack {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
   align-items: flex-start;
+}
+
+.btnStack .btn {
+  width: 240px;
+  background: var(--background);
+  border: var(--border-width-sm) solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  padding: var(--space-3) var(--space-4);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+}
+
+.btnStack .muted {
+  color: var(--text-secondary);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-xxs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.btnStack > div:not(.muted) {
+  color: var(--text-primary);
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-extrabold);
+  font-size: var(--font-size-sm);
+}
+
+.finished-message {
+  color: var(--text-primary);
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-extrabold);
+  font-size: var(--font-size-md);
+  margin-bottom: var(--space-2);
 }
 
 .breathingLogo {
@@ -90,9 +130,9 @@
 }
 
 .bigTime {
-  font-family: var(--text-heading-1-font-family);
-  font-size: var(--text-heading-1-font-size);
-  line-height: var(--text-heading-1-line-height);
-  font-weight: var(--text-heading-1-font-weight);
-  letter-spacing: var(--text-heading-1-letter-spacing);
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-2xl);
+  line-height: var(--line-height-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--primary-dark);
 }
