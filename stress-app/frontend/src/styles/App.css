@@ -39,6 +39,14 @@ a {
   margin-top: var(--space-6);
 }
 
+/* Rating cards layout */
+.rating-cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4); /* 16px gap between sliders */
+  align-items: flex-start;
+}
+
 .sectionTitle { 
   margin: 0 0 var(--space-3); 
   font-family: var(--text-heading-2-font-family);

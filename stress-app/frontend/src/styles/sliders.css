@@ -46,6 +46,10 @@
   gap: 12px;
 }
 
+.energy-slider-card .slider-label {
+  gap: 12px;
+}
+
 .slider-header-text {
   font-family: Nunito, var(--font-family-body);
   font-size: 20px;

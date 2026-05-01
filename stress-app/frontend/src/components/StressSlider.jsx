@@ -26,7 +26,7 @@ export default function StressSlider({ label, onStressChange }) {
           ))}
         </div>
 
-        <div className="slider-dots-wrapper" style={{ marginTop: 18 }}>
+        <div className="slider-dots-wrapper">
           <div className="slider-line"></div>
           <div className="slider-dots">
             {[1, 2, 3, 4, 5].map((value) => (
