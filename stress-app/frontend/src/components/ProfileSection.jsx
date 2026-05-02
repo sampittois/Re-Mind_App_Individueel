@@ -31,64 +31,66 @@ export default function ProfileSection({ initialName = "John Doe", onSaveName })
 
   return (
     <div className="profile-section">
-      <div className="avatar-wrap">
-        <button
-          className="avatar-button"
-          type="button"
-          onClick={() => fileRef.current?.click()}
-          aria-label="Wijzig profielfoto"
-        >
-          {avatarSrc ? (
-            <img src={avatarSrc} alt="Profielfoto" className="avatar-img" />
-          ) : (
-            <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="avatar-svg">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-          )}
-        </button>
-        <input
-          ref={fileRef}
-          onChange={onFileChange}
-          type="file"
-          accept="image/*"
-          style={{ display: "none" }}
-        />
-      </div>
-
-      <div className="profile-name-row">
-        {editing ? (
+      <div className="profile-info-column">
+        <div className="avatar-wrap">
+          <button
+            className="avatar-button"
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            aria-label="Wijzig profielfoto"
+          >
+            {avatarSrc ? (
+              <img src={avatarSrc} alt="Profielfoto" className="avatar-img" />
+            ) : (
+              <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="avatar-svg">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            )}
+          </button>
           <input
-            className="name-input"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            aria-label="Naam bewerken"
+            ref={fileRef}
+            onChange={onFileChange}
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
           />
-        ) : (
-          <h2 className="profile-name">{name}</h2>
-        )}
+        </div>
 
-        <button
-          className="edit-pencil"
-          type="button"
-          onClick={() => {
-            if (editing) {
-              onSaveName?.(name);
-              setEditing(false);
-            } else {
-              setEditing(true);
-            }
-          }}
-          aria-label={editing ? "Opslaan" : "Bewerk naam"}
-        >
-          <img src={editing ? checkIcon : editIcon} alt="edit" className="edit-icon" />
-        </button>
-      </div>
+        <div className="profile-name-row">
+          {editing ? (
+            <input
+              className="name-input"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              aria-label="Naam bewerken"
+            />
+          ) : (
+            <h2 className="profile-name">{name}</h2>
+          )}
 
-      <div className="profile-actions">
-        <button className="action-btn">Upgrade Plan</button>
-        <button className="action-btn">Link Agenda</button>
-        <button className="action-btn">Bedrijfsbeheer</button>
+          <button
+            className="edit-pencil"
+            type="button"
+            onClick={() => {
+              if (editing) {
+                onSaveName?.(name);
+                setEditing(false);
+              } else {
+                setEditing(true);
+              }
+            }}
+            aria-label={editing ? "Opslaan" : "Bewerk naam"}
+          >
+            <img src={editing ? checkIcon : editIcon} alt="edit" className="edit-icon" />
+          </button>
+        </div>
+
+        <div className="profile-actions">
+          <button className="action-btn">Upgrade Plan</button>
+          <button className="action-btn">Link Agenda</button>
+          <button className="action-btn">Bedrijfsbeheer</button>
+        </div>
       </div>
 
       <section className="favorites-section">
