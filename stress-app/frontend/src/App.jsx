@@ -46,8 +46,8 @@ export default function App() {
         <main className="page home-page">
           <h1 className="greeting">Hallo {name}!</h1>
 
-          <section className="section home-top-section">
-            <div className="rating-timer-container">
+          <section className="section home-layout">
+            <div className="home-left-column">
               <div className="rating-cards-container">
                 <StressSlider
                   label="Hoe hoog is je stressniveau nu?"
@@ -58,22 +58,23 @@ export default function App() {
                   onEnergyChange={setEnergyLevel}
                 />
               </div>
+
+              <StatsSection
+                stress={stressLevel}
+                energy={energyLevel}
+                pausesTaken={3}
+                pausesSkipped={1}
+              />
+            </div>
+
+            <div className="home-right-column">
               <div className="timer-section">
                 <Timer />
               </div>
+
+              <PauseSuggestions onViewMore={() => setCurrentPage("pause")} />
             </div>
           </section>
-
-          <div className="home-panels">
-            <StatsSection
-              stress={stressLevel}
-              energy={energyLevel}
-              pausesTaken={3}
-              pausesSkipped={1}
-            />
-
-            <PauseSuggestions onViewMore={() => setCurrentPage("pause")} />
-          </div>
         </main>
       )}
     </div>

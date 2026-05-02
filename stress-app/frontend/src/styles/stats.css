@@ -15,11 +15,11 @@
 
 .stats-grid {
 	display: grid;
-	grid-template-columns: repeat(2, max-content);
-	column-gap: var(--space-3);
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	column-gap: var(--space-5);
 	row-gap: var(--space-5);
 	align-items: start;
-    justify-content: center;
+	justify-content: stretch;
 
 }
 
@@ -27,6 +27,7 @@
 	background: var(--highlight-light);
 	border-radius: var(--radius-sm);
 	padding: var(--space-3) var(--space-4);
+	margin: 0;
 	box-shadow: 0 1px 0 rgba(0,0,0,0.02);
     width: 200px;
     display: flex;
@@ -36,18 +37,25 @@
 
 .stat-card.small {
 	min-height: 120px;
-	width: 160px;
-	justify-self: center;
+	width: 100%;
+}
+
+.stat-card.small:first-child {
+	justify-self: start;
+}
+
+.stat-card.small:nth-child(2) {
+	justify-self: end;
 }
 
 .stat-card.large {
 	grid-column: 1 / -1;
 	min-height: 160px;
-    width: 400px;
+	width: 100%;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
-	justify-self: center;
+	justify-self: stretch;
 }
 
 .stat-row {

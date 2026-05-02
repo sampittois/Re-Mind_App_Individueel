@@ -122,12 +122,12 @@ a {
 }
 
 .home-page {
-  max-width: 1600px;
+  max-width: calc(1200px + (var(--space-8) * 2));
 }
 
-.home-panels {
+.home-layout {
   display: grid;
-  grid-template-columns: 400px minmax(0, 1fr);
+  grid-template-columns: 400px 800px;
   gap: var(--space-8);
   align-items: flex-start;
   width: 100%;
@@ -135,9 +135,28 @@ a {
   margin: 0 auto;
 }
 
-.home-panels > .stats-section,
-.home-panels > .pause-suggestions {
-  min-width: 0;
+.home-left-column {
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.home-right-column {
+  width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  align-items: flex-start;
+}
+
+.home-right-column .timer-section {
+  width: 100%;
+}
+
+.home-right-column .timer-card {
+  width: 100%;
+  max-width: 100%;
 }
 
 .pause-page-shell {
@@ -148,6 +167,16 @@ a {
 
 @media (max-width: 900px) {
   .statsRow { grid-template-columns: 1fr; }
+
+  .home-layout {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  .home-left-column,
+  .home-right-column {
+    width: 100%;
+  }
 }
 
 .statBlock {
