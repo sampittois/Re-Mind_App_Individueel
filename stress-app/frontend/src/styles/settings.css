@@ -7,8 +7,9 @@
 }
 
 .settings-hours-container {
+  width: 520px;
   background: var(--highlight-light);
-  padding: 20px;
+  padding: 16px 20px;
   border-radius: 12px;
   display: flex;
   flex-direction: column;
@@ -111,7 +112,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  width: 100%;
+  width: 520px;
 }
 
 .dropdown-wrapper {
@@ -147,7 +148,7 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-  width: 100%;
+  width: 520px;
 }
 
 .toggle-row {
