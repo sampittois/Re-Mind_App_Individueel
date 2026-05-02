@@ -57,7 +57,16 @@
 	min-height: 100%;
 	padding: var(--space-4) var(--space-4) var(--space-4) var(--space-3);
 	border-left: var(--border-width-md) solid color-mix(in srgb, var(--primary) 22%, transparent);
+	background: var(--background-dark);
 	text-align: center;
+}
+
+.pause-suggestion-card:hover .pause-suggestion-card__media {
+	background: var(--background-dark);
+}
+
+.pause-suggestion-card:hover .pause-suggestion-card__body {
+	background: color-mix(in srgb, var(--highlight-light) 72%, transparent);
 }
 
 .pause-suggestion-card__title {
@@ -92,6 +101,7 @@
 	width: var(--space-5);
 	height: var(--space-4);
 	object-fit: contain;
+	transition: transform 0.15s ease, opacity 0.15s ease;
 }
 
 .pause-suggestion-card__favorite-fill {
@@ -100,16 +110,29 @@
 	margin: auto;
 	width: 24px;
 	height: 19px;
-	border-radius: 0;
-	background: var(--primary);
+	color: var(--primary);
 	opacity: 0;
-	transition: opacity 0.15s ease;
-	-webkit-mask: url("../assets/heart.svg") center / contain no-repeat;
-	mask: url("../assets/heart.svg") center / contain no-repeat;
+	transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.pause-suggestion-card__favorite-fill svg {
+	display: block;
+	width: 100%;
+	height: 100%;
 }
 
 .pause-suggestion-card__favorite.is-active .pause-suggestion-card__favorite-fill {
+	color: var(--primary);
 	opacity: 1;
+}
+
+.pause-suggestion-card__favorite.is-active img {
+	opacity: 0;
+}
+
+.pause-suggestion-card__favorite:hover img,
+.pause-suggestion-card__favorite:hover .pause-suggestion-card__favorite-fill {
+	transform: scale(0.88);
 }
 
 .pause-suggestion-card__favorite:hover {
