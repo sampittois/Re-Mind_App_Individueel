@@ -9,7 +9,7 @@ import breathing from "../assets/ademhaling.png";
 import stretching from "../assets/stretchen.png";
 import eyeReset from "../assets/oogReset.png";
 
-export default function ProfileSection({ initialName = "John Doe", onSaveName }) {
+export default function ProfileSection({ initialName = "John Doe", onSaveName, onSaveAvatar }) {
   const [name, setName] = useState(initialName);
   const [editing, setEditing] = useState(false);
   const [avatarSrc, setAvatarSrc] = useState(null);
@@ -27,6 +27,7 @@ export default function ProfileSection({ initialName = "John Doe", onSaveName })
     if (!f) return;
     const url = URL.createObjectURL(f);
     setAvatarSrc(url);
+    onSaveAvatar?.(url);
   }
 
   return (
