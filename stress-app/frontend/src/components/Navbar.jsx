@@ -36,7 +36,12 @@ export default function Navbar({ currentPage, setCurrentPage }) {
             </button>
           </nav>
 
-          <button className="profile" aria-label="Profiel" type="button">
+          <button
+            className={`profile ${currentPage === "profile" ? "active" : ""}`}
+            aria-label="Profiel"
+            type="button"
+            onClick={() => setCurrentPage("profile")}
+          >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>

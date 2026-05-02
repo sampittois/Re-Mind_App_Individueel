@@ -1,0 +1,76 @@
+import { useState, useRef } from "react";
+import "../styles/profile.css";
+
+export default function ProfileSection({ initialName = "John Doe" }) {
+  const [name, setName] = useState(initialName);
+  const [editing, setEditing] = useState(false);
+  const [avatarSrc, setAvatarSrc] = useState(null);
+  const fileRef = useRef(null);
+
+  function onFileChange(e) {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    const url = URL.createObjectURL(f);
+    setAvatarSrc(url);
+  }
+
+  return (
+    <div className="profile-section">
+      <div className="avatar-wrap">
+        <button
+          className="avatar-button"
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          aria-label="Wijzig profielfoto"
+        >
+          {avatarSrc ? (
+            <img src={avatarSrc} alt="Profielfoto" className="avatar-img" />
+          ) : (
+            <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="avatar-svg">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+          )}
+        </button>
+        <input
+          ref={fileRef}
+          onChange={onFileChange}
+          type="file"
+          accept="image/*"
+          style={{ display: "none" }}
+        />
+      </div>
+
+      <div className="profile-name-row">
+        {editing ? (
+          <input
+            className="name-input"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            aria-label="Naam bewerken"
+          />
+        ) : (
+          <h2 className="profile-name">{name}</h2>
+        )}
+
+        <button
+          className="edit-pencil"
+          type="button"
+          onClick={() => setEditing((s) => !s)}
+          aria-label={editing ? "Opslaan" : "Bewerk naam"}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M12 20h9" />
+            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+          </svg>
+        </button>
+      </div>
+
+      <div className="profile-actions">
+        <button className="action-btn">Upgrade Plan</button>
+        <button className="action-btn">Link Agenda</button>
+        <button className="action-btn">Bedrijfsbeheer</button>
+      </div>
+    </div>
+  );
+}

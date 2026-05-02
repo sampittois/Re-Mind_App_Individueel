@@ -10,6 +10,7 @@ import RatingCard from "./components/RatingCard";
 import StressSlider from "./components/StressSlider";
 import EnergySlider from "./components/EnergySlider";
 import StatsSection from "./components/StatsSection";
+import ProfileSection from "./components/ProfileSection";
 
 export default function App() {
   const [name] = useState("John Doe");
@@ -41,6 +42,10 @@ export default function App() {
       ) : currentPage === "pause" ? (
         <main className="pause-page-shell">
           <PauseSuggestions showViewMore={false} />
+        </main>
+      ) : currentPage === "profile" ? (
+        <main className="page profile-page">
+          <ProfileSection initialName={name} />
         </main>
       ) : (
         <main className="page home-page">
