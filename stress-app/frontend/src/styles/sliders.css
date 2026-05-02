@@ -1,10 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap');
-
 /* Slider Cards */
 .slider-card {
-  background: var(--surface-card);
-  border: var(--border-width-sm) solid var(--border-color-default);
-  border-radius: var(--border-container-radius);
+  background: var(--background-dark);
+  border: var(--border-width-sm) solid var(--border);
+  border-radius: var(--radius-lg);
   padding: var(--space-4);
   display: flex;
   flex-direction: column;
@@ -19,7 +17,7 @@
   font-family: var(--text-heading-3-font-family);
   font-size: var(--text-heading-3-font-size);
   font-weight: var(--text-heading-3-font-weight);
-  color: var(--text-primary);
+  color: var(--text);
 }
 
 .slider-icon {
@@ -34,34 +32,34 @@
 
 /* Stress card tokens (overrides for the stress slider) */
 .stress-slider-card {
-  background: #f4edd9;
-  border: 2px solid #a8bfaf;
-  border-radius: 20px;
-  padding: 20px;
+  background: var(--background-dark);
+  border: var(--border-width-md) solid var(--highlight);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
   width: 400px;
   box-sizing: border-box;
 }
 
 .stress-slider-card .slider-label {
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .energy-slider-card .slider-label {
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .slider-header-text {
-  font-family: Nunito, var(--font-family-body);
-  font-size: 20px;
-  font-weight: 400;
-  color: #1a1a1a;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+  color: var(--text);
 }
 
 /* Scale Container */
 .slider-scale-container {
   display: flex;
   flex-direction: column;
-  gap: 16px; /* vertical stack gap between header and slider */
+  gap: var(--space-4); /* vertical stack gap between header and slider */
   position: relative; /* allow absolute positioning of numbers */
 }
 
@@ -80,10 +78,10 @@
 }
 
 .slider-number {
-  font-family: Nunito, var(--text-body-regular-font-family);
-  font-size: 18px;
-  font-weight: 400;
-  color: #596e62;
+  font-family: var(--font-family-body);
+  font-size: var(--text-body-regular-font-size);
+  font-weight: var(--font-weight-regular);
+  color: var(--primary-dark);
   flex: 1 1 0;
   text-align: center;
   box-sizing: border-box;
@@ -95,7 +93,7 @@
   height: 40px;
   display: flex;
   align-items: center;
-  margin-top: 28px; /* increased gap so numbers sit comfortably above dots */
+  margin-top: var(--space-7); /* increased gap so numbers sit comfortably above dots */
 }
 
 /* Connecting Line */
@@ -106,7 +104,7 @@
   left: calc(8px + 6px);
   right: calc(8px + 6px);
   height: 4px; /* track height */
-  background: #e4ebe6; /* light sage */
+  background: var(--highlight-light); /* light sage */
   border-radius: 2px;
   transform: translateY(-50%);
   z-index: 1;
@@ -119,16 +117,16 @@
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   width: 100%;
-  padding: 0 8px; /* match numbers padding so centers align */
+  padding: 0 var(--space-2); /* match numbers padding so centers align */
 }
 
 /* Slider Dot - base is small (12px) to match 2-5 positions */
 .slider-dot {
   width: 12px;
   height: 12px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   border: none;
-  background: #a8bfaf; /* default highlight color for dots */
+  background: var(--highlight); /* default highlight color for dots */
   cursor: pointer;
   transition: transform 0.16s ease, background 0.16s ease;
   padding: 0;
@@ -144,7 +142,7 @@
 /* Active dot styling applied to all slider cards (stress & energy use identical active look) */
 .slider-card .slider-dot.active {
   transform: scale(1.6);
-  background: #769382; /* active dark sage */
+  background: var(--primary); /* active dark sage */
   box-shadow: 0 4px 12px rgba(118, 147, 130, 0.12);
   z-index: 3;
 }
@@ -153,10 +151,10 @@
 
 /* Energy card should visually match the stress card */
 .energy-slider-card {
-  background: #f4edd9;
-  border: 2px solid #a8bfaf;
-  border-radius: 20px;
-  padding: 20px;
+  background: var(--background-dark);
+  border: var(--border-width-md) solid var(--highlight);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
   width: 400px;
   box-sizing: border-box;
 }
@@ -176,7 +174,7 @@
 
   .slider-dot.active {
     border-width: 2px;
-    box-shadow: 0 0 0 2px var(--surface-card);
+    box-shadow: 0 0 0 2px var(--background-dark);
   }
 
   .slider-scale-container {
