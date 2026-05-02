@@ -4,6 +4,7 @@ import editIcon from "../assets/edit.svg";
 import checkIcon from "../assets/check.svg";
 import xIcon from "../assets/x.svg";
 import PauseCard from "./PauseCard";
+import SettingsSection from "./SettingsSection";
 import breathing from "../assets/ademhaling.png";
 import stretching from "../assets/stretchen.png";
 import eyeReset from "../assets/oogReset.png";
@@ -107,6 +108,8 @@ export default function ProfileSection({ initialName = "John Doe", onSaveName })
           ))}
         </div>
       </section>
+
+      <SettingsSection />
     </div>
   );
 }
