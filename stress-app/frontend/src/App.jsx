@@ -13,7 +13,7 @@ import StatsSection from "./components/StatsSection";
 import ProfileSection from "./components/ProfileSection";
 
 export default function App() {
-  const [name] = useState("John Doe");
+  const [name, setName] = useState("John Doe");
   const [stressLevel, setStressLevel] = useState(3);
   const [energyLevel, setEnergyLevel] = useState(2);
 
@@ -45,7 +45,7 @@ export default function App() {
         </main>
       ) : currentPage === "profile" ? (
         <main className="page profile-page">
-          <ProfileSection initialName={name} />
+          <ProfileSection initialName={name} onSaveName={(n) => setName(n)} />
         </main>
       ) : (
         <main className="page home-page">

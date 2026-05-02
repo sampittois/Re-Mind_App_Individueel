@@ -1,7 +1,9 @@
 import { useState, useRef } from "react";
 import "../styles/profile.css";
+import editIcon from "../assets/edit.svg";
+import checkIcon from "../assets/check.svg";
 
-export default function ProfileSection({ initialName = "John Doe" }) {
+export default function ProfileSection({ initialName = "John Doe", onSaveName }) {
   const [name, setName] = useState(initialName);
   const [editing, setEditing] = useState(false);
   const [avatarSrc, setAvatarSrc] = useState(null);
@@ -56,13 +58,17 @@ export default function ProfileSection({ initialName = "John Doe" }) {
         <button
           className="edit-pencil"
           type="button"
-          onClick={() => setEditing((s) => !s)}
+          onClick={() => {
+            if (editing) {
+              onSaveName?.(name);
+              setEditing(false);
+            } else {
+              setEditing(true);
+            }
+          }}
           aria-label={editing ? "Opslaan" : "Bewerk naam"}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 20h9" />
-            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
-          </svg>
+          <img src={editing ? checkIcon : editIcon} alt="edit" className="edit-icon" />
         </button>
       </div>
 
