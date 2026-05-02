@@ -1,12 +1,12 @@
 /* Stats section styles */
 .stats-section {
-	padding: 12px 0;
+	padding: var(--space-3) 0;
     max-width: 400px;
 	margin-top: var(--space-2);
 }
 
 .section-title {
-	margin: 0 0 12px 4px;
+	margin: 0 0 var(--space-3) var(--space-1);
 	font-family: var(--font-family-heading);
 	font-weight: var(--font-weight-semibold);
 	font-size: var(--text-heading-2-font-size);
@@ -16,7 +16,7 @@
 .stats-grid {
 	display: grid;
 	grid-template-columns: repeat(2, 1fr);
-	gap: 12px;
+	gap: var(--space-3);
 	align-items: start;
     justify-content: center;
 
@@ -24,8 +24,8 @@
 
 .stat-card {
 	background: var(--highlight-light);
-	border-radius: 12px;
-	padding: 14px 16px;
+	border-radius: var(--radius-sm);
+	padding: var(--space-3) var(--space-4);
 	box-shadow: 0 1px 0 rgba(0,0,0,0.02);
     width: 200px;
     display: flex;
@@ -49,7 +49,7 @@
 .stat-row {
 	display: flex;
 	align-items: center;
-	gap: 10px;
+	gap: var(--space-2);
 }
 
 .stat-icon {
@@ -64,7 +64,7 @@
 }
 
 .stat-number {
-	margin-top: 10px;
+	margin-top: var(--space-2);
 	font-family: var(--font-family-heading);
 	font-weight: var(--font-weight-extrabold);
 	font-size: 44px;
@@ -74,7 +74,7 @@
 
 .stat-number-row {
 	display: flex;
-	gap: 40px;
+	gap: var(--space-8);
 	align-items: baseline;
 	margin-top: 8px;
 }
@@ -92,7 +92,7 @@
 
 .split-labels {
 	display: flex;
-	gap: 40px;
+	gap: var(--space-8);
 	margin-top: 6px;
 }
 
