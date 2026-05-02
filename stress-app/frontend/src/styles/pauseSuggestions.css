@@ -104,6 +104,16 @@
 	transition: transform 0.15s ease, opacity 0.15s ease;
 }
 
+/* keep custom favorite icons (like x.svg) visible even when button is active */
+.pause-suggestion-card__favorite-custom {
+  position: relative;
+  z-index: 2;
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  opacity: 1 !important;
+}
+
 .pause-suggestion-card__favorite-fill {
 	position: absolute;
 	inset: 0;

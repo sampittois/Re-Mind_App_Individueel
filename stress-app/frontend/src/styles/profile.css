@@ -85,6 +85,24 @@
   margin-top: 6px;
 }
 
+.favorites-section {
+  width: 100%;
+  margin-top: 18px;
+}
+
+.favorites-title {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-lg);
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+}
+
+.favorites-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .action-btn {
   font-family: var(--font-family-heading);
   color: var(--text);

@@ -2,12 +2,24 @@ import { useState, useRef } from "react";
 import "../styles/profile.css";
 import editIcon from "../assets/edit.svg";
 import checkIcon from "../assets/check.svg";
+import xIcon from "../assets/x.svg";
+import PauseCard from "./PauseCard";
+import breathing from "../assets/ademhaling.png";
+import stretching from "../assets/stretchen.png";
+import eyeReset from "../assets/oogReset.png";
 
 export default function ProfileSection({ initialName = "John Doe", onSaveName }) {
   const [name, setName] = useState(initialName);
   const [editing, setEditing] = useState(false);
   const [avatarSrc, setAvatarSrc] = useState(null);
   const fileRef = useRef(null);
+  const [favorites, setFavorites] = useState(() => {
+    return [
+      { id: "breath", title: "Ademhaling", icon: breathing },
+      { id: "stretch", title: "Stretchen", icon: stretching },
+      { id: "eye-reset", title: "Oog reset", icon: eyeReset },
+    ];
+  });
 
   function onFileChange(e) {
     const f = e.target.files && e.target.files[0];
@@ -77,6 +89,24 @@ export default function ProfileSection({ initialName = "John Doe", onSaveName })
         <button className="action-btn">Link Agenda</button>
         <button className="action-btn">Bedrijfsbeheer</button>
       </div>
+
+      <section className="favorites-section">
+        <h3 className="favorites-title">Favorieten</h3>
+        <div className="favorites-column">
+          {Array.from(favorites).map((item) => (
+            <PauseCard
+              key={item.id}
+              icon={item.icon}
+              title={item.title}
+              isFavorite={true}
+              favoriteIcon={xIcon}
+              onToggleFavorite={() => {
+                setFavorites((prev) => prev.filter((p) => p.id !== item.id));
+              }}
+            />
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
