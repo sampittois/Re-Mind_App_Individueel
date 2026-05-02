@@ -34,7 +34,7 @@ a {
   font-weight: var(--text-heading-1-font-weight);
   letter-spacing: var(--text-heading-1-letter-spacing);
   color: var(--primary);
-  text-align: center;
+  text-align: left;
 }
 
 .section { 
