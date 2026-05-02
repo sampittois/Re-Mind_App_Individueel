@@ -30,6 +30,11 @@ export default function ProfileSection({ initialName = "John Doe", onSaveName, o
     onSaveAvatar?.(url);
   }
 
+  function onRemoveAvatar() {
+    setAvatarSrc(null);
+    onSaveAvatar?.(null);
+  }
+
   return (
     <div className="profile-section">
       <div className="profile-info-column">
@@ -49,6 +54,16 @@ export default function ProfileSection({ initialName = "John Doe", onSaveName, o
               </svg>
             )}
           </button>
+          {avatarSrc && (
+            <button
+              className="avatar-remove-btn"
+              type="button"
+              onClick={onRemoveAvatar}
+              aria-label="Verwijder profielfoto"
+            >
+              <img src={xIcon} alt="remove" />
+            </button>
+          )}
           <input
             ref={fileRef}
             onChange={onFileChange}
