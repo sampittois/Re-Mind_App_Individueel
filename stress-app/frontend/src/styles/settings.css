@@ -141,7 +141,7 @@
 
 .dropdown:focus {
   outline: none;
-  border-color: var(--primary, #769382);
+  border-color: var(--primary);
 }
 
 /* Toggles Group */
