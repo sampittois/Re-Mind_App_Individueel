@@ -144,6 +144,18 @@
   border-color: var(--primary);
 }
 
+/* Dropdown Options */
+option {
+  background: var(--highlight-light);
+  border: 2px solid var(--primary-dark);
+  border-radius: 4px;
+}
+
+option:hover {
+  background: var(--primary);
+  color: var(--background);
+}
+
 /* Toggles Group */
 .toggles-group {
   display: flex;
