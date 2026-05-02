@@ -34,6 +34,7 @@ a {
   font-weight: var(--text-heading-1-font-weight);
   letter-spacing: var(--text-heading-1-letter-spacing);
   color: var(--primary);
+  text-align: center;
 }
 
 .section { 
@@ -45,6 +46,9 @@ a {
   display: flex;
   gap: var(--space-6);
   align-items: flex-start;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .rating-cards-container {
@@ -126,6 +130,9 @@ a {
   grid-template-columns: 400px minmax(0, 1fr);
   gap: var(--space-8);
   align-items: flex-start;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .home-panels > .stats-section,
