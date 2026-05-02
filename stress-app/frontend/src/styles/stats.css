@@ -15,8 +15,9 @@
 
 .stats-grid {
 	display: grid;
-	grid-template-columns: repeat(2, 1fr);
-	gap: var(--space-3);
+	grid-template-columns: repeat(2, max-content);
+	column-gap: var(--space-3);
+	row-gap: var(--space-5);
 	align-items: start;
     justify-content: center;
 
@@ -34,7 +35,9 @@
 }
 
 .stat-card.small {
-	min-height: 140px;
+	min-height: 120px;
+	width: 160px;
+	justify-self: center;
 }
 
 .stat-card.large {
@@ -44,6 +47,7 @@
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
+	justify-self: center;
 }
 
 .stat-row {
