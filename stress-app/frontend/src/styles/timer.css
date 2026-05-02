@@ -27,15 +27,19 @@
   border-radius: var(--radius-md);
   color: var(--text);
   padding: var(--space-3) var(--space-4);
-  font-weight: var(--font-weight-bold);
+  font-family: var(--text-button-label-font-family);
+  font-size: var(--text-button-label-font-size);
+  line-height: var(--text-button-label-line-height);
+  font-weight: var(--text-button-label-font-weight);
   cursor: pointer;
 }
 
 .btnStack .muted {
   color: var(--text-light);
-  font-family: var(--font-family-body);
-  font-size: var(--font-size-xxs);
-  font-weight: var(--font-weight-semibold);
+  font-family: var(--text-body-small-font-family);
+  font-size: var(--text-body-small-font-size);
+  line-height: var(--text-body-small-line-height);
+  font-weight: var(--text-body-small-font-weight);
 }
 
 .btnStack > div:not(.muted) {
