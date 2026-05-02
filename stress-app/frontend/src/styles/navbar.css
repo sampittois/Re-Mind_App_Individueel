@@ -1,8 +1,8 @@
 .nav {
   background: var(--highlight-light);
-  border-bottom: 1px solid var(--border);
+  border-bottom: var(--border-width-sm) solid var(--border);
   font-family: var(--font-family-body);
-  height: 64px;
+  height: var(--space-10);
 }
 
 .nav button:not(.profile) {
@@ -62,8 +62,8 @@
   background: none;
   border: none;
   font-family: var(--font-family-body);
-  font-weight: 600;
-  font-size: 15px;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-xs);
   color: var(--text);
   cursor: pointer;
   opacity: 1;
@@ -93,7 +93,7 @@
   flex-shrink: 0;
   width: 44px;
   height: 44px;
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   border: none;
   background: var(--primary);
   cursor: pointer;
