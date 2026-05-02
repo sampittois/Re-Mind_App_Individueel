@@ -24,12 +24,10 @@
 .pause-suggestion-card {
 	position: relative;
 	width: 240px;
-	min-height: 132px;
-	padding: 18px 18px 16px;
+	min-height: 128px;
 	display: grid;
-	grid-template-columns: 92px 1fr;
-	column-gap: 14px;
-	align-items: start;
+	grid-template-columns: 82px 1fr;
+	overflow: hidden;
 	border: 2px solid var(--primary);
 	border-radius: 20px;
 	background: var(--background-dark);
@@ -39,26 +37,34 @@
 
 .pause-suggestion-card__media {
 	display: flex;
-	align-items: flex-start;
+	align-items: center;
 	justify-content: center;
+	padding: 16px 10px;
+	background: color-mix(in srgb, var(--highlight-light) 72%, transparent);
 }
 
 .pause-suggestion-card__media img {
 	display: block;
-	width: 90px;
-	height: 90px;
+	width: 64px;
+	height: 64px;
 	object-fit: contain;
 }
 
 .pause-suggestion-card__body {
-	padding-top: 2px;
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	min-height: 100%;
+	padding: 16px 18px 16px 14px;
+	border-left: 2px solid color-mix(in srgb, var(--primary) 22%, transparent);
+	text-align: center;
 }
 
-.pause-suggestion-card__body h3 {
-	margin: 0;
+.pause-suggestion-card__title {
+	margin: var(--space-5) 0 0;
 	font-family: var(--font-family-body);
 	font-size: var(--font-size-sm);
-	line-height: 1.1;
+	line-height: 1.2;
 	font-weight: var(--font-weight-regular);
 	color: var(--text);
 }

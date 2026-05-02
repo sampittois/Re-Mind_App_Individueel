@@ -8,7 +8,7 @@ export default function PauseCard({ icon, title, isFavorite, onToggleFavorite })
       </div>
 
       <div className="pause-suggestion-card__body">
-        <h3>{title}</h3>
+        <h3 className="pause-suggestion-card__title">{title}</h3>
       </div>
 
       <button
