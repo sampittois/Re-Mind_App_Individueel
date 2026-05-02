@@ -5,8 +5,8 @@ body {
   font-size: var(--text-body-regular-font-size);
   line-height: var(--text-body-regular-line-height);
   font-weight: var(--text-body-regular-font-weight);
-  background: var(--surface-page); 
-  color: var(--text-primary); 
+  background: var(--background); 
+  color: var(--text); 
 }
 
 a { 
@@ -23,7 +23,7 @@ a {
   max-width: 1100px;
   margin-left: auto;
   margin-right: auto;
-  padding: var(--space-7) 40px var(--space-10);
+  padding: var(--space-7) var(--space-8) var(--space-10);
 }
 
 .greeting { 
@@ -83,9 +83,9 @@ a {
 }
 
 .card {
-  background: var(--surface-card);
-  border: var(--border-width-sm) solid var(--border-color-default);
-  border-radius: var(--border-container-radius);
+  background: var(--background-dark);
+  border: var(--border-width-sm) solid var(--border);
+  border-radius: var(--radius-lg);
   padding: var(--layout-card-padding);
 }
 
@@ -98,12 +98,12 @@ a {
   margin: 0 0 10px;
 }
 
-.muted { color: var(--text-secondary); }
+.muted { color: var(--text-light); }
 
 .btn {
-  border: var(--border-width-sm) solid var(--border-color-default);
-  background: var(--surface-card);
-  color: var(--text-primary);
+  border: var(--border-width-sm) solid var(--border);
+  background: var(--background-dark);
+  color: var(--text);
   border-radius: var(--radius-full);
   padding: var(--space-3) var(--space-4);
   font-weight: var(--font-weight-bold);
@@ -111,8 +111,8 @@ a {
 }
 
 .btnPrimary {
-  background: var(--surface-card);
-  border: var(--border-width-md) solid var(--border-color-brand);
+  background: var(--background-dark);
+  border: var(--border-width-md) solid var(--primary);
 }
 
 .statsRow {
@@ -154,7 +154,7 @@ a {
   text-align: center;
   padding: var(--space-3);
   border-radius: var(--radius-md);
-  border: var(--border-width-sm) solid var(--border-color-default);
+  border: var(--border-width-sm) solid var(--border);
 }
 
 .statTop {
@@ -168,10 +168,10 @@ a {
 }
 
 .adviceBox {
-  border: var(--border-width-md) solid var(--text-primary);
+  border: var(--border-width-md) solid var(--text);
   border-radius: var(--radius-md);
   padding: var(--space-4);
-  background: var(--surface-card);
+  background: var(--background-dark);
   max-width: 900px;
 }
 
@@ -183,7 +183,7 @@ a {
 .pause-page {
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--space-8) 40px;
+  padding: var(--space-8) var(--space-8);
 }
 
 .pause-page h1 {
@@ -207,16 +207,16 @@ a {
 .pause-tab {
   padding: var(--space-3) var(--space-8);
   border-radius: var(--radius-full);
-  border: var(--border-width-sm) solid var(--border-color-default);
-  background: var(--surface-card);
+  border: var(--border-width-sm) solid var(--border);
+  background: var(--background-dark);
   cursor: pointer;
-  font-size: 15px;
-  color: var(--text-primary);
+  font-size: var(--font-size-xs);
+  color: var(--text);
 }
 
 .pause-tab.active {
-  background: var(--surface-section);
-  border-color: var(--surface-section);
+  background: var(--highlight-light);
+  border-color: var(--highlight-light);
 }
 
 /* Grid */
@@ -238,16 +238,16 @@ a {
 .pause-card {
   position: relative;
   display: flex;
-  border: var(--border-width-sm) solid var(--text-primary);
-  border-radius: var(--border-container-radius);
+  border: var(--border-width-sm) solid var(--text);
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  background: var(--surface-card);
+  background: var(--background-dark);
   min-height: 120px;
 }
 
 .pause-iconBox {
   width: 120px;
-  background: var(--surface-section);
+  background: var(--highlight-light);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -283,10 +283,10 @@ a {
   width: 40px;
   height: 40px;
   border-radius: var(--radius-full);
-  border: var(--border-width-sm) solid var(--text-primary);
-  background: var(--surface-section);
+  border: var(--border-width-sm) solid var(--text);
+  background: var(--highlight-light);
   cursor: pointer;
-  font-size: 18px;
+  font-size: var(--text-body-regular-font-size);
   line-height: 1;
   display: flex;
   align-items: center;
@@ -294,8 +294,8 @@ a {
 }
 
 .pause-favBtn.active {
-  background: var(--surface-section);
-  color: var(--text-primary);
+  background: var(--highlight-light);
+  color: var(--text);
 }
 
 /* Responsive */
@@ -338,8 +338,8 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
-  color: #111;
+  font-size: var(--font-size-lg);
+  color: var(--text);
 }
 
 .back-btn:hover {
@@ -357,17 +357,17 @@ a {
 .filter-btn {
   padding: var(--space-3) var(--space-8);
   border-radius: var(--radius-full);
-  border: var(--border-width-sm) solid var(--border-color-default);
-  background: var(--surface-card);
+  border: var(--border-width-sm) solid var(--border);
+  background: var(--background-dark);
   cursor: pointer;
-  font-size: 15px;
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
-  color: var(--text-primary);
+  color: var(--text);
 }
 
 .filter-btn.active {
-  background: #d9d9d9;
-  border-color: #d9d9d9;
+  background: var(--highlight-light);
+  border-color: var(--highlight-light);
 }
 
 /* Breathing Grid */
@@ -382,9 +382,9 @@ a {
 /* Breathing Card */
 .breathing-card {
   position: relative;
-  border: 1.5px solid #2b2b2b;
-  border-radius: 18px;
-  background: white;
+  border: var(--border-width-md) solid var(--text);
+  border-radius: var(--radius-lg);
+  background: var(--background);
   padding: var(--space-9) var(--space-5);
   min-height: 140px;
   display: flex;
@@ -408,11 +408,11 @@ a {
   right: calc(var(--space-4) * -1);
   width: 40px;
   height: 40px;
-  border-radius: 999px;
-  border: 1.5px solid #2b2b2b;
-  background: #e1e1e1;
+  border-radius: var(--radius-full);
+  border: var(--border-width-md) solid var(--text);
+  background: var(--highlight-hover);
   cursor: pointer;
-  font-size: 18px;
+  font-size: var(--text-body-regular-font-size);
   line-height: 1;
   display: flex;
   align-items: center;
@@ -420,8 +420,8 @@ a {
 }
 
 .breathing-fav-btn.active {
-  background: #d9d9d9;
-  color: #000;
+  background: var(--highlight-light);
+  color: var(--text);
 }
 
 /* Help button */
@@ -432,19 +432,19 @@ a {
   width: 60px;
   height: 60px;
   padding: 0;
-  border-radius: 999px;
-  border: 3px solid #2b2b2b;
-  background: white;
+  border-radius: var(--radius-full);
+  border: var(--border-width-md) solid var(--text);
+  background: var(--background);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #111;
-  font-size: 32px;
+  color: var(--text);
+  font-size: var(--font-size-xl);
 }
 
 .help-btn:hover {
-  background: #f5f5f5;
+  background: var(--highlight-hover);
 }
 
 /* Clickable pause card */
