@@ -32,11 +32,18 @@
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-md);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .reports-back img {
   width: 20px;
   height: 18px;
+}
+
+.back-btn.reports-back:hover {
+  background: var(--primary-dark);
+  border-color: var(--primary);
+  opacity: 1;
 }
 
 .reports-toggle {
