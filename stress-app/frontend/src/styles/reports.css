@@ -20,38 +20,55 @@
 .reports-back {
   position: absolute;
   left: 0;
-  top: calc(var(--space-10) + 40px - var(--space-5));
-  background: none;
-  border: none;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  background: var(--primary);
+  border: var(--border-width-sm) solid var(--primary-dark);
   cursor: pointer;
-  padding: var(--space-2);
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
 }
 
 .reports-back img {
-  width: 28px;
-  height: 28px;
+  width: 20px;
+  height: 18px;
 }
 
 .reports-toggle {
   display: inline-flex;
-  gap: var(--space-4);
-  background: var(--background-dark);
-  border: var(--border-width-sm) solid var(--border);
-  padding: 6px;
+  gap: 0;
+  background: var(--highlight-light);
+  border: var(--border-width-sm) solid var(--primary-dark);
+  padding: 4px;
   border-radius: var(--radius-md);
+  width: 240px;
+  height: 40px;
 }
 
 .toggle-btn {
+  flex: 1;
   background: none;
   border: none;
   padding: var(--space-2) var(--space-5);
   cursor: pointer;
   border-radius: var(--radius-sm);
+  font-weight: var(--font-weight-semibold);
 }
 
 .toggle-btn.active {
   background: var(--primary);
   color: var(--background);
+  border: var(--border-width-sm) solid var(--primary-dark);
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2) var(--space-4);
 }
 
 .premium-icon {
