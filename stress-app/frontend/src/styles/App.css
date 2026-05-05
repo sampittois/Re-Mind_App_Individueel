@@ -21,9 +21,9 @@ a {
 
 .page {
   max-width: 1100px;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0 auto;
   padding: var(--space-7) var(--space-8) var(--space-10);
+  width: 100%;
 }
 
 .greeting { 
@@ -133,6 +133,7 @@ a {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
+  justify-self: center;
 }
 
 .home-left-column {
@@ -480,4 +481,13 @@ a {
 .pause-card.clickable {
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* Exercise detail page */
+.exercise-detail-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-6) var(--space-11);
+  position: relative;
+  width: 100%;
 }
