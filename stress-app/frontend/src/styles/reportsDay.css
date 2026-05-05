@@ -1,0 +1,73 @@
+/* =========================
+   Reports Day / Daily View
+   ========================= */
+
+.reports-layout {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: var(--space-8);
+  align-items: start;
+}
+
+.reports-left {
+  /* spacing handled by child components */
+}
+
+.reports-right h1 {
+  margin: 0 0 var(--space-3);
+}
+
+.reports-desc {
+  margin: 0 0 var(--space-6);
+  color: var(--text-light);
+}
+
+.timeline {
+  background: var(--background-dark);
+  border: var(--border-width-sm) solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+}
+
+.timeline-item {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.timeline-item:last-child {
+  border-bottom: none;
+}
+
+.timeline-icon img {
+  width: 36px;
+  height: 36px;
+}
+
+.timeline-content {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.timeline-time {
+  color: var(--text-light);
+}
+
+.timeline-title {
+  font-weight: var(--font-weight-bold);
+}
+
+.timeline-text {
+  color: var(--text-light);
+}
+
+.timeline-warning {
+  background: var(--warning-light);
+  border: 1px solid var(--warning);
+  border-radius: var(--radius-md);
+  padding: 8px;
+}

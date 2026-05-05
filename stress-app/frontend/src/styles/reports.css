@@ -1,0 +1,62 @@
+/* =========================
+   Reports / Rapporten
+   ========================= */
+
+.reports-page {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-8) var(--space-10);
+}
+
+.reports-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: var(--space-6);
+}
+
+.reports-back {
+  position: absolute;
+  left: 0;
+  top: calc(var(--space-10) + 40px - var(--space-5));
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-2);
+}
+
+.reports-back img {
+  width: 28px;
+  height: 28px;
+}
+
+.reports-toggle {
+  display: inline-flex;
+  gap: var(--space-4);
+  background: var(--background-dark);
+  border: var(--border-width-sm) solid var(--border);
+  padding: 6px;
+  border-radius: var(--radius-md);
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  padding: var(--space-2) var(--space-5);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.toggle-btn.active {
+  background: var(--primary);
+  color: var(--background);
+}
+
+.premium-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  vertical-align: middle;
+}

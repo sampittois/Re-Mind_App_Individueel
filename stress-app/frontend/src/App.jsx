@@ -11,6 +11,7 @@ import StressSlider from "./components/StressSlider";
 import EnergySlider from "./components/EnergySlider";
 import StatsSection from "./components/StatsSection";
 import ProfileSection from "./components/ProfileSection";
+import Reports from "./components/Reports";
 
 export default function App() {
   const [name, setName] = useState("John Doe");
@@ -40,6 +41,8 @@ export default function App() {
             setCurrentPage("exercise-detail");
           }}
         />
+      ) : currentPage === "reports" ? (
+        <Reports setCurrentPage={setCurrentPage} />
       ) : currentPage === "pause" ? (
         <main className="pause-page-shell">
           <PauseSuggestions showViewMore={false} />
