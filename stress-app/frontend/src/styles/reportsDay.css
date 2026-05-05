@@ -28,6 +28,19 @@
   border: var(--border-width-sm) solid var(--border);
   border-radius: var(--radius-lg);
   padding: var(--space-6);
+  position: relative;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: calc(var(--space-6) + 20px);
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  background: var(--border);
+  z-index: 0;
+  pointer-events: none;
 }
 
 .timeline-item {
@@ -48,6 +61,8 @@
   justify-content: center;
   flex-shrink: 0;
   overflow: hidden;
+  position: relative;
+  z-index: 1;
 }
 
 .timeline-icon img {
@@ -78,7 +93,7 @@
 
 .timeline-warning {
   background: var(--warning-light);
-  border: 1px solid var(--warning);
+  border: var(--border-width-sm) solid var(--warning);
   border-radius: var(--radius-md);
   padding: var(--space-3);
 }
