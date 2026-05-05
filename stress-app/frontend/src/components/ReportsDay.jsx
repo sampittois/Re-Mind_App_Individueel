@@ -39,7 +39,6 @@ export default function ReportsDay() {
         </div>
 
         <div style={{ marginTop: "24px" }}>
-          <h2 className="sectionTitle">Stats</h2>
           <StatsSection stress={3} energy={2} pausesTaken={3} pausesSkipped={1} />
         </div>
       </aside>
