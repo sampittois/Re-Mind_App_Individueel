@@ -38,9 +38,7 @@ export default function ReportsDay() {
           <EnergySlider label="Wat is jouw energie level nu?" />
         </div>
 
-        <div style={{ marginTop: "24px" }}>
-          <StatsSection stress={3} energy={2} pausesTaken={3} pausesSkipped={1} />
-        </div>
+        <StatsSection stress={3} energy={2} pausesTaken={3} pausesSkipped={1} />
       </aside>
 
       <section className="reports-right">
