@@ -47,20 +47,22 @@ export default function ReportsDay() {
 
         <div className="timeline">
           {timeline.map((item) => (
-            <div key={item.id} className={`timeline-item ${item.type === "warning" ? "timeline-warning" : ""}`}>
+            <div key={item.id} className="timeline-item">
               <div className="timeline-icon">
                 <img src={renderIcon(item)} alt="icon" />
               </div>
 
-              <div className="timeline-time">{item.time}</div>
+              <div className={`timeline-content ${item.type === "warning" ? "timeline-warning" : ""}`}>
+                <div className="timeline-time">{item.time}</div>
 
-              <div className="timeline-topic">
-                {item.type === "pause" ? "Pauze" : item.type === "warning" ? "Waarschuwing" : "Stress"}
-                {item.type !== "pause" && item.stress != null ? `: ${item.stress}/5` : null}
-                {item.type !== "pause" && item.energy != null ? ` • Energie: ${item.energy}/5` : null}
+                <div className="timeline-topic">
+                  {item.type === "pause" ? "Pauze" : item.type === "warning" ? "Waarschuwing" : "Stress"}
+                  {item.type !== "pause" && item.stress != null ? `: ${item.stress}/5` : null}
+                  {item.type !== "pause" && item.energy != null ? ` • Energie: ${item.energy}/5` : null}
+                </div>
+
+                <div className="timeline-info">{item.text}</div>
               </div>
-
-              <div className="timeline-info">{item.text}</div>
             </div>
           ))}
         </div>
