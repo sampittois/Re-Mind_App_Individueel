@@ -52,15 +52,15 @@ export default function ReportsDay() {
                 <img src={renderIcon(item)} alt="icon" />
               </div>
 
-              <div className="timeline-content">
-                <div className="timeline-time">{item.time}</div>
-                <div className="timeline-title">
-                  {item.type === "pause" ? "Pauze" : item.type === "warning" ? "Waarschuwing" : "Stress: "}
-                  {item.type !== "pause" && item.stress != null ? ` ${item.stress}/5` : null}
-                  {item.type !== "pause" && item.energy != null ? ` • Energie: ${item.energy}/5` : null}
-                </div>
-                <div className="timeline-text">{item.text}</div>
+              <div className="timeline-time">{item.time}</div>
+
+              <div className="timeline-topic">
+                {item.type === "pause" ? "Pauze" : item.type === "warning" ? "Waarschuwing" : "Stress"}
+                {item.type !== "pause" && item.stress != null ? `: ${item.stress}/5` : null}
+                {item.type !== "pause" && item.energy != null ? ` • Energie: ${item.energy}/5` : null}
               </div>
+
+              <div className="timeline-info">{item.text}</div>
             </div>
           ))}
         </div>
