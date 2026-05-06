@@ -1,6 +1,8 @@
+
 import { useState } from "react";
 import "../styles/login.css";
 import Breathe from "./Breathe";
+import { supabase } from "../lib/supabaseClient";
 
 export default function RegisterPage({ onRegister, onGoToLogin }) {
   const [email, setEmail] = useState("");
@@ -9,9 +11,21 @@ export default function RegisterPage({ onRegister, onGoToLogin }) {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState("");
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    onRegister?.();
+    setError("");
+    if (password !== confirmPassword) {
+      setError("Wachtwoorden komen niet overeen.");
+      return;
+    }
+    if (!acceptedTerms) {
+      setError("Je moet akkoord gaan met de voorwaarden.");
+      return;
+    }
+
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) setError(error.message);
+    else onRegister?.();
   }
 
   return (

@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./styles/App.css";
+import { supabase } from "./lib/supabaseClient";
 
 import Navbar from "./components/Navbar";
 import Timer from "./components/Timer";
@@ -24,6 +25,7 @@ export default function App() {
 
   const [currentPage, setCurrentPage] = useState("home");
   const [selectedExercise, setSelectedExercise] = useState(null);
+  const [user, setUser] = useState(null);
 
 
   let pageContent;
@@ -126,6 +128,26 @@ export default function App() {
       </main>
     );
   }
+
+  useEffect(() => {
+    let mounted = true;
+    supabase.auth.getUser().then(({ data }) => {
+      if (!mounted) return;
+      setUser(data?.user ?? null);
+    });
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        setCurrentPage("home");
+      }
+    });
+
+    return () => {
+      mounted = false;
+      sub?.subscription?.unsubscribe?.();
+    };
+  }, []);
 
   return (
     <div className="app">

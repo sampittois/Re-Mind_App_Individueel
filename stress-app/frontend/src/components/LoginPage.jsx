@@ -1,14 +1,20 @@
+
 import { useState } from "react";
 import "../styles/login.css";
 import Breathe from "./Breathe";
+import { supabase } from "../lib/supabaseClient";
 
 export default function LoginPage({ onLogin, onGoToRegister }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    onLogin?.();
+    setError("");
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) setError(error.message);
+    else onLogin?.();
   }
 
   return (
@@ -33,6 +39,7 @@ export default function LoginPage({ onLogin, onGoToRegister }) {
             <label className="form-label">Wachtwoord</label>
             <input type="password" className="form-input" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
 
+            {error && <p className="form-error">{error}</p>}
             <button type="submit" className="login-submit">Log in</button>
           </form>
 
