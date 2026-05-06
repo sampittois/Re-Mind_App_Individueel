@@ -109,7 +109,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} avatar={avatar} />
+      {currentPage !== "login" && <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} avatar={avatar} />}
       {pageContent}
     </div>
   );
