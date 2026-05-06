@@ -291,3 +291,26 @@
     max-width: 520px;
   }
 }
+
+/* Onboarding actions: back + next layout */
+.onboarding-actions {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+  align-items: center;
+}
+
+.login-secondary {
+  flex: 1 1 auto;
+  padding: 0.8rem 1rem;
+  background: var(--background);
+  color: var(--text);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+
+.login-submit--small {
+  /* smaller primary button when paired with back button */
+  padding: 0.6rem 0.8rem;
+  flex: 0 0 42%;
+}
