@@ -229,6 +229,47 @@
   outline-offset: 2px;
 }
 
+.onboarding-step-indicators {
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.step-dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background-color 200ms ease;
+}
+
+.step-dot--active {
+  background: var(--primary);
+}
+
+.onboarding-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.onboarding-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.form-select {
+  appearance: none;
+  padding-right: 2rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23556064' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 1rem;
+}
+
 @media (max-width: 900px) {
   .login-page {
     grid-template-columns: 1fr;

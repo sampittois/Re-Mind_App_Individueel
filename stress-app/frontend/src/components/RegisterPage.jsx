@@ -11,23 +11,6 @@ export default function RegisterPage({ onRegister, onGoToLogin }) {
 
   function handleSubmit(e) {
     e.preventDefault();
-
-    if (password.length < 8) {
-      setError("Je wachtwoord moet minstens 8 tekens lang zijn.");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError("De wachtwoorden komen niet overeen.");
-      return;
-    }
-
-    if (!acceptedTerms) {
-      setError("Je moet de voorwaarden accepteren om een account te maken.");
-      return;
-    }
-
-    setError("");
     onRegister?.();
   }
 

@@ -14,6 +14,7 @@ import ProfileSection from "./components/ProfileSection";
 import Reports from "./components/Reports";
 import LoginPage from "./components/LoginPage";
 import RegisterPage from "./components/RegisterPage";
+import OnboardingPage from "./components/OnboardingPage";
 
 export default function App() {
   const [name, setName] = useState("John Doe");
@@ -77,9 +78,15 @@ export default function App() {
     pageContent = (
       <main className="page login-root">
         <RegisterPage
-          onRegister={() => setCurrentPage("home")}
+          onRegister={() => setCurrentPage("onboarding")}
           onGoToLogin={() => setCurrentPage("login")}
         />
+      </main>
+    );
+  } else if (currentPage === "onboarding") {
+    pageContent = (
+      <main className="page login-root">
+        <OnboardingPage onComplete={() => setCurrentPage("home")} />
       </main>
     );
   } else {
@@ -122,7 +129,7 @@ export default function App() {
 
   return (
     <div className="app">
-      {currentPage !== "login" && currentPage !== "register" && <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} avatar={avatar} />}
+      {currentPage !== "login" && currentPage !== "register" && currentPage !== "onboarding" && <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} avatar={avatar} />}
       {pageContent}
     </div>
   );
