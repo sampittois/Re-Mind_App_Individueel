@@ -52,13 +52,8 @@ export default function OnboardingPage({ onComplete, onSkip }) {
   // Step 4: reminders
   const [allowReminders, setAllowReminders] = useState(false);
 
-  const [error, setError] = useState("");
-
   function goNext(e) {
     if (e && e.preventDefault) e.preventDefault();
-
-    // For now allow advancing without filling fields.
-    setError("");
 
     if (step < 4) {
       setStep((s) => s + 1);
@@ -266,8 +261,6 @@ export default function OnboardingPage({ onComplete, onSkip }) {
             </div>
 
             {renderStep()}
-
-            {error && <p className="form-error">{error}</p>}
 
             <div className="onboarding-actions">
               {step > 1 && (

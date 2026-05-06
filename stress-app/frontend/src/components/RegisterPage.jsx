@@ -4,7 +4,7 @@ import "../styles/login.css";
 import Breathe from "./Breathe";
 import { supabase } from "../lib/supabaseClient";
 
-export default function RegisterPage({ onRegister, onGoToLogin }) {
+export default function RegisterPage({ onRegister, onGoToLogin, onSkip }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -69,6 +69,9 @@ export default function RegisterPage({ onRegister, onGoToLogin }) {
           </form>
 
           <div className="login-footer">
+            <button type="button" className="auth-link-button" onClick={onSkip}>
+              Ga naar de app
+            </button>
             Heb je al een account? <button type="button" className="auth-link-button" onClick={onGoToLogin}>Log in</button>
           </div>
         </div>

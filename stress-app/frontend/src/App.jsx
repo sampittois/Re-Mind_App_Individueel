@@ -73,6 +73,7 @@ export default function App() {
         <LoginPage
           onLogin={() => setCurrentPage("home")}
           onGoToRegister={() => setCurrentPage("register")}
+          onSkip={() => setCurrentPage("home")}
         />
       </main>
     );
@@ -82,6 +83,7 @@ export default function App() {
         <RegisterPage
           onRegister={() => setCurrentPage("onboarding")}
           onGoToLogin={() => setCurrentPage("login")}
+          onSkip={() => setCurrentPage("home")}
         />
       </main>
     );
