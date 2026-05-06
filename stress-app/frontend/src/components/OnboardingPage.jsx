@@ -52,8 +52,8 @@ export default function OnboardingPage({ onComplete }) {
 
           <form className="login-form" onSubmit={handleSubmit}>
             <div className="onboarding-step-indicators">
-              <span className="step-dot step-dot--active" />
               <span className="step-dot" />
+              <span className="step-dot step-dot--active" />
               <span className="step-dot" />
               <span className="step-dot" />
             </div>
