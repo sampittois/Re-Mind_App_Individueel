@@ -9,7 +9,7 @@ import breathing from "../assets/ademhaling.png";
 import stretching from "../assets/stretchen.png";
 import eyeReset from "../assets/oogReset.png";
 
-export default function ProfileSection({ initialName = "John Doe", onSaveName, onSaveAvatar }) {
+export default function ProfileSection({ initialName = "John Doe", onSaveName, onSaveAvatar, onLogout }) {
   const [name, setName] = useState(initialName);
   const [editing, setEditing] = useState(false);
   const [avatarSrc, setAvatarSrc] = useState(null);
@@ -106,6 +106,7 @@ export default function ProfileSection({ initialName = "John Doe", onSaveName, o
           <button className="action-btn">Upgrade Plan</button>
           <button className="action-btn">Link Agenda</button>
           <button className="action-btn">Bedrijfsbeheer</button>
+          <button className="action-btn logout-btn" type="button" onClick={() => onLogout?.()}>Log uit</button>
         </div>
       </div>
 

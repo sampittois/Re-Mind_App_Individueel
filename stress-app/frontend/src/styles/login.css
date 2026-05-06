@@ -1,0 +1,69 @@
+:root {
+  /* rely on tokens */
+}
+
+.login-page {
+  display: flex;
+  min-height: 100vh;
+}
+
+.login-left, .login-right {
+  flex: 1 1 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-left {
+  background: var(--highlight-light);
+}
+
+.login-left-inner {
+  text-align: center;
+}
+
+.login-left-title {
+  margin-top: 18px;
+  font-family: var(--font-serif, 'Georgia, serif');
+  font-size: 22px;
+  color: var(--text);
+}
+.login-left-title .primary { color: var(--primary); }
+.login-left-sub { color: var(--primary-dark); margin-top: 8px; }
+
+.login-right {
+  background: var(--background);
+}
+
+.login-right-inner {
+  width: 420px;
+  background: var(--highlight-light);
+  padding: 22px;
+  border-radius: 10px;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.02);
+}
+
+.login-hero { font-size: 36px; margin: 0 0 12px 0; color: var(--text); font-family: var(--font-serif, 'Georgia, serif'); }
+.login-hero .primary { color: var(--primary); }
+.login-body { margin-bottom: 16px; color: var(--text-light); }
+
+.login-form { display: flex; flex-direction: column; gap: 8px; }
+.form-label { font-family: 'Lora', serif; color: var(--text-light); font-size: 14px; }
+.form-input { background: var(--background); border: 1px solid var(--border-color-default); padding: 10px 12px; border-radius: 6px; color: var(--text); }
+.form-input::placeholder { color: var(--border-color-default); }
+
+.login-submit { margin-top: 8px; background: var(--background); border: 1px solid var(--border-color-default); color: var(--text); padding: 10px 14px; border-radius: 8px; font-family: 'Lora', serif; cursor: pointer; }
+.login-submit:hover { background: var(--highlight-light); border-color: var(--border-color-default); }
+.login-submit:active { background: var(--highlight); border-color: var(--primary); }
+
+.login-footer { margin-top: 12px; text-align: center; color: var(--text-light); font-size: 13px; }
+
+/* breathing logo pieces (reuse timer styles) */
+.breathingLogo__layer { border-radius: var(--radius-circle); background: var(--highlight-light); }
+.breathingLogo__layer--outer { animation: breatheOuter 8s ease-in-out infinite; }
+.breathingLogo__layer--inner { animation: breatheInner 8s ease-in-out infinite; }
+.breathingLogo__ring { margin: 12px 0; }
+.breathingLogo__icon { position: relative; width: 64px; height: 64px; margin-top: -160px; display: inline-block; }
+
+@keyframes breatheOuter { 0% { transform: scale(1); } 50% { transform: scale(1.06); } 100% { transform: scale(1); } }
+@keyframes breatheInner { 0% { transform: scale(1); } 50% { transform: scale(.94); } 100% { transform: scale(1); } }

@@ -12,6 +12,7 @@ import EnergySlider from "./components/EnergySlider";
 import StatsSection from "./components/StatsSection";
 import ProfileSection from "./components/ProfileSection";
 import Reports from "./components/Reports";
+import LoginPage from "./components/LoginPage";
 
 export default function App() {
   const [name, setName] = useState("John Doe");
@@ -49,7 +50,12 @@ export default function App() {
         </main>
       ) : currentPage === "profile" ? (
         <main className="page profile-page">
-          <ProfileSection initialName={name} onSaveName={(n) => setName(n)} onSaveAvatar={(a) => setAvatar(a)} />
+          <ProfileSection initialName={name} onSaveName={(n) => setName(n)} onSaveAvatar={(a) => setAvatar(a)} onLogout={() => setCurrentPage("login")} />
+        </main>
+      ) : (
+      ) : currentPage === "login" ? (
+        <main className="page login-root">
+          <LoginPage onLogin={() => setCurrentPage("home")} />
         </main>
       ) : (
         <main className="page home-page">
