@@ -1,6 +1,8 @@
 import { useState } from "react";
 import "../styles/login.css";
+import "../styles/settings.css";
 import Breathe from "./Breathe";
+import CustomDropdown from "./CustomDropdown";
 
 export default function OnboardingPage({ onComplete }) {
   const [step, setStep] = useState(1);
@@ -9,14 +11,43 @@ export default function OnboardingPage({ onComplete }) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
 
-  // Step 2: working hours / breaks
-  const [workStart, setWorkStart] = useState(9);
-  const [workEnd, setWorkEnd] = useState(17);
+  // Step 2: working hours / breaks (use same inputs as profile)
+  const [workStart, setWorkStart] = useState("09:00");
+  const [workEnd, setWorkEnd] = useState("17:00");
   const [breakFrequencyMins, setBreakFrequencyMins] = useState(60);
+
+  const [pauses, setPauses] = useState([{ id: 1, start: "12:00", end: "12:30" }]);
+
+  const addPause = () => {
+    const newId = Math.max(...pauses.map((p) => p.id), 0) + 1;
+    setPauses([...pauses, { id: newId, start: "12:00", end: "12:30" }]);
+  };
+
+  const updatePause = (id, field, value) => {
+    setPauses(pauses.map((p) => (p.id === id ? { ...p, [field]: value } : p)));
+  };
+
+  const removePause = (id) => {
+    setPauses(pauses.filter((p) => p.id !== id));
+  };
 
   // Step 3: pause habit & work style
   const [pauseHabit, setPauseHabit] = useState("");
   const [workStyle, setWorkStyle] = useState("");
+
+  const pauseOptions = [
+    { value: "", label: "Hoe vaak pauzeer je?" },
+    { value: "elk-uur", label: "Ik vergeet vaak te pauzeren" },
+    { value: "2-uur", label: "Ik neem soms pauzes" },
+    { value: "3-uur", label: "Ik neem regelmatig pauzes" },
+  ];
+
+  const workStyleOptions = [
+    { value: "", label: "Hoe werk jij meestal?" },
+    { value: "pc", label: "Lange focusblokken" },
+    { value: "buiten", label: "Veel korte taken" },
+    { value: "mengen", label: "Afwisselend" },
+  ];
 
   // Step 4: reminders
   const [allowReminders, setAllowReminders] = useState(false);
@@ -26,22 +57,7 @@ export default function OnboardingPage({ onComplete }) {
   function goNext(e) {
     if (e && e.preventDefault) e.preventDefault();
 
-    // validation per step
-    if (step === 1) {
-      if (!firstName.trim()) return setError("Vul je voornaam in.");
-      if (!lastName.trim()) return setError("Vul je achternaam in.");
-    }
-
-    if (step === 2) {
-      if (workStart >= workEnd) return setError("Kies geldige werkuren.");
-      if (!breakFrequencyMins || breakFrequencyMins <= 0) return setError("Kies een geldige pauze-interval.");
-    }
-
-    if (step === 3) {
-      if (!pauseHabit) return setError("Kies een pauzegewoonte.");
-      if (!workStyle) return setError("Kies een werkstijl.");
-    }
-
+    // For now allow advancing without filling fields.
     setError("");
 
     if (step < 4) {
@@ -98,39 +114,68 @@ export default function OnboardingPage({ onComplete }) {
         return (
           <>
             <label className="form-label">Werkuren</label>
-            <div className="onboarding-row">
-              <div className="onboarding-field">
-                <label className="form-label">Start uur</label>
+            <div className="time-inputs-row">
+              <div className="time-input-group">
+                <label className="settings-label">Start van je werkdag</label>
                 <input
-                  type="number"
-                  min={0}
-                  max={23}
-                  className="form-input"
+                  type="time"
                   value={workStart}
-                  onChange={(e) => setWorkStart(Number(e.target.value))}
+                  onChange={(e) => setWorkStart(e.target.value)}
+                  className="time-input"
                 />
               </div>
-              <div className="onboarding-field">
-                <label className="form-label">Eind uur</label>
+              <div className="time-input-group">
+                <label className="settings-label">Einde van je werkdag</label>
                 <input
-                  type="number"
-                  min={0}
-                  max={23}
-                  className="form-input"
+                  type="time"
                   value={workEnd}
-                  onChange={(e) => setWorkEnd(Number(e.target.value))}
+                  onChange={(e) => setWorkEnd(e.target.value)}
+                  className="time-input"
                 />
               </div>
             </div>
 
-            <label className="form-label">Hoe vaak pauze (minuten)</label>
-            <input
-              type="number"
-              min={15}
-              className="form-input"
-              value={breakFrequencyMins}
-              onChange={(e) => setBreakFrequencyMins(Number(e.target.value))}
-            />
+            <div className="pauses-group">
+              <h4 className="pauses-title">Heb je vaste pauzes?</h4>
+              {pauses.map((pause) => (
+                <div key={pause.id} className="pause-row">
+                  <div className="time-input-group">
+                    <label className="settings-label">Start uur</label>
+                    <input
+                      type="time"
+                      value={pause.start}
+                      onChange={(e) => updatePause(pause.id, "start", e.target.value)}
+                      className="time-input"
+                    />
+                  </div>
+
+                  <div className="time-input-group">
+                    <label className="settings-label">Eind uur</label>
+                    <input
+                      type="time"
+                      value={pause.end}
+                      onChange={(e) => updatePause(pause.id, "end", e.target.value)}
+                      className="time-input"
+                    />
+                  </div>
+
+                  {pauses.length > 1 && (
+                    <button
+                      type="button"
+                      className="remove-pause-btn"
+                      onClick={() => removePause(pause.id)}
+                      aria-label="Verwijder pauze"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              ))}
+
+              <button type="button" className="add-pause-btn" onClick={addPause}>
+                +
+              </button>
+            </div>
           </>
         );
 
@@ -138,28 +183,24 @@ export default function OnboardingPage({ onComplete }) {
         return (
           <>
             <label className="form-label">Pauzegewoonte</label>
-            <select
-              className="form-input form-select"
-              value={pauseHabit}
-              onChange={(e) => setPauseHabit(e.target.value)}
-            >
-              <option value="">Hoe vaak pauzeer je?</option>
-              <option value="often">Vaak</option>
-              <option value="sometimes">Soms</option>
-              <option value="rarely">Zelden</option>
-            </select>
+            <div className="dropdown-wrapper">
+              <CustomDropdown
+                value={pauseHabit}
+                onChange={setPauseHabit}
+                placeholder="Hoe vaak pauzeer je?"
+                options={pauseOptions}
+              />
+            </div>
 
             <label className="form-label">Werkstijl</label>
-            <select
-              className="form-input form-select"
-              value={workStyle}
-              onChange={(e) => setWorkStyle(e.target.value)}
-            >
-              <option value="">Hoe werk jij meestal?</option>
-              <option value="focused">Gefocust - lange sessies</option>
-              <option value="chunked">Gedeeld - korte taken</option>
-              <option value="interruptible">Onderbreekbaar - veel meetings</option>
-            </select>
+            <div className="dropdown-wrapper">
+              <CustomDropdown
+                value={workStyle}
+                onChange={setWorkStyle}
+                placeholder="Hoe werk jij meestal?"
+                options={workStyleOptions}
+              />
+            </div>
           </>
         );
 
@@ -169,14 +210,24 @@ export default function OnboardingPage({ onComplete }) {
             <p className="login-body">We sturen je korte, subtiele reminders wanneer je te lang doorwerkt.</p>
             <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginTop: "0.5rem" }}>
               <label className="form-label">Reminders toestaan?</label>
-              <label className="form-check">
-                <input
-                  type="checkbox"
-                  checked={allowReminders}
-                  onChange={(e) => setAllowReminders(e.target.checked)}
-                />
-                <span style={{ marginLeft: 6 }}>{allowReminders ? "Aan" : "Uit"}</span>
-              </label>
+
+              <div
+                role="switch"
+                tabIndex={0}
+                aria-checked={allowReminders}
+                className={`toggle-switch ${allowReminders ? "active" : ""}`}
+                onClick={() => setAllowReminders((v) => !v)}
+                onKeyDown={(e) => {
+                  if (e.key === " " || e.key === "Enter") {
+                    e.preventDefault();
+                    setAllowReminders((v) => !v);
+                  }
+                }}
+                style={{ outline: "none" }}
+              >
+                <div className="toggle-thumb" />
+              </div>
+              <span style={{ marginLeft: 6 }}>{allowReminders ? "Aan" : "Uit"}</span>
             </div>
           </>
         );

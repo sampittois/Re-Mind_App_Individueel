@@ -44,6 +44,7 @@ export default function CustomDropdown({ value, onChange, placeholder, options }
   return (
     <div className="custom-dropdown" ref={dropdownRef}>
       <button
+        type="button"
         className="custom-dropdown-trigger"
         onClick={() => setIsOpen(!isOpen)}
         onKeyDown={handleKeyDown}
@@ -69,6 +70,7 @@ export default function CustomDropdown({ value, onChange, placeholder, options }
         <div className="custom-dropdown-menu" role="listbox">
           {options.map((option) => (
             <button
+              type="button"
               key={option.value}
               role="option"
               className={`custom-dropdown-option ${
