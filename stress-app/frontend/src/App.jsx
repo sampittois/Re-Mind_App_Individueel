@@ -88,7 +88,7 @@ export default function App() {
   } else if (currentPage === "onboarding") {
     pageContent = (
       <main className="page login-root">
-        <OnboardingPage onComplete={() => setCurrentPage("home")} />
+        <OnboardingPage onComplete={() => setCurrentPage("home")} onSkip={() => setCurrentPage("home")} />
       </main>
     );
   } else {

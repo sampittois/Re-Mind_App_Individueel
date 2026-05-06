@@ -4,7 +4,7 @@ import "../styles/settings.css";
 import Breathe from "./Breathe";
 import CustomDropdown from "./CustomDropdown";
 
-export default function OnboardingPage({ onComplete }) {
+export default function OnboardingPage({ onComplete, onSkip }) {
   const [step, setStep] = useState(1);
 
   // Step 1: basic user info
@@ -284,6 +284,13 @@ export default function OnboardingPage({ onComplete }) {
               </button>
             </div>
           </form>
+
+          <p className="login-footer">
+            Je kunt deze stappen voorlopig overslaan en meteen naar de app gaan.{' '}
+            <button type="button" className="auth-link-button" onClick={onSkip}>
+              Ga naar de app
+            </button>
+          </p>
         </div>
       </section>
     </main>
