@@ -24,74 +24,93 @@ export default function App() {
   const [selectedExercise, setSelectedExercise] = useState(null);
 
 
-  return (
-    <div className="app">
-      <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} avatar={avatar} />
+  let pageContent;
 
-      {currentPage === "exercise-detail" ? (
-        <BreathingExerciseDetail
-          exerciseId={selectedExercise}
-          onBack={() => setCurrentPage("breathing")}
-          onChangeMethod={() => setCurrentPage("breathing")}
+  if (currentPage === "exercise-detail") {
+    pageContent = (
+      <BreathingExerciseDetail
+        exerciseId={selectedExercise}
+        onBack={() => setCurrentPage("breathing")}
+        onChangeMethod={() => setCurrentPage("breathing")}
+      />
+    );
+  } else if (currentPage === "breathing") {
+    pageContent = (
+      <BreathingExercises
+        onBack={() => setCurrentPage("pause")}
+        onSelectExercise={(id) => {
+          setSelectedExercise(id);
+          setCurrentPage("exercise-detail");
+        }}
+      />
+    );
+  } else if (currentPage === "reports") {
+    pageContent = <Reports setCurrentPage={setCurrentPage} />;
+  } else if (currentPage === "pause") {
+    pageContent = (
+      <main className="pause-page-shell">
+        <PauseSuggestions showViewMore={false} />
+      </main>
+    );
+  } else if (currentPage === "profile") {
+    pageContent = (
+      <main className="page profile-page">
+        <ProfileSection
+          initialName={name}
+          onSaveName={(n) => setName(n)}
+          onSaveAvatar={(a) => setAvatar(a)}
+          onLogout={() => setCurrentPage("login")}
         />
-      ) : currentPage === "breathing" ? (
-        <BreathingExercises
-          onBack={() => setCurrentPage("pause")}
-          onSelectExercise={(id) => {
-            setSelectedExercise(id);
-            setCurrentPage("exercise-detail");
-          }}
-        />
-      ) : currentPage === "reports" ? (
-        <Reports setCurrentPage={setCurrentPage} />
-      ) : currentPage === "pause" ? (
-        <main className="pause-page-shell">
-          <PauseSuggestions showViewMore={false} />
-        </main>
-      ) : currentPage === "profile" ? (
-        <main className="page profile-page">
-          <ProfileSection initialName={name} onSaveName={(n) => setName(n)} onSaveAvatar={(a) => setAvatar(a)} onLogout={() => setCurrentPage("login")} />
-        </main>
-      ) : (
-      ) : currentPage === "login" ? (
-        <main className="page login-root">
-          <LoginPage onLogin={() => setCurrentPage("home")} />
-        </main>
-      ) : (
-        <main className="page home-page">
-          <h1 className="greeting">Hallo {name}!</h1>
+      </main>
+    );
+  } else if (currentPage === "login") {
+    pageContent = (
+      <main className="page login-root">
+        <LoginPage onLogin={() => setCurrentPage("home")} />
+      </main>
+    );
+  } else {
+    pageContent = (
+      <main className="page home-page">
+        <h1 className="greeting">Hallo {name}!</h1>
 
-          <section className="section home-layout">
-            <div className="home-left-column">
-              <div className="rating-cards-container">
-                <StressSlider
-                  label="Hoe hoog is je stressniveau nu?"
-                  onStressChange={setStressLevel}
-                />
-                <EnergySlider
-                  label="Wat is jouw energie level nu?"
-                  onEnergyChange={setEnergyLevel}
-                />
-              </div>
-
-              <StatsSection
-                stress={stressLevel}
-                energy={energyLevel}
-                pausesTaken={3}
-                pausesSkipped={1}
+        <section className="section home-layout">
+          <div className="home-left-column">
+            <div className="rating-cards-container">
+              <StressSlider
+                label="Hoe hoog is je stressniveau nu?"
+                onStressChange={setStressLevel}
+              />
+              <EnergySlider
+                label="Wat is jouw energie level nu?"
+                onEnergyChange={setEnergyLevel}
               />
             </div>
 
-            <div className="home-right-column">
-              <div className="timer-section">
-                <Timer />
-              </div>
+            <StatsSection
+              stress={stressLevel}
+              energy={energyLevel}
+              pausesTaken={3}
+              pausesSkipped={1}
+            />
+          </div>
 
-              <PauseSuggestions onViewMore={() => setCurrentPage("pause")} />
+          <div className="home-right-column">
+            <div className="timer-section">
+              <Timer />
             </div>
-          </section>
-        </main>
-      )}
+
+            <PauseSuggestions onViewMore={() => setCurrentPage("pause")} />
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  return (
+    <div className="app">
+      <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} avatar={avatar} />
+      {pageContent}
     </div>
   );
 }
