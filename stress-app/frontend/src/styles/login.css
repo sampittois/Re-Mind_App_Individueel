@@ -113,6 +113,32 @@
   max-width: 520px;
 }
 
+.form-check {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.2rem;
+  color: var(--text-light);
+  font-family: var(--text-body-regular-font-family);
+  font-size: var(--text-body-regular-font-size);
+  line-height: var(--text-body-regular-line-height);
+}
+
+.form-check input {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: var(--primary);
+}
+
+.form-error {
+  margin: 0.1rem 0 0;
+  color: var(--primary-dark);
+  font-family: var(--text-body-regular-font-family);
+  font-size: var(--text-body-regular-font-size);
+  line-height: var(--text-body-regular-line-height);
+}
+
 .form-label {
   color: var(--text);
   font-family: var(--text-button-label-font-family);
@@ -178,6 +204,28 @@
 .login-footer {
   color: var(--text-light);
   text-align: center;
+}
+
+.auth-link-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--primary);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.auth-link-button:hover {
+  border-color: transparent;
+  box-shadow: none;
+  color: var(--primary-dark);
+}
+
+.auth-link-button:focus,
+.auth-link-button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 @media (max-width: 900px) {

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import "./styles/App.css";
 
 import Navbar from "./components/Navbar";
@@ -13,6 +13,7 @@ import StatsSection from "./components/StatsSection";
 import ProfileSection from "./components/ProfileSection";
 import Reports from "./components/Reports";
 import LoginPage from "./components/LoginPage";
+import RegisterPage from "./components/RegisterPage";
 
 export default function App() {
   const [name, setName] = useState("John Doe");
@@ -66,7 +67,19 @@ export default function App() {
   } else if (currentPage === "login") {
     pageContent = (
       <main className="page login-root">
-        <LoginPage onLogin={() => setCurrentPage("home")} />
+        <LoginPage
+          onLogin={() => setCurrentPage("home")}
+          onGoToRegister={() => setCurrentPage("register")}
+        />
+      </main>
+    );
+  } else if (currentPage === "register") {
+    pageContent = (
+      <main className="page login-root">
+        <RegisterPage
+          onRegister={() => setCurrentPage("home")}
+          onGoToLogin={() => setCurrentPage("login")}
+        />
       </main>
     );
   } else {
@@ -109,7 +122,7 @@ export default function App() {
 
   return (
     <div className="app">
-      {currentPage !== "login" && <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} avatar={avatar} />}
+      {currentPage !== "login" && currentPage !== "register" && <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} avatar={avatar} />}
       {pageContent}
     </div>
   );

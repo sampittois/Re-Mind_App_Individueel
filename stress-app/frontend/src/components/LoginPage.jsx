@@ -2,7 +2,7 @@ import { useState } from "react";
 import "../styles/login.css";
 import Breathe from "./Breathe";
 
-export default function LoginPage({ onLogin }) {
+export default function LoginPage({ onLogin, onGoToRegister }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -36,7 +36,9 @@ export default function LoginPage({ onLogin }) {
             <button type="submit" className="login-submit">Log in</button>
           </form>
 
-          <div className="login-footer">Heb je nog geen account? Registreer je</div>
+          <div className="login-footer">
+            Heb je nog geen account? <button type="button" className="auth-link-button" onClick={onGoToRegister}>Registreer je</button>
+          </div>
         </div>
       </section>
     </main>
