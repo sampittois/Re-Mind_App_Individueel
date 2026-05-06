@@ -1,5 +1,5 @@
 import "../styles/breathe.css";
-import swirl from "../../assets/swirl.png";
+import swirl from "../assets/swirl.png";
 
 export default function Breathe({ size = 220, className = "" }) {
   const logoSize = typeof size === "number" ? `${size}px` : size;

@@ -15,7 +15,7 @@ export default function LoginPage({ onLogin, onGoToRegister }) {
     <main className="login-page">
       <section className="login-left">
         <div className="login-left-inner">
-          <Breathe size={220} />
+          <Breathe size={280} />
           <h2 className="login-left-title"><span className="text">Slim pauzeren,</span> <span className="primary">sterk presteren</span></h2>
           <p className="login-left-sub">Re:Mind helpt je de balans te behouden</p>
         </div>

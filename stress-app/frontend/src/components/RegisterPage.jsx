@@ -41,7 +41,7 @@ export default function RegisterPage({ onRegister, onGoToLogin }) {
     <main className="login-page">
       <section className="login-left">
         <div className="login-left-inner">
-          <Breathe size={220} />
+          <Breathe size={280} />
           <h2 className="login-left-title">
             <span className="text">Slim pauzeren,</span> <span className="primary">sterk presteren</span>
           </h2>
