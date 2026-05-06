@@ -16,9 +16,4 @@ app.post("/checkin", (req, res) => {
 
 app.listen(3000, () => {
   console.log("Backend running on http://localhost:3000");
-  if (!process.env.SUPABASE_URL) {
-    console.warn('Warning: SUPABASE_URL not set in environment');
-  } else {
-    console.log('SUPABASE_URL is set');
-  }
 });
