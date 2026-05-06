@@ -3,7 +3,6 @@ import "../styles/login.css";
 import Breathe from "./Breathe";
 
 export default function RegisterPage({ onRegister, onGoToLogin }) {
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -12,11 +11,6 @@ export default function RegisterPage({ onRegister, onGoToLogin }) {
 
   function handleSubmit(e) {
     e.preventDefault();
-
-    if (!name.trim()) {
-      setError("Vul je naam in.");
-      return;
-    }
 
     if (password.length < 8) {
       setError("Je wachtwoord moet minstens 8 tekens lang zijn.");
@@ -52,15 +46,12 @@ export default function RegisterPage({ onRegister, onGoToLogin }) {
       <section className="login-right">
         <div className="login-right-inner">
           <h1 className="login-hero">
-            Maak je account aan bij <br />
-            <span className="primary">Re:Mind</span>
+            Begin je reis naar <br />
+            <span className="primary">balans</span>
           </h1>
           <p className="login-body">Registreer je om toegang te krijgen tot persoonlijke pauzes en inzichten.</p>
 
           <form className="login-form" onSubmit={handleSubmit}>
-            <label className="form-label">Naam</label>
-            <input className="form-input" placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} />
-
             <label className="form-label">Email</label>
             <input className="form-input" placeholder="john.doe@voorbeeld.be" value={email} onChange={(e) => setEmail(e.target.value)} />
 

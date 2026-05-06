@@ -94,7 +94,7 @@
   font-family: var(--text-heading-1-font-family);
   font-size: clamp(2rem, 3.8vw, 3rem);
   font-weight: var(--text-heading-1-font-weight);
-  line-height: var(--text-heading-1-line-height);
+  line-height: 1.3;
 }
 
 .login-body {
