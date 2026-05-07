@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import swirl from "../assets/swirl.png";
 import "../styles/timer.css";
+import Breathe from "./Breathe";
 
 function formatTime(totalSeconds) {
   const m = Math.floor(totalSeconds / 60);
@@ -9,8 +10,6 @@ function formatTime(totalSeconds) {
 }
 
 function BreathingLogo({ progress = 0, active = false }) {
-  const outerSize = active ? 220 : 280;
-  const innerSize = active ? 200 : 240;
   const timerSize = 200;
   const timerStroke = 4;
   const radius = (timerSize - timerStroke) / 2;
@@ -19,20 +18,19 @@ function BreathingLogo({ progress = 0, active = false }) {
   const strokeDashoffset = circumference * (1 - safeProgress);
 
   return (
-    <div className={`breathingLogo${active ? " breathingLogo--active" : ""}`} aria-hidden="true">
-      <div
-        className="breathingLogo__layer breathingLogo__layer--outer"
-        style={{ width: outerSize, height: outerSize }}
-      />
-      <div
-        className="breathingLogo__layer breathingLogo__layer--inner"
-        style={{ width: innerSize, height: innerSize }}
-      />
+    <div className={`breathingLogo${active ? " breathingLogo--active" : ""}`} aria-hidden="true" style={{ position: "relative" }}>
+      <Breathe size={280} className="breathing-logo-ball" />
       <svg
         className="breathingLogo__ring"
         width={timerSize}
         height={timerSize}
         viewBox={`0 0 ${timerSize} ${timerSize}`}
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
       >
         <circle
           cx={timerSize / 2}
@@ -55,7 +53,6 @@ function BreathingLogo({ progress = 0, active = false }) {
           transform={`rotate(-90 ${timerSize / 2} ${timerSize / 2})`}
         />
       </svg>
-      <img className="breathingLogo__icon" src={swirl} alt="" />
     </div>
   );
 }
