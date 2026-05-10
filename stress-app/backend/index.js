@@ -1,4 +1,5 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const express = require("express");
 const cors = require("cors");
 const { createClient } = require('@supabase/supabase-js');
@@ -19,11 +20,10 @@ app.post("/checkin", (req, res) => {
 });
 
 // Simple health endpoint to check Supabase connectivity. It attempts a small select
-// against a common table (`profiles`). If your project uses a different table,
-// update the table name or remove this endpoint.
+// against a table the app already uses.
 app.get('/supabase-health', async (req, res) => {
   try {
-    const { data, error } = await supabase.from('profiles').select('id').limit(1);
+    const { data, error } = await supabase.from('work_sessions').select('id').limit(1);
     if (error) return res.status(500).json({ ok: false, error: error.message });
     res.json({ ok: true, data });
   } catch (err) {
