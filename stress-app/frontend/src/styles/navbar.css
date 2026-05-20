@@ -3,6 +3,12 @@
   border-bottom: var(--border-width-sm) solid var(--border);
   font-family: var(--font-family-body);
   height: var(--space-10);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1000;
 }
 
 .nav button:not(.profile) {

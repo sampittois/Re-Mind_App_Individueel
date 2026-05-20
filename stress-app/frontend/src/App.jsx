@@ -156,7 +156,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="app">
+    <div className={currentPage !== "login" && currentPage !== "register" && currentPage !== "onboarding" ? "app appWithNavbar" : "app"}>
       {currentPage !== "login" && currentPage !== "register" && currentPage !== "onboarding" && <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} avatar={avatar} />}
       {pageContent}
     </div>
