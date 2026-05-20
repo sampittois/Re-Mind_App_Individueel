@@ -1,5 +1,6 @@
 import { useState } from "react";
 import ReportsDay from "./ReportsDay";
+import ReportsWeek from "./ReportsWeek";
 import premiumIcon from "../assets/premium.svg";
 import backIcon from "../assets/back.svg";
 import "../styles/reports.css";
@@ -25,7 +26,7 @@ export default function Reports({ setCurrentPage }) {
         </div>
       </div>
 
-      {view === "day" ? <ReportsDay /> : <div className="reports-week">Week view (work in progress)</div>}
+      {view === "day" ? <ReportsDay /> : <ReportsWeek />}
     </main>
   );
 }
