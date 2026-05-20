@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import breathingIcon from "../assets/ademhaling.png";
+import breathingIcon from "../assets/swirl.png";
 
 const EXERCISE_DATA = {
     box: {
@@ -44,9 +44,17 @@ const EXERCISE_DATA = {
 
 const STEP_VISUALS = {
     "Adem in": { className: "exercise-circle--inhale", label: "Adem in" },
-    "Houden": { className: "exercise-circle--hold", label: "Houden" },
     "Adem uit": { className: "exercise-circle--exhale", label: "Adem uit" },
     "Nog eens in": { className: "exercise-circle--inhale-short", label: "Nog eens in" },
+};
+
+const getCircleStateClass = (stepLabel, previousStepLabel) => {
+    if (stepLabel === "Houden") {
+        if (previousStepLabel === "Adem uit") return "exercise-circle--exhale";
+        return "exercise-circle--inhale";
+    }
+
+    return STEP_VISUALS[stepLabel]?.className || "exercise-circle--idle";
 };
 
 // Helper function to convert duration string (e.g., "4s") to milliseconds
@@ -62,8 +70,11 @@ export default function BreathingExerciseDetail({ exerciseId, onBack }) {
 
     const exercise = EXERCISE_DATA[exerciseId] || EXERCISE_DATA.box;
     const currentStep = exercise.steps[currentStepIndex] || exercise.steps[0];
-    const currentVisual = STEP_VISUALS[currentStep?.label] || STEP_VISUALS["Adem in"];
-    const circleStateClass = isActive ? currentVisual.className : "exercise-circle--idle";
+    const previousStep = exercise.steps[currentStepIndex - 1];
+    const circleStateClass = isActive
+        ? getCircleStateClass(currentStep?.label, previousStep?.label)
+        : "exercise-circle--idle";
+    const currentStepDurationMs = durationToMs(currentStep?.duration || "0s");
 
     const handleStart = () => {
         setIsActive(true);
@@ -122,7 +133,12 @@ export default function BreathingExerciseDetail({ exerciseId, onBack }) {
                     {isActive ? currentStep.label : ""}
                 </p>
 
-                <div className={`exercise-circle ${isActive ? "is-active" : "is-idle"} ${circleStateClass}`}>
+                <div
+                    className={`exercise-circle ${isActive ? "is-active" : "is-idle"} ${circleStateClass}`}
+                    style={{
+                        "--circle-transition-duration": isActive ? `${currentStepDurationMs}ms` : "350ms",
+                    }}
+                >
                     <img src={breathingIcon} alt="" aria-hidden="true" className="exercise-circle-icon" />
                 </div>
 

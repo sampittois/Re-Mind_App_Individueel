@@ -561,7 +561,8 @@ a {
   align-items: center;
   justify-content: center;
   transform: scale(var(--circle-scale));
-  transition: transform 0.55s ease, background-color 0.35s ease, border-color 0.35s ease;
+  transition: transform var(--circle-transition-duration, 0.55s) ease, background-color 0.35s ease, border-color 0.35s ease;
+  will-change: transform;
 }
 
 .exercise-circle.is-idle {
@@ -577,19 +578,15 @@ a {
 }
 
 .exercise-circle--inhale {
-  --circle-scale: 0.9;
-}
-
-.exercise-circle--hold {
   --circle-scale: 1.12;
 }
 
 .exercise-circle--exhale {
-  --circle-scale: 0.8;
+  --circle-scale: 0.86;
 }
 
 .exercise-circle--inhale-short {
-  --circle-scale: 0.95;
+  --circle-scale: 1.06;
 }
 
 .exercise-circle-icon {
