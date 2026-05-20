@@ -9,7 +9,7 @@ export default function Reports({ setCurrentPage }) {
   const [view, setView] = useState("day");
 
   return (
-    <main className="reports-page page">
+    <main className={`reports-page page${view === "week" ? " reports-week-page" : ""}`}>
       <div className="reports-top-row">
         <button className="back-btn reports-back" onClick={() => setCurrentPage && setCurrentPage("home")} aria-label="Terug">
           <img src={backIcon} alt="Terug" />

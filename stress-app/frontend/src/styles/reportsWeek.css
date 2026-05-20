@@ -2,6 +2,12 @@
    Reports Week / Weekly View
    ========================= */
 
+.reports-week-page {
+  box-sizing: border-box;
+  height: auto;
+  overflow: visible;
+}
+
 .reports-week-layout {
   align-items: start;
 }
@@ -9,11 +15,15 @@
 .reports-week-right {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  gap: var(--space-4);
+}
+
+.reports-week-right .reports-desc {
+  margin-bottom: var(--space-2);
 }
 
 .weekly-timeline {
-  padding-bottom: var(--space-2);
+  padding-bottom: 0;
 }
 
 .weekly-timeline-item {
@@ -22,6 +32,11 @@
 
 .weekly-timeline-icon {
   background: var(--highlight);
+}
+
+.weekly-timeline-icon img {
+  max-width: 24px;
+  max-height: 24px;
 }
 
 .weekly-timeline-content {
@@ -59,6 +74,19 @@
 .weekly-analytics-section p {
   margin: 0;
   color: var(--text-light);
+}
+
+.weekly-graphs-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  overflow: visible;
+}
+
+.reports-week-layout .reports-left {
+  position: sticky;
+  top: calc(var(--space-10) + var(--space-7));
+  align-self: start;
 }
 
 .chart-card {
@@ -136,11 +164,25 @@
 }
 
 @media (max-width: 1100px) {
+  .reports-week-page {
+    height: auto;
+    overflow: visible;
+  }
+
   .reports-layout {
     grid-template-columns: 1fr;
   }
 
   .reports-left {
     max-width: 100%;
+  }
+
+  .reports-week-layout .reports-left {
+    position: static;
+    top: auto;
+  }
+
+  .weekly-graphs-scroll {
+    overflow: visible;
   }
 }

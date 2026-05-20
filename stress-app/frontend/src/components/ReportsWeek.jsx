@@ -1,42 +1,53 @@
 import StressSlider from "./StressSlider";
 import EnergySlider from "./EnergySlider";
 import StatsSection from "./StatsSection";
+import breakIcon from "../assets/break.svg";
+import highEnergyIcon from "../assets/highEnergy.svg";
+import highStressIcon from "../assets/highStress.svg";
+import warningIcon from "../assets/warning.svg";
 import "../styles/reportsWeek.css";
 
 const weekTimeline = [
   {
     id: 1,
     day: "Maandag",
+    icon: "highEnergy",
     summary: "Je start de week met hoge stress en energie, maar neemt voldoende pauzes om het tempo vol te houden.",
   },
   {
     id: 2,
     day: "Dinsdag",
+    icon: "warning",
     summary: "Door minder pauzes zakt je energie, terwijl het stressniveau tijdelijk lager blijft.",
   },
   {
     id: 3,
     day: "Woensdag",
+    icon: "highStress",
     summary: "Drukke vergaderingen zorgen voor een gemiddeld stressniveau en een lichte heropleving van je energie.",
   },
   {
     id: 4,
     day: "Donderdag",
+    icon: "break",
     summary: "Extra pauzemomenten, zoals een lunchpauze, helpen om hogere stress onder controle te houden.",
   },
   {
     id: 5,
     day: "Vrijdag",
+    icon: "highStress",
     summary: "Je stress daalt richting het weekend, maar je energieniveau blijft beperkt door vermoeidheid.",
   },
   {
     id: 6,
     day: "Zaterdag",
+    icon: "break",
     summary: "Lage stress en veel rustmomenten zorgen voor een duidelijk herstel van je energie.",
   },
   {
     id: 7,
     day: "Zondag",
+    icon: "warning",
     summary: "Ondanks voldoende rust stijgt de stress opnieuw door de voorbereiding op de komende week.",
   },
 ];
@@ -74,6 +85,13 @@ const chartColors = {
   energyLine: "var(--primary-dark)",
   energyDot: "var(--primary)",
 };
+
+function renderTimelineIcon(iconType) {
+  if (iconType === "break") return breakIcon;
+  if (iconType === "warning") return warningIcon;
+  if (iconType === "highStress") return highStressIcon;
+  return highEnergyIcon;
+}
 
 function createSmoothPath(points) {
   if (!points.length) return "";
@@ -274,7 +292,9 @@ export default function ReportsWeek() {
         <div className="timeline weekly-timeline">
           {weekTimeline.map((item) => (
             <div key={item.id} className="timeline-item weekly-timeline-item">
-              <div className="timeline-icon weekly-timeline-icon" />
+              <div className="timeline-icon weekly-timeline-icon">
+                <img src={renderTimelineIcon(item.icon)} alt="icon" />
+              </div>
 
               <div className="weekly-timeline-content">
                 <div className="weekly-timeline-day">{item.day}</div>
@@ -284,17 +304,19 @@ export default function ReportsWeek() {
           ))}
         </div>
 
-        <section className="weekly-analytics-section">
-          <h2>Pauzegedrag</h2>
-          <p>Je nam vooral pauzes aan het begin van de week. Naar het einde toe werden pauzes vaker genegeerd.</p>
-          <PauseBehaviorChart />
-        </section>
+        <div className="weekly-graphs-scroll">
+          <section className="weekly-analytics-section">
+            <h2>Pauzegedrag</h2>
+            <p>Je nam vooral pauzes aan het begin van de week. Naar het einde toe werden pauzes vaker genegeerd.</p>
+            <PauseBehaviorChart />
+          </section>
 
-        <section className="weekly-analytics-section">
-          <h2>Stress en energie verloop</h2>
-          <p>Je stress piekte midden in de week, terwijl je energie pas later volgde. Op zaterdag zie je een duidelijke ontkoppeling.</p>
-          <StressEnergyChart />
-        </section>
+          <section className="weekly-analytics-section">
+            <h2>Stress en energie verloop</h2>
+            <p>Je stress piekte midden in de week, terwijl je energie pas later volgde. Op zaterdag zie je een duidelijke ontkoppeling.</p>
+            <StressEnergyChart />
+          </section>
+        </div>
       </section>
     </div>
   );
