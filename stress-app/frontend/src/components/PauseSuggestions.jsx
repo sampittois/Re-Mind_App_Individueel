@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "../styles/pauseSuggestions.css";
 import PauseCard from "./PauseCard";
 import { supabase } from "../lib/supabaseClient";
+import { addBreak } from "../lib/session";
 
 import breathing from "../assets/ademhaling.png";
 import stretching from "../assets/stretchen.png";
@@ -13,6 +14,7 @@ import handStretch from "../assets/handStretch.png";
 import handToChestReset from "../assets/handToChestReset.png";
 import drinkPause from "../assets/drinkPauze.png";
 import backIcon from "../assets/back.svg";
+import closeIcon from "../assets/x.svg";
 
 const PREVIEW_DATA = [
   { id: "breath", title: "Ademhaling", icon: breathing },
@@ -37,6 +39,91 @@ const LONG_BREAKS = [
 
 const ALL_SUGGESTIONS = [...SHORT_BREAKS, ...LONG_BREAKS];
 
+const BREAK_DETAILS = {
+  "houding-check": {
+    steps: [
+      "Zet je beide voeten plat op de grond.",
+      "Recht je rug.",
+      "Ontspan je schouders.",
+      "Ontspan je kaak.",
+    ],
+    effect:
+      "Een slechte houding beïnvloedt stress en focus direct. Zorg voor een goede houding voor minder stress en betere focus!",
+  },
+  "hand-to-chest-reset": {
+    steps: [
+      "Leg je hand op je borst.",
+      "Adem 4x langzaam in en uit.",
+      "Focus op de fysieke sensatie.",
+    ],
+    effect:
+      "Deze oefening bevordert je lichaamsbewustzijn en zorgt voor onmiddellijke kalmering.",
+  },
+  "name-1-win": {
+    steps: ["Benoem in je hoofd één ding dat je vandaag is gelukt."],
+    effect:
+      "Zorgt voor een positieve mindset door stil te staan bij kleine overwinningen.",
+  },
+  "drink-pauze": {
+    steps: ["Drink wat water en/of ga je water bijvullen."],
+    effect:
+      "Hydratatie is belangrijk. Zorg ervoor dat je altijd wat water in je buurt hebt staan.",
+  },
+  "hand-stretch": {
+    steps: [
+      "Spreid je vingers wijd en ontspan ze terug.",
+      "Draai je polsen een aantal keren rond.",
+      "Herhaal dit 3 keer.",
+    ],
+    effect:
+      "Je handen staan continu onder spanning bij het typen. Door deze reset kunnen je handen terug ontspannen.",
+  },
+  "oog-reset": {
+    steps: [
+      "Kijk naar een even vlak op zo’n 6 of meer meter afstand dat geen scherm is.",
+      "Ontspan je blik.",
+      "Knipper 10x bewust.",
+    ],
+    effect:
+      "Je oogspieren worden ontlast en je visuele inspanning vermindert. Je ogen worden terug vochtig.",
+  },
+  walk: {
+    steps: [
+      "Stap een paar minuten weg van je scherm.",
+      "Laat je ogen rusten op je omgeving.",
+      "Adem rustig in en uit.",
+    ],
+    effect:
+      "Even bewegen en afstand nemen helpt je hoofd resetten. Je vermindert spanning en komt terug met meer focus en energie.",
+  },
+  stretch: {
+    steps: [
+      "Sta recht en strek je armen boven je hoofd.",
+      "Rol je schouders rustig naar achter.",
+      "Buig zachtjes naar links en rechts.",
+      "Adem diep in en uit.",
+    ],
+    effect:
+      "Stretchen vermindert spanning in je lichaam en stimuleert je bloedsomloop. Zo voel je je losser en kan je je beter concentreren.",
+  },
+  breath: {
+    steps: ["Adem rustig in en uit op jouw eigen tempo."],
+    effect: "Een korte ademhalingsoefening helpt je zenuwstelsel kalmeren en je focus herstellen.",
+  },
+};
+
+const BREAK_TYPE_BY_ID = {
+  "houding-check": "posture",
+  "hand-to-chest-reset": "calming",
+  "name-1-win": "mindset",
+  "drink-pauze": "hydration",
+  "hand-stretch": "stretch",
+  "oog-reset": "eye-reset",
+  walk: "walk",
+  stretch: "stretch",
+  breath: "breathing",
+};
+
 export default function PauseSuggestions({
   onViewMore,
   showViewMore = true,
@@ -46,6 +133,8 @@ export default function PauseSuggestions({
 }) {
   const [activeTab, setActiveTab] = useState("short");
   const [favoriteIds, setFavoriteIds] = useState(() => new Set());
+  const [selectedSuggestion, setSelectedSuggestion] = useState(null);
+  const [overlaySource, setOverlaySource] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -122,6 +211,32 @@ export default function PauseSuggestions({
     }
   }
 
+  async function handleCompleteBreak() {
+    if (!selectedSuggestion) return;
+
+    const breakType = BREAK_TYPE_BY_ID[selectedSuggestion.id] || selectedSuggestion.id;
+    const { error } = await addBreak({ type: breakType, duration_minutes: 5 });
+
+    if (error) {
+      console.error("Failed to register completed break:", error);
+    }
+
+    setSelectedSuggestion(null);
+    setOverlaySource(null);
+  }
+
+  function openSuggestionOverlay(item, source) {
+    setSelectedSuggestion(item);
+    setOverlaySource(source);
+  }
+
+  function closeSuggestionOverlay() {
+    setSelectedSuggestion(null);
+    setOverlaySource(null);
+  }
+
+  const selectedDetail = selectedSuggestion ? BREAK_DETAILS[selectedSuggestion.id] : null;
+
   if (mode === "page") {
     const visibleSuggestions =
       activeTab === "short"
@@ -184,6 +299,7 @@ export default function PauseSuggestions({
                 title={item.title}
                 isFavorite={isFavorite}
                 onToggleFavorite={() => toggleFavorite(item.id)}
+                onSelect={() => openSuggestionOverlay(item, "page")}
               />
             );
           })}
@@ -192,6 +308,18 @@ export default function PauseSuggestions({
             <p className="pause-page-empty">Nog geen favorieten.</p>
           ) : null}
         </section>
+
+        {selectedSuggestion ? (
+          <SuggestionOverlay
+            suggestion={selectedSuggestion}
+            details={selectedDetail}
+            isFavorite={favoriteIds.has(selectedSuggestion.id)}
+            showIntro={overlaySource === "preview"}
+            onClose={closeSuggestionOverlay}
+            onComplete={handleCompleteBreak}
+            onToggleFavorite={() => toggleFavorite(selectedSuggestion.id)}
+          />
+        ) : null}
       </main>
     );
   }
@@ -211,6 +339,7 @@ export default function PauseSuggestions({
               title={item.title}
               isFavorite={isFavorite}
               onToggleFavorite={() => toggleFavorite(item.id)}
+              onSelect={() => openSuggestionOverlay(item, "preview")}
             />
           );
         })}
@@ -236,7 +365,62 @@ export default function PauseSuggestions({
           </span>
         </button>
       ) : null}
+
+      {selectedSuggestion ? (
+        <SuggestionOverlay
+          suggestion={selectedSuggestion}
+          details={selectedDetail}
+          isFavorite={favoriteIds.has(selectedSuggestion.id)}
+          showIntro={overlaySource === "preview"}
+          onClose={closeSuggestionOverlay}
+          onComplete={handleCompleteBreak}
+          onToggleFavorite={() => toggleFavorite(selectedSuggestion.id)}
+        />
+      ) : null}
     </section>
+  );
+}
+
+function SuggestionOverlay({
+  suggestion,
+  details,
+  isFavorite,
+  showIntro,
+  onClose,
+  onComplete,
+  onToggleFavorite,
+}) {
+  return (
+    <div className="pause-overlay" role="dialog" aria-modal="true" aria-label={`${suggestion.title} details`}>
+      <div className="pause-overlay__card">
+        <button className="pause-overlay__close" type="button" aria-label="Overlay sluiten" onClick={onClose}>
+          <img src={closeIcon} alt="" aria-hidden="true" />
+        </button>
+
+        {showIntro ? <p className="pause-overlay__intro">Dit lijkt wel een goede keuze!</p> : null}
+
+        <PauseCard
+          icon={suggestion.icon}
+          title={suggestion.title}
+          isFavorite={isFavorite}
+          onToggleFavorite={onToggleFavorite}
+          disableHover
+        />
+
+        <ol className="pause-overlay__steps">
+          {(details?.steps || []).map((step, index) => (
+            <li key={`${suggestion.id}-${index}`}>{step}</li>
+          ))}
+        </ol>
+
+        <h3 className="pause-overlay__subtitle">Wat doet het?</h3>
+        <p className="pause-overlay__effect">{details?.effect || "Deze pauze helpt je om terug tot rust te komen."}</p>
+
+        <button className="pause-page-tab pause-overlay__done" type="button" onClick={onComplete}>
+          Klaar
+        </button>
+      </div>
+    </div>
   );
 }
 

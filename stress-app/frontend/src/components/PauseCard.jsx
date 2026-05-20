@@ -1,8 +1,43 @@
 import heartIcon from "../assets/heart.svg";
 
-export default function PauseCard({ icon, title, isFavorite, onToggleFavorite, favoriteIcon }) {
+export default function PauseCard({
+  icon,
+  title,
+  isFavorite,
+  onToggleFavorite,
+  favoriteIcon,
+  onSelect,
+  disableHover = false,
+  compact = false,
+}) {
+  const cardClassName = [
+    "pause-suggestion-card",
+    disableHover ? "pause-suggestion-card--no-hover" : "",
+    compact ? "pause-suggestion-card--compact" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  const isSelectable = typeof onSelect === "function";
+
   return (
-    <article className="pause-suggestion-card">
+    <article
+      className={cardClassName}
+      onClick={isSelectable ? onSelect : undefined}
+      onKeyDown={
+        isSelectable
+          ? (event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                onSelect();
+              }
+            }
+          : undefined
+      }
+      role={isSelectable ? "button" : undefined}
+      tabIndex={isSelectable ? 0 : undefined}
+      aria-label={isSelectable ? `${title} details openen` : undefined}
+    >
       <div className="pause-suggestion-card__media">
         <img src={icon} alt="" aria-hidden="true" />
       </div>
@@ -12,7 +47,10 @@ export default function PauseCard({ icon, title, isFavorite, onToggleFavorite, f
       </div>
       <button
         className={`pause-suggestion-card__favorite ${isFavorite ? "is-active" : ""}`}
-        onClick={onToggleFavorite}
+        onClick={(event) => {
+          event.stopPropagation();
+          onToggleFavorite?.();
+        }}
         aria-label={isFavorite ? "Verwijder uit favorieten" : "Voeg toe aan favorieten"}
         aria-pressed={isFavorite}
         type="button"
