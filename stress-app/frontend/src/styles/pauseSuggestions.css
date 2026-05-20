@@ -79,9 +79,9 @@
 }
 
 .pause-page-tab.active {
-	background: var(--primary);
-	color: var(--text);
-	border-color: var(--primary-dark);
+  background: var(--highlight-light);
+  color: var(--text);
+  border-color: var(--primary);
 }
 
 .pause-page-grid {
