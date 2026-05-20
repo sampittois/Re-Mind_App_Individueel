@@ -122,10 +122,10 @@ function getBandPositions(count, width, leftPadding, rightPadding) {
 }
 
 function buildBarSeries(series, axisMax, width, height, leftPadding, rightPadding, topPadding, bottomPadding) {
-  const xPositions = getBandPositions(series.length, width, leftPadding, rightPadding);
   const innerHeight = height - topPadding - bottomPadding;
   const barGroupWidth = 48;
   const barWidth = 14;
+  const xPositions = getBandPositions(series.length, width, leftPadding + barGroupWidth / 2, rightPadding + barGroupWidth / 2);
 
   return series.map((entry, index) => {
     const groupX = xPositions[index];
