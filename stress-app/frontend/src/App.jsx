@@ -52,9 +52,12 @@ export default function App() {
     pageContent = <Reports setCurrentPage={setCurrentPage} />;
   } else if (currentPage === "pause") {
     pageContent = (
-      <main className="pause-page-shell">
-        <PauseSuggestions showViewMore={false} />
-      </main>
+      <PauseSuggestions
+        mode="page"
+        showViewMore={false}
+        onBack={() => setCurrentPage("home")}
+        user={user}
+      />
     );
   } else if (currentPage === "profile") {
     pageContent = (
@@ -124,7 +127,7 @@ export default function App() {
               <Timer />
             </div>
 
-            <PauseSuggestions onViewMore={() => setCurrentPage("pause")} />
+            <PauseSuggestions onViewMore={() => setCurrentPage("pause")} user={user} />
           </div>
         </section>
       </main>
