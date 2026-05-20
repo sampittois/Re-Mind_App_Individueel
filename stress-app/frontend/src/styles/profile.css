@@ -147,6 +147,11 @@
   gap: 12px;
 }
 
+/* preserve column width while hiding the favorites content */
+.favorites-section--hidden {
+  visibility: hidden;
+}
+
 .action-btn {
   font-family: var(--font-family-heading);
   color: var(--text);

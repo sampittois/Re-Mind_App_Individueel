@@ -1,26 +1,92 @@
-import { useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import "../styles/profile.css";
 import editIcon from "../assets/edit.svg";
 import checkIcon from "../assets/check.svg";
 import xIcon from "../assets/x.svg";
 import PauseCard from "./PauseCard";
 import SettingsSection from "./SettingsSection";
+import { supabase } from "../lib/supabaseClient";
 import breathing from "../assets/ademhaling.png";
 import stretching from "../assets/stretchen.png";
+import shortWalk from "../assets/korteWandeling.png";
 import eyeReset from "../assets/oogReset.png";
+import postureCheck from "../assets/houdingCheck.png";
+import nameOneWin from "../assets/nameOneWin.png";
+import handStretch from "../assets/handStretch.png";
+import handToChestReset from "../assets/handToChestReset.png";
+import drinkPause from "../assets/drinkPauze.png";
 
-export default function ProfileSection({ initialName = "John Doe", onSaveName, onSaveAvatar, onLogout }) {
+const ALL_SUGGESTIONS = [
+  { id: "houding-check", title: "Houding check", icon: postureCheck },
+  { id: "name-1-win", title: "Name 1 Win", icon: nameOneWin },
+  { id: "hand-stretch", title: "Hand stretch", icon: handStretch },
+  { id: "hand-to-chest-reset", title: "Hand to chest reset", icon: handToChestReset },
+  { id: "drink-pauze", title: "Drink pauze", icon: drinkPause },
+  { id: "oog-reset", title: "Oog reset", icon: eyeReset },
+  { id: "breath", title: "Ademhaling", icon: breathing },
+  { id: "stretch", title: "Stretchen", icon: stretching },
+  { id: "walk", title: "Wandeling", icon: shortWalk },
+];
+
+const SUGGESTION_BY_ID = new Map(ALL_SUGGESTIONS.map((item) => [item.id, item]));
+
+export default function ProfileSection({ initialName = "John Doe", onSaveName, onSaveAvatar, onLogout, user }) {
   const [name, setName] = useState(initialName);
   const [editing, setEditing] = useState(false);
   const [avatarSrc, setAvatarSrc] = useState(null);
   const fileRef = useRef(null);
-  const [favorites, setFavorites] = useState(() => {
-    return [
-      { id: "breath", title: "Ademhaling", icon: breathing },
-      { id: "stretch", title: "Stretchen", icon: stretching },
-      { id: "eye-reset", title: "Oog reset", icon: eyeReset },
-    ];
-  });
+  const [favoriteIds, setFavoriteIds] = useState(() => []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadFavorites() {
+      if (!user?.id) {
+        if (isMounted) setFavoriteIds([]);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("favorite_pauses")
+        .select("pause_id")
+        .eq("user_id", user.id);
+
+      if (error) {
+        console.error("Failed to load profile favorites:", error);
+        return;
+      }
+
+      if (!isMounted) return;
+      setFavoriteIds((data || []).map((row) => row.pause_id));
+    }
+
+    loadFavorites();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.id]);
+
+  const favorites = favoriteIds
+    .map((id) => SUGGESTION_BY_ID.get(id))
+    .filter(Boolean);
+
+  async function removeFavorite(pauseId) {
+    setFavoriteIds((prev) => prev.filter((id) => id !== pauseId));
+
+    if (!user?.id) return;
+
+    const { error } = await supabase
+      .from("favorite_pauses")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("pause_id", pauseId);
+
+    if (error) {
+      console.error("Failed to remove profile favorite:", error);
+      setFavoriteIds((prev) => (prev.includes(pauseId) ? prev : [...prev, pauseId]));
+    }
+  }
 
   function onFileChange(e) {
     const f = e.target.files && e.target.files[0];
@@ -110,19 +176,20 @@ export default function ProfileSection({ initialName = "John Doe", onSaveName, o
         </div>
       </div>
 
-      <section className="favorites-section">
+      <section
+        className={`favorites-section ${favorites.length === 0 ? "favorites-section--hidden" : ""}`}
+        aria-hidden={favorites.length === 0}
+      >
         <h3 className="favorites-title">Favorieten</h3>
         <div className="favorites-column">
-          {Array.from(favorites).map((item) => (
+          {favorites.map((item) => (
             <PauseCard
               key={item.id}
               icon={item.icon}
               title={item.title}
               isFavorite={true}
               favoriteIcon={xIcon}
-              onToggleFavorite={() => {
-                setFavorites((prev) => prev.filter((p) => p.id !== item.id));
-              }}
+              onToggleFavorite={() => removeFavorite(item.id)}
             />
           ))}
         </div>

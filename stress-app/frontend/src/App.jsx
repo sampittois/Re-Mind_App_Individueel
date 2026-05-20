@@ -67,6 +67,7 @@ export default function App() {
           onSaveName={(n) => setName(n)}
           onSaveAvatar={(a) => setAvatar(a)}
           onLogout={() => setCurrentPage("login")}
+          user={user}
         />
       </main>
     );
