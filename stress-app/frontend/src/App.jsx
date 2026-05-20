@@ -25,7 +25,14 @@ export default function App() {
 
   const [currentPage, setCurrentPage] = useState("home");
   const [selectedExercise, setSelectedExercise] = useState(null);
+  const [breathingReturnPage, setBreathingReturnPage] = useState("home");
   const [user, setUser] = useState(null);
+
+  const openBreathingExercise = (exerciseId, returnPage) => {
+    setSelectedExercise(exerciseId);
+    setBreathingReturnPage(returnPage);
+    setCurrentPage("exercise-detail");
+  };
 
 
   let pageContent;
@@ -34,8 +41,7 @@ export default function App() {
     pageContent = (
       <BreathingExerciseDetail
         exerciseId={selectedExercise}
-        onBack={() => setCurrentPage("breathing")}
-        onChangeMethod={() => setCurrentPage("breathing")}
+        onBack={() => setCurrentPage(breathingReturnPage)}
       />
     );
   } else if (currentPage === "breathing") {
@@ -43,8 +49,7 @@ export default function App() {
       <BreathingExercises
         onBack={() => setCurrentPage("pause")}
         onSelectExercise={(id) => {
-          setSelectedExercise(id);
-          setCurrentPage("exercise-detail");
+          openBreathingExercise(id, "breathing");
         }}
       />
     );
@@ -56,6 +61,7 @@ export default function App() {
         mode="page"
         showViewMore={false}
         onBack={() => setCurrentPage("home")}
+        onStartBreathingExercise={() => openBreathingExercise("box", "pause")}
         user={user}
       />
     );
@@ -128,7 +134,11 @@ export default function App() {
               <Timer />
             </div>
 
-            <PauseSuggestions onViewMore={() => setCurrentPage("pause")} user={user} />
+            <PauseSuggestions
+              onViewMore={() => setCurrentPage("pause")}
+              onStartBreathingExercise={() => openBreathingExercise("box", "home")}
+              user={user}
+            />
           </div>
         </section>
       </main>

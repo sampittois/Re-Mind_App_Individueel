@@ -330,6 +330,12 @@
 	color: var(--text);
 }
 
+.pause-overlay__intro--breath {
+	max-width: 520px;
+	text-align: center;
+	padding-right: 0;
+}
+
 .pause-overlay .pause-suggestion-card {
 	margin: 0 auto var(--space-6);
 }
@@ -375,6 +381,17 @@
 	padding: 14px 18px;
 	background: var(--background);
 	border-color: var(--border);
+}
+
+.pause-overlay__done--breath {
+	background: var(--primary);
+	border-color: var(--primary-dark);
+	color: var(--background);
+}
+
+.pause-overlay__done--breath:hover {
+	background: var(--primary-dark);
+	border-color: var(--primary);
 }
 
 @media (max-width: 1080px) {

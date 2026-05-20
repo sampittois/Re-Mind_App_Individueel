@@ -129,6 +129,7 @@ export default function PauseSuggestions({
   showViewMore = true,
   mode = "preview",
   onBack,
+  onStartBreathingExercise,
   user,
 }) {
   const [activeTab, setActiveTab] = useState("short");
@@ -317,6 +318,7 @@ export default function PauseSuggestions({
             showIntro={overlaySource === "preview"}
             onClose={closeSuggestionOverlay}
             onComplete={handleCompleteBreak}
+            onStartBreathingExercise={onStartBreathingExercise}
             onToggleFavorite={() => toggleFavorite(selectedSuggestion.id)}
           />
         ) : null}
@@ -374,6 +376,7 @@ export default function PauseSuggestions({
           showIntro={overlaySource === "preview"}
           onClose={closeSuggestionOverlay}
           onComplete={handleCompleteBreak}
+          onStartBreathingExercise={onStartBreathingExercise}
           onToggleFavorite={() => toggleFavorite(selectedSuggestion.id)}
         />
       ) : null}
@@ -388,8 +391,11 @@ function SuggestionOverlay({
   showIntro,
   onClose,
   onComplete,
+  onStartBreathingExercise,
   onToggleFavorite,
 }) {
+  const isBreathingSuggestion = suggestion.id === "breath";
+
   return (
     <div className="pause-overlay" role="dialog" aria-modal="true" aria-label={`${suggestion.title} details`}>
       <div className="pause-overlay__card">
@@ -397,7 +403,13 @@ function SuggestionOverlay({
           <img src={closeIcon} alt="" aria-hidden="true" />
         </button>
 
-        {showIntro ? <p className="pause-overlay__intro">Dit lijkt wel een goede keuze!</p> : null}
+        {isBreathingSuggestion ? (
+          <p className="pause-overlay__intro pause-overlay__intro--breath">
+            Volg de bol: adem rustig in, hou even vast en adem daarna langzaam uit.
+          </p>
+        ) : showIntro ? (
+          <p className="pause-overlay__intro">Dit lijkt wel een goede keuze!</p>
+        ) : null}
 
         <PauseCard
           icon={suggestion.icon}
@@ -407,17 +419,25 @@ function SuggestionOverlay({
           disableHover
         />
 
-        <ol className="pause-overlay__steps">
-          {(details?.steps || []).map((step, index) => (
-            <li key={`${suggestion.id}-${index}`}>{step}</li>
-          ))}
-        </ol>
+        {isBreathingSuggestion ? null : (
+          <>
+            <ol className="pause-overlay__steps">
+              {(details?.steps || []).map((step, index) => (
+                <li key={`${suggestion.id}-${index}`}>{step}</li>
+              ))}
+            </ol>
 
-        <h3 className="pause-overlay__subtitle">Wat doet het?</h3>
-        <p className="pause-overlay__effect">{details?.effect || "Deze pauze helpt je om terug tot rust te komen."}</p>
+            <h3 className="pause-overlay__subtitle">Wat doet het?</h3>
+            <p className="pause-overlay__effect">{details?.effect || "Deze pauze helpt je om terug tot rust te komen."}</p>
+          </>
+        )}
 
-        <button className="pause-page-tab pause-overlay__done" type="button" onClick={onComplete}>
-          Klaar
+        <button
+          className={`pause-overlay__done ${isBreathingSuggestion ? "pause-overlay__done--breath" : ""}`}
+          type="button"
+          onClick={isBreathingSuggestion ? onStartBreathingExercise : onComplete}
+        >
+          {isBreathingSuggestion ? "Doe de oefening" : "Klaar"}
         </button>
       </div>
     </div>

@@ -1,44 +1,52 @@
 import { useState, useEffect, useRef } from "react";
+import breathingIcon from "../assets/ademhaling.png";
 
 const EXERCISE_DATA = {
     box: {
         title: "Box breathing",
         steps: [
-            { label: "Inademen", duration: "4s" },
-            { label: "Vasthouden", duration: "4s" },
-            { label: "Uitademen", duration: "4s" },
-            { label: "Vasthouden", duration: "4s" }
+            { label: "Adem in", duration: "4s" },
+            { label: "Houden", duration: "4s" },
+            { label: "Adem uit", duration: "4s" },
+            { label: "Houden", duration: "4s" }
         ]
     },
     coherent: {
         title: "Coherent breathing",
         steps: [
-            { label: "Inademen", duration: "5s" },
-            { label: "Uitademen", duration: "5s" }
+            { label: "Adem in", duration: "5s" },
+            { label: "Adem uit", duration: "5s" }
         ]
     },
     vishama: {
         title: "Vishama Vritti (ongelijk ademen)",
         steps: [
-            { label: "Inademen", duration: "4s" },
-            { label: "Uitademen", duration: "6s" }
+            { label: "Adem in", duration: "4s" },
+            { label: "Adem uit", duration: "6s" }
         ]
     },
     ratio: {
         title: "1:2 ratio breathing",
         steps: [
-            { label: "Inademen", duration: "4s" },
-            { label: "Uitademen", duration: "8s" }
+            { label: "Adem in", duration: "4s" },
+            { label: "Adem uit", duration: "8s" }
         ]
     },
     physio: {
         title: "Physiological sigh",
         steps: [
-            { label: "Inademen", duration: "2s" },
-            { label: "Nog inademen", duration: "1s" },
-            { label: "Uitademen", duration: "5s" }
+            { label: "Adem in", duration: "2s" },
+            { label: "Nog eens in", duration: "1s" },
+            { label: "Adem uit", duration: "5s" }
         ]
     }
+};
+
+const STEP_VISUALS = {
+    "Adem in": { className: "exercise-circle--inhale", label: "Adem in" },
+    "Houden": { className: "exercise-circle--hold", label: "Houden" },
+    "Adem uit": { className: "exercise-circle--exhale", label: "Adem uit" },
+    "Nog eens in": { className: "exercise-circle--inhale-short", label: "Nog eens in" },
 };
 
 // Helper function to convert duration string (e.g., "4s") to milliseconds
@@ -47,12 +55,15 @@ const durationToMs = (duration) => {
     return seconds * 1000;
 };
 
-export default function BreathingExerciseDetail({ exerciseId, onBack, onChangeMethod }) {
+export default function BreathingExerciseDetail({ exerciseId, onBack }) {
     const [isActive, setIsActive] = useState(false);
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const timerRef = useRef(null);
 
     const exercise = EXERCISE_DATA[exerciseId] || EXERCISE_DATA.box;
+    const currentStep = exercise.steps[currentStepIndex] || exercise.steps[0];
+    const currentVisual = STEP_VISUALS[currentStep?.label] || STEP_VISUALS["Adem in"];
+    const circleStateClass = isActive ? currentVisual.className : "exercise-circle--idle";
 
     const handleStart = () => {
         setIsActive(true);
@@ -65,6 +76,15 @@ export default function BreathingExerciseDetail({ exerciseId, onBack, onChangeMe
         if (timerRef.current) {
             clearTimeout(timerRef.current);
         }
+    };
+
+    const handleToggle = () => {
+        if (isActive) {
+          handleStop();
+          return;
+        }
+
+        handleStart();
     };
 
     // Handle step cycling
@@ -87,68 +107,28 @@ export default function BreathingExerciseDetail({ exerciseId, onBack, onChangeMe
         };
     }, [isActive, currentStepIndex, exercise.steps]);
 
-    const stepsText = exercise.steps
-        .map(step => `${step.label}: ${step.duration}`)
-        .join("  ");
-
     return (
         <main className="exercise-detail-page">
-            <div className="exercise-detail-header">
-                <button className="back-btn" onClick={onBack} aria-label="Terug">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <div className="exercise-detail-top-row">
+                <button className="back-btn exercise-detail-back" onClick={onBack} aria-label="Terug" type="button">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                 </button>
+            </div>
 
-                <div className="exercise-controls">
-                    <button
-                        className="control-btn"
-                        onClick={handleStart}
-                        disabled={isActive}
-                    >
-                        Start
-                    </button>
-                    <button
-                        className="control-btn"
-                        onClick={handleStop}
-                        disabled={!isActive}
-                    >
-                        Stop
-                    </button>
+            <div className="exercise-detail-stage">
+                <p className={`exercise-phase ${isActive ? "is-visible" : ""}`} aria-live="polite">
+                    {isActive ? currentStep.label : ""}
+                </p>
+
+                <div className={`exercise-circle ${isActive ? "is-active" : "is-idle"} ${circleStateClass}`}>
+                    <img src={breathingIcon} alt="" aria-hidden="true" className="exercise-circle-icon" />
                 </div>
-            </div>
 
-            <div className="exercise-circle-container">
-                <div className={`exercise-circle ${isActive ? "active" : ""}`}>
-                    {isActive && (
-                        <span className="circle-text">
-                            {exercise.steps[currentStepIndex].label}
-                        </span>
-                    )}
-                </div>
-            </div>
-
-            <div className="exercise-info">
-                <h2 className="exercise-title">{exercise.title}</h2>
-                <p className="exercise-steps">{stepsText}</p>
-            </div>
-
-            <button className="help-btn" aria-label="Help">
-                {/* <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                    <circle cx="16" cy="16" r="14" stroke="currentColor" strokeWidth="2" />
-                    <text x="16" y="22" textAnchor="middle" fontSize="18" fill="currentColor">?</text>
-                </svg> */}
-                ?
-            </button>
-
-            <div className="exercise-footer">
-                <button className="change-method-btn" onClick={onChangeMethod}>
-                    Andere methode →
+                <button className="exercise-toggle-btn" onClick={handleToggle} type="button">
+                    {isActive ? "Stop" : "Start"}
                 </button>
-                <div className="exercise-indicators">
-                    <span className="indicator active"></span>
-                    <span className="indicator"></span>
-                </div>
             </div>
         </main>
     );
