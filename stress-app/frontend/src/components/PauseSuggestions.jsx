@@ -12,7 +12,6 @@ import nameOneWin from "../assets/nameOneWin.png";
 import handStretch from "../assets/handStretch.png";
 import handToChestReset from "../assets/handToChestReset.png";
 import drinkPause from "../assets/drinkPauze.png";
-import swirl from "../assets/swirl.png";
 import backIcon from "../assets/back.svg";
 
 const PREVIEW_DATA = [
@@ -193,22 +192,6 @@ export default function PauseSuggestions({
             <p className="pause-page-empty">Nog geen favorieten.</p>
           ) : null}
         </section>
-
-        <div
-          className="pause-page-swirl"
-          aria-hidden="true"
-          style={{
-            backgroundColor: "var(--highlight-light)",
-            WebkitMaskImage: `url(${swirl})`,
-            maskImage: `url(${swirl})`,
-            WebkitMaskSize: "contain",
-            maskSize: "contain",
-            WebkitMaskRepeat: "no-repeat",
-            maskRepeat: "no-repeat",
-            WebkitMaskPosition: "center",
-            maskPosition: "center",
-          }}
-        />
       </main>
     );
   }

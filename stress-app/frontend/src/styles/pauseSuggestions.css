@@ -103,18 +103,6 @@
 	padding-top: var(--space-8);
 }
 
-.pause-page-swirl {
-	position: fixed;
-	right: 0;
-	bottom: 0;
-	width: 400px;
-	height: 400px;
-	pointer-events: none;
-	user-select: none;
-	opacity: 0.5;
-	z-index: 0;
-}
-
 .pause-suggestions__title {
 	margin: 0 0 12px 4px;
 	font-family: var(--font-family-heading);
