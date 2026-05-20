@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import swirl from "../assets/swirl.png";
 import "../styles/timer.css";
 import Breathe from "./Breathe";
 

@@ -104,11 +104,11 @@
 }
 
 .pause-page-swirl {
-	position: absolute;
-	right: -170px;
-	bottom: -190px;
+	position: fixed;
+	right: 0;
+	bottom: 0;
 	width: 400px;
-	height: auto;
+	height: 400px;
 	pointer-events: none;
 	user-select: none;
 	opacity: 0.5;

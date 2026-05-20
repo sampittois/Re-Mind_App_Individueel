@@ -194,7 +194,21 @@ export default function PauseSuggestions({
           ) : null}
         </section>
 
-        <img className="pause-page-swirl" src={swirl} alt="" aria-hidden="true" />
+        <div
+          className="pause-page-swirl"
+          aria-hidden="true"
+          style={{
+            backgroundColor: "var(--highlight-light)",
+            WebkitMaskImage: `url(${swirl})`,
+            maskImage: `url(${swirl})`,
+            WebkitMaskSize: "contain",
+            maskSize: "contain",
+            WebkitMaskRepeat: "no-repeat",
+            maskRepeat: "no-repeat",
+            WebkitMaskPosition: "center",
+            maskPosition: "center",
+          }}
+        />
       </main>
     );
   }
@@ -242,3 +256,4 @@ export default function PauseSuggestions({
     </section>
   );
 }
+
