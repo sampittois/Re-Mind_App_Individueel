@@ -5,6 +5,8 @@ import Breathe from "./Breathe";
 import { supabase } from "../lib/supabaseClient";
 
 export default function RegisterPage({ onRegister, onGoToLogin, onSkip }) {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -23,7 +25,16 @@ export default function RegisterPage({ onRegister, onGoToLogin, onSkip }) {
       return;
     }
 
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          first_name: firstName.trim(),
+          last_name: lastName.trim(),
+        },
+      },
+    });
     if (error) setError(error.message);
     else onRegister?.();
   }
@@ -49,6 +60,22 @@ export default function RegisterPage({ onRegister, onGoToLogin, onSkip }) {
           <p className="login-body">Registreer je om toegang te krijgen tot persoonlijke pauzes en inzichten.</p>
 
           <form className="login-form" onSubmit={handleSubmit}>
+            <label className="form-label">Voornaam</label>
+            <input
+              className="form-input"
+              placeholder="Jan"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+            />
+
+            <label className="form-label">Achternaam</label>
+            <input
+              className="form-input"
+              placeholder="Janssens"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+            />
+
             <label className="form-label">Email</label>
             <input className="form-input" placeholder="john.doe@voorbeeld.be" value={email} onChange={(e) => setEmail(e.target.value)} />
 
