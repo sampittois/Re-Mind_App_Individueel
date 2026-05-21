@@ -152,7 +152,7 @@ export default function App() {
               pausesSkipped={1}
             />
 
-            <section className="section">
+            {/* <section className="section">
               <h2>Supabase data</h2>
               {recentSessions.length > 0 ? (
                 <ul>
@@ -165,7 +165,7 @@ export default function App() {
               ) : (
                 <p>Geen recente work sessions geladen.</p>
               )}
-            </section>
+            </section> */}
           </div>
 
           <div className="home-right-column">
