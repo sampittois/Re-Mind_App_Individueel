@@ -61,11 +61,18 @@ export default function OnboardingPage({ onComplete, onSkip }) {
     }
 
     // final
+    const cleanFirstName = firstName.trim();
+    const cleanLastName = lastName.trim();
+    const fullName = `${cleanFirstName} ${cleanLastName}`.trim();
+
     onComplete?.({
-      name: `${firstName} ${lastName}`,
+      name: fullName,
+      firstName: cleanFirstName,
+      lastName: cleanLastName,
       workStart,
       workEnd,
       breakFrequencyMins,
+      fixedBreaks: pauses,
       pauseHabit,
       workStyle,
       allowReminders,

@@ -17,8 +17,35 @@ import LoginPage from "./components/LoginPage";
 import RegisterPage from "./components/RegisterPage";
 import OnboardingPage from "./components/OnboardingPage";
 
+const DEFAULT_NAME = "John Doe";
+
+function deriveNameParts(fullNameInput = "") {
+  const fullName = fullNameInput.trim();
+  if (!fullName) {
+    return { fullName: "", firstName: "", lastName: "" };
+  }
+
+  const parts = fullName.split(/\s+/);
+  const firstName = parts[0] || "";
+  const lastName = parts.slice(1).join(" ");
+  return { fullName, firstName, lastName };
+}
+
+function buildDisplayName(profile, user) {
+  const fullName = profile?.full_name?.trim();
+  if (fullName) return fullName;
+
+  const profileName = [profile?.first_name, profile?.last_name].filter(Boolean).join(" ").trim();
+  if (profileName) return profileName;
+
+  const metaName = [user?.user_metadata?.first_name, user?.user_metadata?.last_name].filter(Boolean).join(" ").trim();
+  if (metaName) return metaName;
+
+  return DEFAULT_NAME;
+}
+
 export default function App() {
-  const [name, setName] = useState("John Doe");
+  const [name, setName] = useState(DEFAULT_NAME);
   const [avatar, setAvatar] = useState(null);
   const [stressLevel, setStressLevel] = useState(3);
   const [energyLevel, setEnergyLevel] = useState(2);
@@ -28,6 +55,72 @@ export default function App() {
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [breathingReturnPage, setBreathingReturnPage] = useState("home");
   const [user, setUser] = useState(null);
+
+  async function saveProfileName(nextName) {
+    const cleanName = (nextName || "").trim();
+    const fallbackName = cleanName || DEFAULT_NAME;
+
+    if (!user?.id) {
+      setName(fallbackName);
+      return true;
+    }
+
+    const { fullName, firstName, lastName } = deriveNameParts(fallbackName);
+    const previousName = name;
+    setName(fullName);
+
+    const { error } = await supabase.from("profiles").upsert(
+      {
+        id: user.id,
+        full_name: fullName,
+        first_name: firstName || null,
+        last_name: lastName || null,
+      },
+      { onConflict: "id" }
+    );
+
+    if (error) {
+      console.error("Failed to save profile name:", error);
+      setName(previousName);
+      return false;
+    }
+
+    return true;
+  }
+
+  async function handleOnboardingComplete(payload = {}) {
+    const providedName = (payload.name || "").trim();
+    const fallbackName = providedName || DEFAULT_NAME;
+    const { fullName, firstName, lastName } = deriveNameParts(fallbackName);
+
+    if (user?.id) {
+      const fixedBreaks = Array.isArray(payload.fixedBreaks) ? payload.fixedBreaks : [];
+      const { error } = await supabase.from("profiles").upsert(
+        {
+          id: user.id,
+          full_name: fullName,
+          first_name: (payload.firstName || firstName || "").trim() || null,
+          last_name: (payload.lastName || lastName || "").trim() || null,
+          work_start: payload.workStart || null,
+          work_end: payload.workEnd || null,
+          break_frequency_mins: Number.isFinite(payload.breakFrequencyMins) ? payload.breakFrequencyMins : null,
+          fixed_breaks: fixedBreaks,
+          pause_habit: payload.pauseHabit || null,
+          work_style: payload.workStyle || null,
+          allow_reminders: Boolean(payload.allowReminders),
+          onboarding_completed: true,
+        },
+        { onConflict: "id" }
+      );
+
+      if (error) {
+        console.error("Failed to save onboarding profile:", error);
+      }
+    }
+
+    setName(fullName || DEFAULT_NAME);
+    setCurrentPage("home");
+  }
 
 
   let pageContent;
@@ -65,7 +158,7 @@ export default function App() {
       <main className="page profile-page">
         <ProfileSection
           initialName={name}
-          onSaveName={(n) => setName(n)}
+          onSaveName={saveProfileName}
           onSaveAvatar={(a) => setAvatar(a)}
           onLogout={() => setCurrentPage("login")}
           user={user}
@@ -95,7 +188,7 @@ export default function App() {
   } else if (currentPage === "onboarding") {
     pageContent = (
       <main className="page login-root">
-        <OnboardingPage onComplete={() => setCurrentPage("home")} onSkip={() => setCurrentPage("home")} />
+        <OnboardingPage onComplete={handleOnboardingComplete} onSkip={() => setCurrentPage("home")} />
       </main>
     );
   } else {
@@ -174,6 +267,38 @@ export default function App() {
       sub?.subscription?.unsubscribe?.();
     };
   }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadProfileName() {
+      if (!user?.id) {
+        if (isMounted) {
+          setName(DEFAULT_NAME);
+        }
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("full_name, first_name, last_name")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Failed to load profile name:", error);
+      }
+
+      if (!isMounted) return;
+      setName(buildDisplayName(data, user));
+    }
+
+    loadProfileName();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
 
   return (
     <div className={currentPage !== "login" && currentPage !== "register" && currentPage !== "onboarding" ? "app appWithNavbar" : "app"}>

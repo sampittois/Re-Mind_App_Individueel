@@ -36,6 +36,7 @@ export default function ProfileSection({ initialName = "John Doe", onSaveName, o
     setName(initialName);
   }, [initialName]);
   const [editing, setEditing] = useState(false);
+  const [isSavingName, setIsSavingName] = useState(false);
   const [avatarSrc, setAvatarSrc] = useState(null);
   const fileRef = useRef(null);
   const [favoriteIds, setFavoriteIds] = useState(() => []);
@@ -104,6 +105,28 @@ export default function ProfileSection({ initialName = "John Doe", onSaveName, o
     onSaveAvatar?.(null);
   }
 
+  async function handleNameSaveToggle() {
+    if (!editing) {
+      setEditing(true);
+      return;
+    }
+
+    if (!onSaveName) {
+      setEditing(false);
+      return;
+    }
+
+    setIsSavingName(true);
+    try {
+      const didSave = await onSaveName(name);
+      if (didSave !== false) {
+        setEditing(false);
+      }
+    } finally {
+      setIsSavingName(false);
+    }
+  }
+
   return (
     <div className="profile-section">
       <div className="profile-info-column">
@@ -157,14 +180,8 @@ export default function ProfileSection({ initialName = "John Doe", onSaveName, o
           <button
             className="edit-pencil"
             type="button"
-            onClick={() => {
-              if (editing) {
-                onSaveName?.(name);
-                setEditing(false);
-              } else {
-                setEditing(true);
-              }
-            }}
+            onClick={handleNameSaveToggle}
+            disabled={isSavingName}
             aria-label={editing ? "Opslaan" : "Bewerk naam"}
           >
             <img src={editing ? checkIcon : editIcon} alt="edit" className="edit-icon" />
