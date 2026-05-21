@@ -22,10 +22,44 @@ export default function App() {
   const [avatar, setAvatar] = useState(null);
   const [stressLevel, setStressLevel] = useState(3);
   const [energyLevel, setEnergyLevel] = useState(2);
+  const [recentSessions, setRecentSessions] = useState([]);
 
   const [currentPage, setCurrentPage] = useState("home");
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadRecentSessions() {
+      if (!user?.id) {
+        setRecentSessions([]);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("work_sessions")
+        .select("id, start_time")
+        .eq("user_id", user.id)
+        .order("start_time", { ascending: false })
+        .limit(3);
+
+      if (error) {
+        console.error("Failed to load recent work sessions:", error);
+        return;
+      }
+
+      if (active) {
+        setRecentSessions(data || []);
+      }
+    }
+
+    loadRecentSessions();
+
+    return () => {
+      active = false;
+    };
+  }, [user?.id]);
 
 
   let pageContent;
@@ -117,6 +151,21 @@ export default function App() {
               pausesTaken={3}
               pausesSkipped={1}
             />
+
+            <section className="section">
+              <h2>Supabase data</h2>
+              {recentSessions.length > 0 ? (
+                <ul>
+                  {recentSessions.map((session) => (
+                    <li key={session.id}>
+                      Sessiestart: {new Date(session.start_time).toLocaleString()}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>Geen recente work sessions geladen.</p>
+              )}
+            </section>
           </div>
 
           <div className="home-right-column">
