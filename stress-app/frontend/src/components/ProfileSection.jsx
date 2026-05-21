@@ -32,6 +32,9 @@ const SUGGESTION_BY_ID = new Map(ALL_SUGGESTIONS.map((item) => [item.id, item]))
 
 export default function ProfileSection({ initialName = "John Doe", onSaveName, onSaveAvatar, onLogout, user }) {
   const [name, setName] = useState(initialName);
+  useEffect(() => {
+    setName(initialName);
+  }, [initialName]);
   const [editing, setEditing] = useState(false);
   const [avatarSrc, setAvatarSrc] = useState(null);
   const fileRef = useRef(null);

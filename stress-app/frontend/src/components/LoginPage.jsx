@@ -44,9 +44,6 @@ export default function LoginPage({ onLogin, onGoToRegister, onSkip }) {
           </form>
 
           <div className="login-footer">
-            <button type="button" className="auth-link-button" onClick={onSkip}>
-              Ga naar de app
-            </button>
             Heb je nog geen account? <button type="button" className="auth-link-button" onClick={onGoToRegister}>Registreer je</button>
           </div>
         </div>
