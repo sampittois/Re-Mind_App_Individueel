@@ -24,6 +24,14 @@ begin
 end;
 $$;
 
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'user_plan') then
+    create type public.user_plan as enum ('basic', 'premium', 'bedrijfslicentie');
+  end if;
+end;
+$$;
+
 -- Profiles are linked 1:1 to auth.users.
 create table if not exists public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
@@ -32,6 +40,7 @@ create table if not exists public.profiles (
   last_name text,
   email text,
   avatar_url text,
+  plan user_plan not null default 'basic',
   work_start time,
   work_end time,
   break_frequency_mins integer check (break_frequency_mins > 0),
@@ -49,6 +58,7 @@ alter table public.profiles add column if not exists first_name text;
 alter table public.profiles add column if not exists last_name text;
 alter table public.profiles add column if not exists email text;
 alter table public.profiles add column if not exists avatar_url text;
+alter table public.profiles add column if not exists plan public.user_plan not null default 'basic';
 alter table public.profiles add column if not exists work_start time;
 alter table public.profiles add column if not exists work_end time;
 alter table public.profiles add column if not exists break_frequency_mins integer;
@@ -112,6 +122,9 @@ create index if not exists profiles_full_name_idx
 
 create index if not exists profiles_email_idx
   on public.profiles (email);
+
+create index if not exists profiles_plan_idx
+  on public.profiles (plan);
 
 create index if not exists work_sessions_user_id_start_time_idx
   on public.work_sessions (user_id, start_time desc);
@@ -207,6 +220,7 @@ begin
     last_name,
     email,
     avatar_url,
+    plan,
     onboarding_completed
   )
   values (
@@ -221,6 +235,7 @@ begin
     new.raw_user_meta_data ->> 'last_name',
     new.email,
     new.raw_user_meta_data ->> 'avatar_url',
+    coalesce((new.raw_user_meta_data ->> 'plan')::public.user_plan, 'basic'::public.user_plan),
     false
   )
   on conflict (id) do nothing;
