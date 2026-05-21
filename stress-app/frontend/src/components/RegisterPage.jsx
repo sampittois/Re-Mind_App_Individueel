@@ -5,6 +5,8 @@ import Breathe from "./Breathe";
 import { supabase } from "../lib/supabaseClient";
 
 export default function RegisterPage({ onRegister, onGoToLogin, onSkip }) {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -23,7 +25,16 @@ export default function RegisterPage({ onRegister, onGoToLogin, onSkip }) {
       return;
     }
 
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          first_name: firstName.trim(),
+          last_name: lastName.trim(),
+        },
+      },
+    });
     if (error) setError(error.message);
     else onRegister?.();
   }
@@ -69,6 +80,9 @@ export default function RegisterPage({ onRegister, onGoToLogin, onSkip }) {
           </form>
 
           <div className="login-footer">
+            <button type="button" className="auth-link-button" onClick={onSkip}>
+              Ga naar de app
+            </button>
             Heb je al een account? <button type="button" className="auth-link-button" onClick={onGoToLogin}>Log in</button>
           </div>
         </div>

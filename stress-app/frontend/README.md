@@ -14,3 +14,35 @@ The React Compiler is not enabled on this template because of its impact on dev 
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+## Run locally
+
+- **Start backend:**
+
+```bash
+cd backend
+npm install
+node index.js
+```
+
+- **Start frontend (Vite):**
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+- **Check Supabase health:**
+
+Open `http://localhost:3000/supabase-health` in your browser or run:
+
+```bash
+curl http://localhost:3000/supabase-health
+```
+
+Notes:
+- The frontend reads `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` from `frontend/.env`.
+- The backend uses `SUPABASE_URL` and `SUPABASE_ANON_KEY` from `backend/.env`.
+- Do not expose a `SUPABASE_SERVICE_ROLE_KEY` in the frontend; keep it server-side only.
+

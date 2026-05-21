@@ -22,17 +22,12 @@ export default function App() {
   const [avatar, setAvatar] = useState(null);
   const [stressLevel, setStressLevel] = useState(3);
   const [energyLevel, setEnergyLevel] = useState(2);
+  const [recentSessions, setRecentSessions] = useState([]);
 
   const [currentPage, setCurrentPage] = useState("home");
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [breathingReturnPage, setBreathingReturnPage] = useState("home");
   const [user, setUser] = useState(null);
-
-  const openBreathingExercise = (exerciseId, returnPage) => {
-    setSelectedExercise(exerciseId);
-    setBreathingReturnPage(returnPage);
-    setCurrentPage("exercise-detail");
-  };
 
 
   let pageContent;
@@ -127,6 +122,21 @@ export default function App() {
               pausesTaken={3}
               pausesSkipped={1}
             />
+
+            {/* <section className="section">
+              <h2>Supabase data</h2>
+              {recentSessions.length > 0 ? (
+                <ul>
+                  {recentSessions.map((session) => (
+                    <li key={session.id}>
+                      Sessiestart: {new Date(session.start_time).toLocaleString()}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>Geen recente work sessions geladen.</p>
+              )}
+            </section> */}
           </div>
 
           <div className="home-right-column">
