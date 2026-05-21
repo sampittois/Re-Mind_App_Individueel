@@ -60,22 +60,6 @@ export default function RegisterPage({ onRegister, onGoToLogin, onSkip }) {
           <p className="login-body">Registreer je om toegang te krijgen tot persoonlijke pauzes en inzichten.</p>
 
           <form className="login-form" onSubmit={handleSubmit}>
-            <label className="form-label">Voornaam</label>
-            <input
-              className="form-input"
-              placeholder="Jan"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-            />
-
-            <label className="form-label">Achternaam</label>
-            <input
-              className="form-input"
-              placeholder="Janssens"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-            />
-
             <label className="form-label">Email</label>
             <input className="form-input" placeholder="john.doe@voorbeeld.be" value={email} onChange={(e) => setEmail(e.target.value)} />
 
@@ -96,9 +80,6 @@ export default function RegisterPage({ onRegister, onGoToLogin, onSkip }) {
           </form>
 
           <div className="login-footer">
-            <button type="button" className="auth-link-button" onClick={() => onSkip?.()}>
-              Ga naar de app
-            </button>
             Heb je al een account? <button type="button" className="auth-link-button" onClick={() => onGoToLogin?.()}>Log in</button>
           </div>
         </div>
