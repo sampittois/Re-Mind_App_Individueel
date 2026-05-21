@@ -18,6 +18,7 @@ import RegisterPage from "./components/RegisterPage";
 import OnboardingPage from "./components/OnboardingPage";
 
 const DEFAULT_NAME = "John Doe";
+const PROFILE_SELECT = "id, full_name, first_name, last_name, email, avatar_url, plan, work_start, work_end, break_frequency_mins, fixed_breaks, pause_habit, work_style, work_type, allow_reminders, dark_mode, use_company_colors, onboarding_completed";
 
 function deriveNameParts(fullNameInput = "") {
   const fullName = fullNameInput.trim();
@@ -47,6 +48,7 @@ function buildDisplayName(profile, user) {
 export default function App() {
   const [name, setName] = useState(DEFAULT_NAME);
   const [avatar, setAvatar] = useState(null);
+  const [profile, setProfile] = useState(null);
   const [stressLevel, setStressLevel] = useState(3);
   const [energyLevel, setEnergyLevel] = useState(2);
   const [recentSessions, setRecentSessions] = useState([]);
@@ -55,6 +57,28 @@ export default function App() {
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [breathingReturnPage, setBreathingReturnPage] = useState("home");
   const [user, setUser] = useState(null);
+
+  async function saveProfilePatch(patch) {
+    if (!user?.id) {
+      setProfile((previous) => ({ ...(previous || {}), ...patch }));
+      return true;
+    }
+
+    const nextProfile = { id: user.id, ...(profile || {}), ...patch };
+    const { data, error } = await supabase
+      .from("profiles")
+      .upsert(nextProfile, { onConflict: "id" })
+      .select(PROFILE_SELECT)
+      .single();
+
+    if (error) {
+      console.error("Failed to save profile patch:", error);
+      return false;
+    }
+
+    setProfile(data || nextProfile);
+    return true;
+  }
 
   async function saveProfileName(nextName) {
     const cleanName = (nextName || "").trim();
@@ -69,18 +93,13 @@ export default function App() {
     const previousName = name;
     setName(fullName);
 
-    const { error } = await supabase.from("profiles").upsert(
-      {
-        id: user.id,
-        full_name: fullName,
-        first_name: firstName || null,
-        last_name: lastName || null,
-      },
-      { onConflict: "id" }
-    );
+    const didSave = await saveProfilePatch({
+      full_name: fullName,
+      first_name: firstName || null,
+      last_name: lastName || null,
+    });
 
-    if (error) {
-      console.error("Failed to save profile name:", error);
+    if (!didSave) {
       setName(previousName);
       return false;
     }
@@ -95,26 +114,23 @@ export default function App() {
 
     if (user?.id) {
       const fixedBreaks = Array.isArray(payload.fixedBreaks) ? payload.fixedBreaks : [];
-      const { error } = await supabase.from("profiles").upsert(
-        {
-          id: user.id,
-          full_name: fullName,
-          first_name: (payload.firstName || firstName || "").trim() || null,
-          last_name: (payload.lastName || lastName || "").trim() || null,
-          work_start: payload.workStart || null,
-          work_end: payload.workEnd || null,
-          break_frequency_mins: Number.isFinite(payload.breakFrequencyMins) ? payload.breakFrequencyMins : null,
-          fixed_breaks: fixedBreaks,
-          pause_habit: payload.pauseHabit || null,
-          work_style: payload.workStyle || null,
-          allow_reminders: Boolean(payload.allowReminders),
-          onboarding_completed: true,
-        },
-        { onConflict: "id" }
-      );
+      const didSave = await saveProfilePatch({
+        full_name: fullName,
+        first_name: (payload.firstName || firstName || "").trim() || null,
+        last_name: (payload.lastName || lastName || "").trim() || null,
+        work_start: payload.workStart || null,
+        work_end: payload.workEnd || null,
+        break_frequency_mins: Number.isFinite(payload.breakFrequencyMins) ? payload.breakFrequencyMins : null,
+        fixed_breaks: fixedBreaks,
+        pause_habit: payload.pauseHabit || null,
+        work_style: payload.workStyle || null,
+        work_type: payload.workType || null,
+        allow_reminders: Boolean(payload.allowReminders),
+        onboarding_completed: true,
+      });
 
-      if (error) {
-        console.error("Failed to save onboarding profile:", error);
+      if (!didSave) {
+        console.error("Failed to save onboarding profile");
       }
     }
 
@@ -157,11 +173,20 @@ export default function App() {
     pageContent = (
       <main className="page profile-page">
         <ProfileSection
+          profile={profile}
           initialName={name}
           onSaveName={saveProfileName}
-          onSaveAvatar={(a) => setAvatar(a)}
+          onSaveAvatar={async (nextAvatar) => {
+            setAvatar(nextAvatar);
+            const didSave = await saveProfilePatch({ avatar_url: nextAvatar });
+            if (!didSave) {
+              setAvatar(profile?.avatar_url ?? null);
+            }
+            return didSave;
+          }}
           onLogout={() => setCurrentPage("login")}
           user={user}
+          onUpdateProfile={saveProfilePatch}
         />
       </main>
     );
@@ -267,6 +292,42 @@ export default function App() {
       sub?.subscription?.unsubscribe?.();
     };
   }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadProfile() {
+      if (!user?.id) {
+        setProfile(null);
+        setAvatar(null);
+        setName(DEFAULT_NAME);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select(PROFILE_SELECT)
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (!active) return;
+
+      if (error) {
+        console.error("Failed to load profile:", error);
+        return;
+      }
+
+      setProfile(data || null);
+      setName(buildDisplayName(data, user));
+      setAvatar(data?.avatar_url ?? null);
+    }
+
+    loadProfile();
+
+    return () => {
+      active = false;
+    };
+  }, [user?.id]);
 
   useEffect(() => {
     let isMounted = true;

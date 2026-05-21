@@ -1,11 +1,32 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CustomDropdown from "./CustomDropdown";
 import "../styles/settings.css";
 
-export default function SettingsDropdowns() {
+export default function SettingsDropdowns({ profile, onUpdateProfile }) {
   const [workType, setWorkType] = useState("");
   const [pauseFrequency, setPauseFrequency] = useState("");
   const [workManner, setWorkManner] = useState("");
+
+  useEffect(() => {
+    setWorkType(profile?.work_type ?? "");
+    setPauseFrequency(profile?.break_frequency_mins ? String(profile.break_frequency_mins) : "");
+    setWorkManner(profile?.work_style ?? "");
+  }, [profile?.work_type, profile?.break_frequency_mins, profile?.work_style]);
+
+  async function updateWorkType(value) {
+    setWorkType(value);
+    await onUpdateProfile?.({ work_type: value || null });
+  }
+
+  async function updatePauseFrequency(value) {
+    setPauseFrequency(value);
+    await onUpdateProfile?.({ break_frequency_mins: value ? Number(value) : null });
+  }
+
+  async function updateWorkManner(value) {
+    setWorkManner(value);
+    await onUpdateProfile?.({ work_style: value || null });
+  }
 
   const workTypeOptions = [
     { value: "", label: "Kies een type werk" },
@@ -16,9 +37,9 @@ export default function SettingsDropdowns() {
 
   const pauseFrequencyOptions = [
     { value: "", label: "Hoe vaak pauzeer je?" },
-    { value: "elk-uur", label: "Ik vergeet vaak te pauzeren" },
-    { value: "2-uur", label: "Ik neem soms pauzes" },
-    { value: "3-uur", label: "Ik neem regelmatig pauzes" },
+    { value: "60", label: "Ik vergeet vaak te pauzeren" },
+    { value: "120", label: "Ik neem soms pauzes" },
+    { value: "180", label: "Ik neem regelmatig pauzes" },
   ];
 
   const workMannerOptions = [
@@ -33,7 +54,7 @@ export default function SettingsDropdowns() {
       <div className="dropdown-wrapper">
         <CustomDropdown
           value={workType}
-          onChange={setWorkType}
+          onChange={updateWorkType}
           placeholder="Kies een type werk"
           options={workTypeOptions}
         />
@@ -42,7 +63,7 @@ export default function SettingsDropdowns() {
       <div className="dropdown-wrapper">
         <CustomDropdown
           value={pauseFrequency}
-          onChange={setPauseFrequency}
+          onChange={updatePauseFrequency}
           placeholder="Hoe vaak pauzeer je?"
           options={pauseFrequencyOptions}
         />
@@ -51,7 +72,7 @@ export default function SettingsDropdowns() {
       <div className="dropdown-wrapper">
         <CustomDropdown
           value={workManner}
-          onChange={setWorkManner}
+          onChange={updateWorkManner}
           placeholder="Hoe werk jij meestaal?"
           options={workMannerOptions}
         />

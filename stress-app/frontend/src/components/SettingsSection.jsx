@@ -1,26 +1,71 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../styles/settings.css";
 import SettingsDropdowns from "./SettingsDropdowns";
 import SettingsToggles from "./SettingsToggles";
 
-export default function SettingsSection() {
+function normalizeTime(value, fallback) {
+  if (typeof value !== "string" || !value) return fallback;
+  return value.slice(0, 5);
+}
+
+function normalizePauses(value) {
+  if (!Array.isArray(value) || value.length === 0) {
+    return [{ id: 1, start: "12:00", end: "12:30" }];
+  }
+
+  return value.map((pause, index) => ({
+    id: pause?.id ?? index + 1,
+    start: normalizeTime(pause?.start, "12:00"),
+    end: normalizeTime(pause?.end, "12:30"),
+  }));
+}
+
+function createPauseId() {
+  return Date.now() + Math.random();
+}
+
+export default function SettingsSection({ profile, onUpdateProfile }) {
   const [workStart, setWorkStart] = useState("08:00");
   const [workEnd, setWorkEnd] = useState("17:00");
-  const [pauses, setPauses] = useState([
-    { id: 1, start: "12:00", end: "12:30" }
-  ]);
+  const [pauses, setPauses] = useState([{ id: 1, start: "12:00", end: "12:30" }]);
 
-  const addPause = () => {
-    const newId = Math.max(...pauses.map(p => p.id), 0) + 1;
-    setPauses([...pauses, { id: newId, start: "12:00", end: "12:30" }]);
+  useEffect(() => {
+    setWorkStart(normalizeTime(profile?.work_start, "08:00"));
+    setWorkEnd(normalizeTime(profile?.work_end, "17:00"));
+    setPauses(normalizePauses(profile?.fixed_breaks));
+  }, [profile?.work_start, profile?.work_end, profile?.fixed_breaks]);
+
+  async function saveProfileFields(nextFields) {
+    await onUpdateProfile?.(nextFields);
+  }
+
+  const addPause = async () => {
+    const nextPauses = [...pauses, { id: createPauseId(), start: "12:00", end: "12:30" }];
+    setPauses(nextPauses);
+    await saveProfileFields({ fixed_breaks: nextPauses });
   };
 
-  const updatePause = (id, field, value) => {
-    setPauses(pauses.map(p => p.id === id ? { ...p, [field]: value } : p));
+  const updatePause = async (id, field, value) => {
+    const nextPauses = pauses.map((pause) => (pause.id === id ? { ...pause, [field]: value } : pause));
+    setPauses(nextPauses);
+    await saveProfileFields({ fixed_breaks: nextPauses });
   };
 
-  const removePause = (id) => {
-    setPauses(pauses.filter(p => p.id !== id));
+  const removePause = async (id) => {
+    const nextPauses = pauses.filter((pause) => pause.id !== id);
+    const normalizedPauses = nextPauses.length > 0 ? nextPauses : [{ id: createPauseId(), start: "12:00", end: "12:30" }];
+    setPauses(normalizedPauses);
+    await saveProfileFields({ fixed_breaks: normalizedPauses });
+  };
+
+  const updateWorkStart = async (value) => {
+    setWorkStart(value);
+    await saveProfileFields({ work_start: value || null });
+  };
+
+  const updateWorkEnd = async (value) => {
+    setWorkEnd(value);
+    await saveProfileFields({ work_end: value || null });
   };
 
   return (
@@ -34,7 +79,7 @@ export default function SettingsSection() {
             <input
               type="time"
               value={workStart}
-              onChange={(e) => setWorkStart(e.target.value)}
+              onChange={(e) => updateWorkStart(e.target.value)}
               className="time-input"
             />
           </div>
@@ -43,7 +88,7 @@ export default function SettingsSection() {
             <input
               type="time"
               value={workEnd}
-              onChange={(e) => setWorkEnd(e.target.value)}
+              onChange={(e) => updateWorkEnd(e.target.value)}
               className="time-input"
             />
           </div>
@@ -91,10 +136,10 @@ export default function SettingsSection() {
       </div>
 
       {/* Dropdowns section */}
-      <SettingsDropdowns />
+      <SettingsDropdowns profile={profile} onUpdateProfile={onUpdateProfile} />
 
       {/* Toggles section */}
-      <SettingsToggles />
+      <SettingsToggles profile={profile} onUpdateProfile={onUpdateProfile} />
     </section>
   );
 }

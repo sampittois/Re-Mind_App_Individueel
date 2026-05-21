@@ -30,16 +30,20 @@ const ALL_SUGGESTIONS = [
 
 const SUGGESTION_BY_ID = new Map(ALL_SUGGESTIONS.map((item) => [item.id, item]));
 
-export default function ProfileSection({ initialName = "John Doe", onSaveName, onSaveAvatar, onLogout, user }) {
+export default function ProfileSection({ profile, initialName = "John Doe", onSaveName, onSaveAvatar, onLogout, user, onUpdateProfile }) {
   const [name, setName] = useState(initialName);
   useEffect(() => {
     setName(initialName);
   }, [initialName]);
   const [editing, setEditing] = useState(false);
   const [isSavingName, setIsSavingName] = useState(false);
-  const [avatarSrc, setAvatarSrc] = useState(null);
+  const [avatarSrc, setAvatarSrc] = useState(profile?.avatar_url ?? null);
   const fileRef = useRef(null);
   const [favoriteIds, setFavoriteIds] = useState(() => []);
+
+  useEffect(() => {
+    setAvatarSrc(profile?.avatar_url ?? null);
+  }, [profile?.avatar_url]);
 
   useEffect(() => {
     let isMounted = true;
@@ -95,14 +99,33 @@ export default function ProfileSection({ initialName = "John Doe", onSaveName, o
   function onFileChange(e) {
     const f = e.target.files && e.target.files[0];
     if (!f) return;
-    const url = URL.createObjectURL(f);
-    setAvatarSrc(url);
-    onSaveAvatar?.(url);
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const nextAvatar = typeof reader.result === "string" ? reader.result : null;
+      if (!nextAvatar) return;
+
+      setAvatarSrc(nextAvatar);
+
+      if (onSaveAvatar) {
+        await onSaveAvatar(nextAvatar);
+        return;
+      }
+
+      await onUpdateProfile?.({ avatar_url: nextAvatar });
+    };
+
+    reader.readAsDataURL(f);
   }
 
-  function onRemoveAvatar() {
+  async function onRemoveAvatar() {
     setAvatarSrc(null);
-    onSaveAvatar?.(null);
+    if (onSaveAvatar) {
+      await onSaveAvatar(null);
+      return;
+    }
+
+    await onUpdateProfile?.({ avatar_url: null });
   }
 
   async function handleNameSaveToggle() {
@@ -215,7 +238,7 @@ export default function ProfileSection({ initialName = "John Doe", onSaveName, o
         </div>
       </section>
 
-      <SettingsSection />
+      <SettingsSection profile={profile} onUpdateProfile={onUpdateProfile} />
     </div>
   );
 }
