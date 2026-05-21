@@ -70,6 +70,7 @@ export default function OnboardingPage({ onComplete, onSkip }) {
       firstName: cleanFirstName,
       lastName: cleanLastName,
       workStart,
+  const [workType, setWorkType] = useState("");
       workEnd,
       breakFrequencyMins,
       fixedBreaks: pauses,
@@ -84,6 +85,12 @@ export default function OnboardingPage({ onComplete, onSkip }) {
   }
 
   function renderStep() {
+  const workTypeOptions = [
+    { value: "", label: "Kies een type werk" },
+    { value: "kantoor", label: "Kantoor" },
+    { value: "thuis", label: "Thuiswerk / remote" },
+    { value: "hybrid", label: "Hybrid (kantoor + remote)" },
+  ];
     switch (step) {
       case 1:
         return (
@@ -110,6 +117,7 @@ export default function OnboardingPage({ onComplete, onSkip }) {
             </div>
             <p className="login-body">We gebruiken je naam om je profiel te personaliseren.</p>
           </>
+      workType,
         );
 
       case 2:
@@ -230,6 +238,15 @@ export default function OnboardingPage({ onComplete, onSkip }) {
                 <div className="toggle-thumb" />
               </div>
               <span style={{ marginLeft: 6 }}>{allowReminders ? "Aan" : "Uit"}</span>
+            <label className="form-label">Werktype</label>
+            <div className="dropdown-wrapper">
+              <CustomDropdown
+                value={workType}
+                onChange={setWorkType}
+                placeholder="Kies een type werk"
+                options={workTypeOptions}
+              />
+            </div>
             </div>
           </>
         );

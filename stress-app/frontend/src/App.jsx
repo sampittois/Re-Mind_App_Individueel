@@ -18,7 +18,7 @@ import RegisterPage from "./components/RegisterPage";
 import OnboardingPage from "./components/OnboardingPage";
 
 const DEFAULT_NAME = "John Doe";
-const PROFILE_SELECT = "id, full_name, first_name, last_name, email, avatar_url, plan, work_start, work_end, break_frequency_mins, fixed_breaks, pause_habit, work_style, work_type, allow_reminders, dark_mode, use_company_colors, onboarding_completed";
+const PROFILE_SELECT = "id, full_name, first_name, last_name, email, avatar_url, plan, work_start, work_end, break_frequency_mins, fixed_breaks, pause_habit, work_style, work_type, allow_reminders, dark_mode, use_company_colors, calendar_linked, company_management_enabled";
 
 function deriveNameParts(fullNameInput = "") {
   const fullName = fullNameInput.trim();
@@ -82,14 +82,16 @@ export default function App() {
 
   async function saveProfileName(nextName) {
     const cleanName = (nextName || "").trim();
-    const fallbackName = cleanName || DEFAULT_NAME;
+    if (!cleanName) {
+      return false;
+    }
 
     if (!user?.id) {
-      setName(fallbackName);
+      setName(cleanName);
       return true;
     }
 
-    const { fullName, firstName, lastName } = deriveNameParts(fallbackName);
+    const { fullName, firstName, lastName } = deriveNameParts(cleanName);
     const previousName = name;
     setName(fullName);
 
@@ -126,7 +128,6 @@ export default function App() {
         work_style: payload.workStyle || null,
         work_type: payload.workType || null,
         allow_reminders: Boolean(payload.allowReminders),
-        onboarding_completed: true,
       });
 
       if (!didSave) {
@@ -184,9 +185,17 @@ export default function App() {
             }
             return didSave;
           }}
-          onLogout={() => setCurrentPage("login")}
+          onLogout={async () => {
+            await supabase.auth.signOut();
+            setUser(null);
+            setProfile(null);
+            setAvatar(null);
+            setName(DEFAULT_NAME);
+            setCurrentPage("login");
+          }}
           user={user}
           onUpdateProfile={saveProfilePatch}
+          hasStoredName={Boolean(profile?.full_name || profile?.first_name || profile?.last_name)}
         />
       </main>
     );

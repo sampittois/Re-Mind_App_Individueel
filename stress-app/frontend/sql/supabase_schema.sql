@@ -51,7 +51,8 @@ create table if not exists public.profiles (
   allow_reminders boolean not null default false,
   dark_mode boolean not null default false,
   use_company_colors boolean not null default true,
-  onboarding_completed boolean not null default false,
+  calendar_linked boolean not null default false,
+  company_management_enabled boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -72,7 +73,8 @@ alter table public.profiles add column if not exists work_type text;
 alter table public.profiles add column if not exists allow_reminders boolean not null default false;
 alter table public.profiles add column if not exists dark_mode boolean not null default false;
 alter table public.profiles add column if not exists use_company_colors boolean not null default true;
-alter table public.profiles add column if not exists onboarding_completed boolean not null default false;
+alter table public.profiles add column if not exists calendar_linked boolean not null default false;
+alter table public.profiles add column if not exists company_management_enabled boolean not null default false;
 alter table public.profiles add column if not exists created_at timestamptz not null default now();
 alter table public.profiles add column if not exists updated_at timestamptz not null default now();
 

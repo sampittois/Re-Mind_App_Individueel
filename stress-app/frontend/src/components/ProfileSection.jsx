@@ -30,11 +30,11 @@ const ALL_SUGGESTIONS = [
 
 const SUGGESTION_BY_ID = new Map(ALL_SUGGESTIONS.map((item) => [item.id, item]));
 
-export default function ProfileSection({ profile, initialName = "John Doe", onSaveName, onSaveAvatar, onLogout, user, onUpdateProfile }) {
-  const [name, setName] = useState(initialName);
+export default function ProfileSection({ profile, initialName = "John Doe", onSaveName, onSaveAvatar, onLogout, user, onUpdateProfile, hasStoredName = true }) {
+  const [name, setName] = useState(hasStoredName ? initialName : "");
   useEffect(() => {
-    setName(initialName);
-  }, [initialName]);
+    setName(hasStoredName ? initialName : "");
+  }, [initialName, hasStoredName]);
   const [editing, setEditing] = useState(false);
   const [isSavingName, setIsSavingName] = useState(false);
   const [avatarSrc, setAvatarSrc] = useState(profile?.avatar_url ?? null);
@@ -131,6 +131,9 @@ export default function ProfileSection({ profile, initialName = "John Doe", onSa
   async function handleNameSaveToggle() {
     if (!editing) {
       setEditing(true);
+      if (!hasStoredName && name === initialName) {
+        setName("");
+      }
       return;
     }
 
@@ -195,9 +198,12 @@ export default function ProfileSection({ profile, initialName = "John Doe", onSa
               value={name}
               onChange={(e) => setName(e.target.value)}
               aria-label="Naam bewerken"
+              placeholder={hasStoredName ? "Naam bewerken" : "Voeg je naam toe"}
             />
           ) : (
-            <h2 className="profile-name">{name}</h2>
+            <h2 className={`profile-name ${!hasStoredName ? "profile-name--placeholder" : ""}`}>
+              {hasStoredName ? name : "Voeg je naam toe"}
+            </h2>
           )}
 
           <button
@@ -212,9 +218,34 @@ export default function ProfileSection({ profile, initialName = "John Doe", onSa
         </div>
 
         <div className="profile-actions">
-          <button className="action-btn">Upgrade Plan</button>
-          <button className="action-btn">Link Agenda</button>
-          <button className="action-btn">Bedrijfsbeheer</button>
+          <button
+            className="action-btn"
+            type="button"
+            onClick={async () => {
+              const nextPlan = profile?.plan === "basic" ? "premium" : profile?.plan === "premium" ? "bedrijfslicentie" : "basic";
+              await onUpdateProfile?.({ plan: nextPlan });
+            }}
+          >
+            Upgrade Plan
+          </button>
+          <button
+            className="action-btn"
+            type="button"
+            onClick={async () => {
+              await onUpdateProfile?.({ calendar_linked: !Boolean(profile?.calendar_linked) });
+            }}
+          >
+            Link Agenda
+          </button>
+          <button
+            className="action-btn"
+            type="button"
+            onClick={async () => {
+              await onUpdateProfile?.({ company_management_enabled: !Boolean(profile?.company_management_enabled) });
+            }}
+          >
+            Bedrijfsbeheer
+          </button>
           <button className="action-btn logout-btn" type="button" onClick={() => onLogout?.()}>Log uit</button>
         </div>
       </div>
