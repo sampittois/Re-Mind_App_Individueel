@@ -6,7 +6,7 @@ import breakIcon from "../assets/break.svg";
 import highEnergyIcon from "../assets/highEnergy.svg";
 import highStressIcon from "../assets/highStress.svg";
 import warningIcon from "../assets/warning.svg";
-import { loadWeeklyWellbeingReport } from "../lib/session";
+import { addEnergyCheck, addStressCheck, loadWeeklyWellbeingReport } from "../lib/session";
 import "../styles/reportsWeek.css";
 
 const chartWidth = 720;
@@ -239,6 +239,41 @@ export default function ReportsWeek() {
   });
   const [loading, setLoading] = useState(true);
 
+  async function refreshReport() {
+    const { data, error } = await loadWeeklyWellbeingReport();
+
+    if (error) {
+      console.error("Failed to load weekly report data:", error);
+      return;
+    }
+
+    if (data) {
+      setReportData(data);
+    }
+  }
+
+  async function handleStressChange(value) {
+    setReportData((previous) => ({ ...previous, stressLevel: value }));
+    const { error } = await addStressCheck(value);
+    if (error) {
+      console.error("Failed to save stress check-in:", error);
+      return;
+    }
+
+    await refreshReport();
+  }
+
+  async function handleEnergyChange(value) {
+    setReportData((previous) => ({ ...previous, energyLevel: value }));
+    const { error } = await addEnergyCheck(value);
+    if (error) {
+      console.error("Failed to save energy check-in:", error);
+      return;
+    }
+
+    await refreshReport();
+  }
+
   useEffect(() => {
     let active = true;
 
@@ -269,8 +304,8 @@ export default function ReportsWeek() {
     <div className="reports-layout reports-week-layout">
       <aside className="reports-left">
         <div className="rating-cards-container">
-          <StressSlider label="Hoe hoog is je stressniveau nu?" value={reportData.stressLevel} />
-          <EnergySlider label="Wat is jouw energie level nu?" value={reportData.energyLevel} />
+          <StressSlider label="Hoe hoog is je stressniveau nu?" value={reportData.stressLevel} onStressChange={handleStressChange} />
+          <EnergySlider label="Wat is jouw energie level nu?" value={reportData.energyLevel} onEnergyChange={handleEnergyChange} />
         </div>
 
         <StatsSection

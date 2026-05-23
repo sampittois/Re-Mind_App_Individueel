@@ -1,15 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "../styles/sliders.css";
 import stressIcon from "../assets/stressLevel.svg";
 
 export default function StressSlider({ label, onStressChange, value }) {
   const [stressLevel, setStressLevel] = useState(1);
-
-  useEffect(() => {
-    if (Number.isFinite(value) && value >= 1 && value <= 5) {
-      setStressLevel(value);
-    }
-  }, [value]);
+  const activeLevel = Number.isFinite(value) && value >= 1 && value <= 5 ? value : stressLevel;
 
   const handleClick = (value) => {
     setStressLevel(value);
@@ -39,10 +34,10 @@ export default function StressSlider({ label, onStressChange, value }) {
               <button
                 key={value}
                 type="button"
-                className={`slider-dot pos-${value} ${stressLevel === value ? "active" : ""}`}
+                className={`slider-dot pos-${value} ${activeLevel === value ? "active" : ""}`}
                 onClick={() => handleClick(value)}
                 aria-label={`Set stress level to ${value}`}
-                aria-pressed={stressLevel === value}
+                aria-pressed={activeLevel === value}
               />
             ))}
           </div>

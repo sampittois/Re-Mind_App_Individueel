@@ -451,8 +451,22 @@ export function useCurrentSession() {
   };
 
   useEffect(() => {
-    refreshSession();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    let active = true;
+
+    getLatestSessionForUser().then(({ data, error }) => {
+      if (!active) return;
+
+      if (error) {
+        console.error("Failed to load latest session:", error);
+        return;
+      }
+
+      setSession(data || null);
+    });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   return {

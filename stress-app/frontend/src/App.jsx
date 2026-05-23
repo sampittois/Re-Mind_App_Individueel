@@ -141,6 +141,12 @@ export default function App() {
     setCurrentPage("home");
   }
 
+  function openBreathingExercise(exerciseId, returnPage = "home") {
+    setSelectedExercise(exerciseId);
+    setBreathingReturnPage(returnPage);
+    setCurrentPage("exercise-detail");
+  }
+
   async function refreshWellbeingSnapshot() {
     const { data, error } = await loadLatestWellbeingSnapshot();
     if (error) {
@@ -366,7 +372,7 @@ export default function App() {
     return () => {
       active = false;
     };
-  }, [user?.id]);
+  }, [user]);
 
   useEffect(() => {
     let active = true;
