@@ -18,6 +18,8 @@ export default function OnboardingPage({ onComplete, onSkip }) {
 
   const [pauses, setPauses] = useState([{ id: 1, start: "12:00", end: "12:30" }]);
 
+  const [workType, setWorkType] = useState("");
+
   const addPause = () => {
     const newId = Math.max(...pauses.map((p) => p.id), 0) + 1;
     setPauses([...pauses, { id: newId, start: "12:00", end: "12:30" }]);
@@ -70,7 +72,7 @@ export default function OnboardingPage({ onComplete, onSkip }) {
       firstName: cleanFirstName,
       lastName: cleanLastName,
       workStart,
-  const [workType, setWorkType] = useState("");
+      workType,
       workEnd,
       breakFrequencyMins,
       fixedBreaks: pauses,
@@ -117,7 +119,6 @@ export default function OnboardingPage({ onComplete, onSkip }) {
             </div>
             <p className="login-body">We gebruiken je naam om je profiel te personaliseren.</p>
           </>
-      workType,
         );
 
       case 2:
