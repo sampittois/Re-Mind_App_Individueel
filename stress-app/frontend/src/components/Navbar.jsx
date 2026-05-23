@@ -37,7 +37,7 @@ export default function Navbar({ currentPage, setCurrentPage, avatar, onOpenRefl
           </nav>
 
           <button className="link" type="button" onClick={onOpenReflection} aria-label="Werkdagreflectie openen">
-            Reflectie
+            To-do
           </button>
 
           <button
