@@ -140,6 +140,20 @@ alter table public.breaks add column if not exists duration_minutes integer;
 alter table public.breaks add column if not exists created_at timestamptz not null default now();
 alter table public.breaks add column if not exists updated_at timestamptz not null default now();
 
+create table if not exists public.favorite_pauses (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users (id) on delete cascade,
+  pause_id text not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (user_id, pause_id)
+);
+
+alter table public.favorite_pauses add column if not exists user_id uuid;
+alter table public.favorite_pauses add column if not exists pause_id text;
+alter table public.favorite_pauses add column if not exists created_at timestamptz not null default now();
+alter table public.favorite_pauses add column if not exists updated_at timestamptz not null default now();
+
 create index if not exists profiles_full_name_idx
   on public.profiles (full_name);
 
@@ -160,6 +174,9 @@ create index if not exists energy_checkins_user_session_created_at_idx
 
 create index if not exists breaks_user_session_created_at_idx
   on public.breaks (user_id, session_id, created_at desc);
+
+create index if not exists favorite_pauses_user_pause_idx
+  on public.favorite_pauses (user_id, pause_id);
 
 alter table public.stress_checkins
   alter column session_id set not null;
@@ -189,6 +206,9 @@ alter table public.breaks
 alter table public.breaks
   add constraint duration_positive check (duration_minutes >= 0);
 
+alter table public.favorite_pauses
+  alter column pause_id set not null;
+
 drop trigger if exists set_profiles_updated_at on public.profiles;
 create trigger set_profiles_updated_at
 before update on public.profiles
@@ -212,6 +232,11 @@ for each row execute function public.set_updated_at();
 drop trigger if exists set_breaks_updated_at on public.breaks;
 create trigger set_breaks_updated_at
 before update on public.breaks
+for each row execute function public.set_updated_at();
+
+drop trigger if exists set_favorite_pauses_updated_at on public.favorite_pauses;
+create trigger set_favorite_pauses_updated_at
+before update on public.favorite_pauses
 for each row execute function public.set_updated_at();
 
 create or replace function public.check_user_matches_session()
@@ -246,6 +271,24 @@ drop trigger if exists check_user_session_breaks on public.breaks;
 create trigger check_user_session_breaks
 before insert or update on public.breaks
 for each row execute function public.check_user_matches_session();
+
+create or replace function public.check_user_owns_favorite_pause()
+returns trigger
+language plpgsql
+as $$
+begin
+  if auth.uid() is distinct from new.user_id then
+    raise exception 'User does not match favorite pause owner';
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists check_user_favorite_pause_owner on public.favorite_pauses;
+create trigger check_user_favorite_pause_owner
+before insert or update on public.favorite_pauses
+for each row execute function public.check_user_owns_favorite_pause();
 
 -- Automatically create a profile row when a Supabase auth user is created.
 create or replace function public.handle_new_user()
@@ -296,6 +339,7 @@ alter table public.work_sessions enable row level security;
 alter table public.stress_checkins enable row level security;
 alter table public.energy_checkins enable row level security;
 alter table public.breaks enable row level security;
+alter table public.favorite_pauses enable row level security;
 
 drop policy if exists "profiles_select_own" on public.profiles;
 create policy "profiles_select_own"
@@ -419,5 +463,30 @@ with check (auth.uid() = user_id);
 drop policy if exists "breaks_delete_own" on public.breaks;
 create policy "breaks_delete_own"
 on public.breaks
+for delete
+using (auth.uid() = user_id);
+
+drop policy if exists "favorite_pauses_select_own" on public.favorite_pauses;
+create policy "favorite_pauses_select_own"
+on public.favorite_pauses
+for select
+using (auth.uid() = user_id);
+
+drop policy if exists "favorite_pauses_insert_own" on public.favorite_pauses;
+create policy "favorite_pauses_insert_own"
+on public.favorite_pauses
+for insert
+with check (auth.uid() = user_id);
+
+drop policy if exists "favorite_pauses_update_own" on public.favorite_pauses;
+create policy "favorite_pauses_update_own"
+on public.favorite_pauses
+for update
+using (auth.uid() = user_id)
+with check (auth.uid() = user_id);
+
+drop policy if exists "favorite_pauses_delete_own" on public.favorite_pauses;
+create policy "favorite_pauses_delete_own"
+on public.favorite_pauses
 for delete
 using (auth.uid() = user_id);
