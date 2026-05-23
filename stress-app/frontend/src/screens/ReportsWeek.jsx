@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import StressSlider from "../components/StressSlider";
 import EnergySlider from "../components/EnergySlider";
 import StatsSection from "../components/StatsSection";
@@ -5,72 +6,8 @@ import breakIcon from "../assets/break.svg";
 import highEnergyIcon from "../assets/highEnergy.svg";
 import highStressIcon from "../assets/highStress.svg";
 import warningIcon from "../assets/warning.svg";
+import { loadWeeklyWellbeingReport } from "../lib/session";
 import "../styles/reportsWeek.css";
-
-const weekTimeline = [
-  {
-    id: 1,
-    day: "Maandag",
-    icon: "highEnergy",
-    summary: "Je start de week met hoge stress en energie, maar neemt voldoende pauzes om het tempo vol te houden.",
-  },
-  {
-    id: 2,
-    day: "Dinsdag",
-    icon: "warning",
-    summary: "Door minder pauzes zakt je energie, terwijl het stressniveau tijdelijk lager blijft.",
-  },
-  {
-    id: 3,
-    day: "Woensdag",
-    icon: "highStress",
-    summary: "Drukke vergaderingen zorgen voor een gemiddeld stressniveau en een lichte heropleving van je energie.",
-  },
-  {
-    id: 4,
-    day: "Donderdag",
-    icon: "break",
-    summary: "Extra pauzemomenten, zoals een lunchpauze, helpen om hogere stress onder controle te houden.",
-  },
-  {
-    id: 5,
-    day: "Vrijdag",
-    icon: "highStress",
-    summary: "Je stress daalt richting het weekend, maar je energieniveau blijft beperkt door vermoeidheid.",
-  },
-  {
-    id: 6,
-    day: "Zaterdag",
-    icon: "break",
-    summary: "Lage stress en veel rustmomenten zorgen voor een duidelijk herstel van je energie.",
-  },
-  {
-    id: 7,
-    day: "Zondag",
-    icon: "warning",
-    summary: "Ondanks voldoende rust stijgt de stress opnieuw door de voorbereiding op de komende week.",
-  },
-];
-
-const pauseBehaviorData = [
-  { day: "Ma", taken: 4, worked: 0, notWorked: 0 },
-  { day: "Di", taken: 3, worked: 1, notWorked: 0 },
-  { day: "Wo", taken: 2, worked: 2, notWorked: 0 },
-  { day: "Do", taken: 4, worked: 0, notWorked: 0 },
-  { day: "Vr", taken: 3, worked: 1, notWorked: 0 },
-  { day: "Za", taken: 0, worked: 0, notWorked: 4 },
-  { day: "Zo", taken: 0, worked: 0, notWorked: 4 },
-];
-
-const stressEnergyData = [
-  { day: "Ma", stress: 4.7, energy: 4.0 },
-  { day: "Di", stress: 1.6, energy: 3.6 },
-  { day: "Wo", stress: 2.7, energy: 2.0 },
-  { day: "Do", stress: 4.0, energy: 2.5 },
-  { day: "Vr", stress: 3.4, energy: 2.9 },
-  { day: "Za", stress: 2.0, energy: 3.6 },
-  { day: "Zo", stress: 4.7, energy: 3.0 },
-];
 
 const chartWidth = 720;
 const pauseChartHeight = 300;
@@ -136,8 +73,8 @@ function buildBarSeries(series, axisMax, width, height, leftPadding, rightPaddin
       day: entry.day,
       bars: [
         { key: "taken", value: entry.taken, x: baseX, fill: chartColors.taken },
-        { key: "worked", value: entry.worked, x: baseX + 16, fill: chartColors.worked },
-        { key: "notWorked", value: entry.notWorked, x: baseX + 32, fill: chartColors.notWorked },
+        { key: "suggested", value: entry.suggested, x: baseX + 16, fill: chartColors.worked },
+        { key: "missed", value: entry.missed, x: baseX + 32, fill: chartColors.notWorked },
       ].map((bar) => ({
         ...bar,
         height: Math.max(bar.value * scale, 0),
@@ -182,22 +119,31 @@ function ChartGrid({ width, height, leftPadding, rightPadding, topPadding, botto
   );
 }
 
-function PauseBehaviorChart() {
+function PauseBehaviorChart({ data }) {
   const width = chartWidth;
   const height = pauseChartHeight;
   const leftPadding = 40;
   const rightPadding = 22;
   const topPadding = 16;
   const bottomPadding = 34;
-  const axisMax = 4;
+  const axisMax = Math.max(4, ...data.map((entry) => Math.max(entry.taken, entry.suggested, entry.missed, 0)));
+  const tickValues = Array.from({ length: Math.max(2, Math.ceil(axisMax) + 1) }, (_, value) => value);
 
-  const bars = buildBarSeries(pauseBehaviorData, axisMax, width, height, leftPadding, rightPadding, topPadding, bottomPadding);
-  const ticks = [0, 1, 2, 3, 4].map((value) => ({ value, max: axisMax }));
+  if (!data.length) {
+    return (
+      <div className="chart-card">
+        <p>Geen pauzedata beschikbaar.</p>
+      </div>
+    );
+  }
+
+  const bars = buildBarSeries(data, axisMax, width, height, leftPadding, rightPadding, topPadding, bottomPadding);
+  const ticks = tickValues.map((value) => ({ value, max: axisMax }));
 
   return (
     <div className="chart-card">
       <svg className="weekly-chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Pauzegedrag over de week">
-        <ChartGrid width={width} height={height} leftPadding={leftPadding} rightPadding={rightPadding} topPadding={topPadding} bottomPadding={bottomPadding} ticks={ticks} labels={pauseBehaviorData.map((entry) => entry.day)} />
+        <ChartGrid width={width} height={height} leftPadding={leftPadding} rightPadding={rightPadding} topPadding={topPadding} bottomPadding={bottomPadding} ticks={ticks} labels={data.map((entry) => entry.day)} />
 
         {ticks.map((tick) => {
           const y = topPadding + (height - topPadding - bottomPadding) - (tick.value / axisMax) * (height - topPadding - bottomPadding);
@@ -217,14 +163,14 @@ function PauseBehaviorChart() {
 
       <div className="chart-legend">
         <span><i className="legend-swatch legend-taken" />Genomen pauzes</span>
-        <span><i className="legend-swatch legend-worked" />Doorgewerkt</span>
-        <span><i className="legend-swatch legend-not-worked" />Niet gewerkt</span>
+        <span><i className="legend-swatch legend-worked" />Geadviseerde pauzes</span>
+        <span><i className="legend-swatch legend-not-worked" />Gemiste pauzes</span>
       </div>
     </div>
   );
 }
 
-function StressEnergyChart() {
+function StressEnergyChart({ data }) {
   const width = chartWidth;
   const height = lineChartHeight;
   const leftPadding = 42;
@@ -233,8 +179,16 @@ function StressEnergyChart() {
   const bottomPadding = 38;
   const maxValue = 5;
 
-  const stressPoints = buildLineSeries(stressEnergyData, width, height, leftPadding, rightPadding, topPadding, bottomPadding, "stress", maxValue);
-  const energyPoints = buildLineSeries(stressEnergyData, width, height, leftPadding, rightPadding, topPadding, bottomPadding, "energy", maxValue);
+  if (!data.length) {
+    return (
+      <div className="chart-card">
+        <p>Geen stress- of energiedata beschikbaar.</p>
+      </div>
+    );
+  }
+
+  const stressPoints = buildLineSeries(data, width, height, leftPadding, rightPadding, topPadding, bottomPadding, "stress", maxValue);
+  const energyPoints = buildLineSeries(data, width, height, leftPadding, rightPadding, topPadding, bottomPadding, "energy", maxValue);
   const stressPath = createSmoothPath(stressPoints);
   const energyPath = createSmoothPath(energyPoints);
   const ticks = [0, 1, 2, 3, 4, 5].map((value) => ({ value, max: maxValue }));
@@ -242,7 +196,7 @@ function StressEnergyChart() {
   return (
     <div className="chart-card">
       <svg className="weekly-chart" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Stress en energie verloop over de week">
-        <ChartGrid width={width} height={height} leftPadding={leftPadding} rightPadding={rightPadding} topPadding={topPadding} bottomPadding={bottomPadding} ticks={ticks} labels={stressEnergyData.map((entry) => entry.day)} />
+        <ChartGrid width={width} height={height} leftPadding={leftPadding} rightPadding={rightPadding} topPadding={topPadding} bottomPadding={bottomPadding} ticks={ticks} labels={data.map((entry) => entry.day)} />
 
         {ticks.map((tick) => {
           const y = topPadding + (height - topPadding - bottomPadding) - (tick.value / maxValue) * (height - topPadding - bottomPadding);
@@ -257,11 +211,11 @@ function StressEnergyChart() {
         <path d={stressPath} fill="none" stroke={chartColors.stressLine} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
 
         {energyPoints.map((point, index) => (
-          <circle key={`energy-${stressEnergyData[index].day}`} cx={point.x} cy={point.y} r="8" fill={chartColors.energyDot} />
+          <circle key={`energy-${data[index].day}`} cx={point.x} cy={point.y} r="8" fill={chartColors.energyDot} />
         ))}
 
         {stressPoints.map((point, index) => (
-          <circle key={`stress-${stressEnergyData[index].day}`} cx={point.x} cy={point.y} r="8" fill={chartColors.stressDot} />
+          <circle key={`stress-${data[index].day}`} cx={point.x} cy={point.y} r="8" fill={chartColors.stressDot} />
         ))}
       </svg>
 
@@ -274,23 +228,67 @@ function StressEnergyChart() {
 }
 
 export default function ReportsWeek() {
+  const [reportData, setReportData] = useState({
+    weekTimeline: [],
+    pauseBehaviorData: [],
+    stressEnergyData: [],
+    stressLevel: 3,
+    energyLevel: 2,
+    pausesTaken: 0,
+    pausesSkipped: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadReport() {
+      const { data, error } = await loadWeeklyWellbeingReport();
+
+      if (!active) return;
+
+      if (error) {
+        console.error("Failed to load weekly report data:", error);
+      }
+
+      if (data) {
+        setReportData(data);
+      }
+
+      setLoading(false);
+    }
+
+    loadReport();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <div className="reports-layout reports-week-layout">
       <aside className="reports-left">
         <div className="rating-cards-container">
-          <StressSlider label="Hoe hoog is je stressniveau nu?" />
-          <EnergySlider label="Wat is jouw energie level nu?" />
+          <StressSlider label="Hoe hoog is je stressniveau nu?" value={reportData.stressLevel} />
+          <EnergySlider label="Wat is jouw energie level nu?" value={reportData.energyLevel} />
         </div>
 
-        <StatsSection stress={3} energy={2} pausesTaken={3} pausesSkipped={1} />
+        <StatsSection
+          stress={reportData.stressLevel}
+          energy={reportData.energyLevel}
+          pausesTaken={reportData.pausesTaken}
+          pausesSkipped={reportData.pausesSkipped}
+        />
       </aside>
 
       <section className="reports-right reports-week-right">
         <h1>De week in momenten</h1>
         <p className="reports-desc">Je wekelijkse tijdlijn met check-ins, pauzes en belangrijke momenten</p>
 
+        {loading && reportData.weekTimeline.length === 0 ? <p>Weekgegevens laden...</p> : null}
+
         <div className="timeline weekly-timeline">
-          {weekTimeline.map((item) => (
+          {reportData.weekTimeline.map((item) => (
             <div key={item.id} className="timeline-item weekly-timeline-item">
               <div className="timeline-icon weekly-timeline-icon">
                 <img src={renderTimelineIcon(item.icon)} alt="icon" />
@@ -307,14 +305,14 @@ export default function ReportsWeek() {
         <div className="weekly-graphs-scroll">
           <section className="weekly-analytics-section">
             <h2>Pauzegedrag</h2>
-            <p>Je nam vooral pauzes aan het begin van de week. Naar het einde toe werden pauzes vaker genegeerd.</p>
-            <PauseBehaviorChart />
+            <p>De grafiek volgt de opgeslagen pauzes, de geadviseerde pauzes en de gemiste pauzemomenten per dag.</p>
+            <PauseBehaviorChart data={reportData.pauseBehaviorData} />
           </section>
 
           <section className="weekly-analytics-section">
             <h2>Stress en energie verloop</h2>
-            <p>Je stress piekte midden in de week, terwijl je energie pas later volgde. Op zaterdag zie je een duidelijke ontkoppeling.</p>
-            <StressEnergyChart />
+            <p>Deze lijn grafiek toont de gemiddelde stress- en energieniveaus per opgeslagen werkdag.</p>
+            <StressEnergyChart data={reportData.stressEnergyData} />
           </section>
         </div>
       </section>

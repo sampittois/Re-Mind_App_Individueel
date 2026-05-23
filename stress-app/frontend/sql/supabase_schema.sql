@@ -108,6 +108,21 @@ alter table public.stress_checkins add column if not exists stress_level smallin
 alter table public.stress_checkins add column if not exists created_at timestamptz not null default now();
 alter table public.stress_checkins add column if not exists updated_at timestamptz not null default now();
 
+create table if not exists public.energy_checkins (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users (id) on delete cascade,
+  session_id uuid not null references public.work_sessions (id) on delete cascade,
+  energy_level smallint not null default 2 check (energy_level between 1 and 5),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.energy_checkins add column if not exists user_id uuid;
+alter table public.energy_checkins add column if not exists session_id uuid;
+alter table public.energy_checkins add column if not exists energy_level smallint;
+alter table public.energy_checkins add column if not exists created_at timestamptz not null default now();
+alter table public.energy_checkins add column if not exists updated_at timestamptz not null default now();
+
 create table if not exists public.breaks (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users (id) on delete cascade,
@@ -140,6 +155,9 @@ create index if not exists work_sessions_user_id_start_time_idx
 create index if not exists stress_checkins_user_session_created_at_idx
   on public.stress_checkins (user_id, session_id, created_at desc);
 
+create index if not exists energy_checkins_user_session_created_at_idx
+  on public.energy_checkins (user_id, session_id, created_at desc);
+
 create index if not exists breaks_user_session_created_at_idx
   on public.breaks (user_id, session_id, created_at desc);
 
@@ -148,6 +166,12 @@ alter table public.stress_checkins
 
 alter table public.stress_checkins
   alter column stress_level set default 3;
+
+alter table public.energy_checkins
+  alter column session_id set not null;
+
+alter table public.energy_checkins
+  alter column energy_level set default 2;
 
 alter table public.breaks
   alter column type type public.break_type
@@ -180,6 +204,11 @@ create trigger set_stress_checkins_updated_at
 before update on public.stress_checkins
 for each row execute function public.set_updated_at();
 
+drop trigger if exists set_energy_checkins_updated_at on public.energy_checkins;
+create trigger set_energy_checkins_updated_at
+before update on public.energy_checkins
+for each row execute function public.set_updated_at();
+
 drop trigger if exists set_breaks_updated_at on public.breaks;
 create trigger set_breaks_updated_at
 before update on public.breaks
@@ -206,6 +235,11 @@ $$;
 drop trigger if exists check_user_session_stress on public.stress_checkins;
 create trigger check_user_session_stress
 before insert or update on public.stress_checkins
+for each row execute function public.check_user_matches_session();
+
+drop trigger if exists check_user_session_energy on public.energy_checkins;
+create trigger check_user_session_energy
+before insert or update on public.energy_checkins
 for each row execute function public.check_user_matches_session();
 
 drop trigger if exists check_user_session_breaks on public.breaks;
@@ -260,6 +294,7 @@ for each row execute function public.handle_new_user();
 alter table public.profiles enable row level security;
 alter table public.work_sessions enable row level security;
 alter table public.stress_checkins enable row level security;
+alter table public.energy_checkins enable row level security;
 alter table public.breaks enable row level security;
 
 drop policy if exists "profiles_select_own" on public.profiles;
@@ -316,6 +351,31 @@ drop policy if exists "stress_checkins_select_own" on public.stress_checkins;
 create policy "stress_checkins_select_own"
 on public.stress_checkins
 for select
+using (auth.uid() = user_id);
+
+drop policy if exists "energy_checkins_select_own" on public.energy_checkins;
+create policy "energy_checkins_select_own"
+on public.energy_checkins
+for select
+using (auth.uid() = user_id);
+
+drop policy if exists "energy_checkins_insert_own" on public.energy_checkins;
+create policy "energy_checkins_insert_own"
+on public.energy_checkins
+for insert
+with check (auth.uid() = user_id);
+
+drop policy if exists "energy_checkins_update_own" on public.energy_checkins;
+create policy "energy_checkins_update_own"
+on public.energy_checkins
+for update
+using (auth.uid() = user_id)
+with check (auth.uid() = user_id);
+
+drop policy if exists "energy_checkins_delete_own" on public.energy_checkins;
+create policy "energy_checkins_delete_own"
+on public.energy_checkins
+for delete
 using (auth.uid() = user_id);
 
 drop policy if exists "stress_checkins_insert_own" on public.stress_checkins;

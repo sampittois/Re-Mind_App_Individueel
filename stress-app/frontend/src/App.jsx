@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import "./styles/App.css";
 import { supabase } from "./lib/supabaseClient";
+import { addEnergyCheck, addStressCheck, loadLatestWellbeingSnapshot } from "./lib/session";
 
 import Navbar from "./components/Navbar";
 import Timer from "./components/Timer";
@@ -51,7 +52,8 @@ export default function App() {
   const [profile, setProfile] = useState(null);
   const [stressLevel, setStressLevel] = useState(3);
   const [energyLevel, setEnergyLevel] = useState(2);
-  const [recentSessions, setRecentSessions] = useState([]);
+  const [pausesTaken, setPausesTaken] = useState(0);
+  const [pausesSkipped, setPausesSkipped] = useState(0);
 
   const [currentPage, setCurrentPage] = useState("home");
   const [selectedExercise, setSelectedExercise] = useState(null);
@@ -137,6 +139,47 @@ export default function App() {
 
     setName(fullName || DEFAULT_NAME);
     setCurrentPage("home");
+  }
+
+  async function refreshWellbeingSnapshot() {
+    const { data, error } = await loadLatestWellbeingSnapshot();
+    if (error) {
+      console.error("Failed to load wellbeing snapshot:", error);
+      return;
+    }
+
+    if (!data) {
+      return;
+    }
+
+    setStressLevel(data.stressLevel ?? 3);
+    setEnergyLevel(data.energyLevel ?? 2);
+    setPausesTaken(data.pausesTaken ?? 0);
+    setPausesSkipped(data.pausesSkipped ?? 0);
+  }
+
+  async function handleStressChange(value) {
+    setStressLevel(value);
+
+    const { error } = await addStressCheck(value);
+    if (error) {
+      console.error("Failed to save stress check-in:", error);
+      return;
+    }
+
+    await refreshWellbeingSnapshot();
+  }
+
+  async function handleEnergyChange(value) {
+    setEnergyLevel(value);
+
+    const { error } = await addEnergyCheck(value);
+    if (error) {
+      console.error("Failed to save energy check-in:", error);
+      return;
+    }
+
+    await refreshWellbeingSnapshot();
   }
 
 
@@ -235,35 +278,22 @@ export default function App() {
             <div className="rating-cards-container">
               <StressSlider
                 label="Hoe hoog is je stressniveau nu?"
-                onStressChange={setStressLevel}
+                value={stressLevel}
+                onStressChange={handleStressChange}
               />
               <EnergySlider
                 label="Wat is jouw energie level nu?"
-                onEnergyChange={setEnergyLevel}
+                value={energyLevel}
+                onEnergyChange={handleEnergyChange}
               />
             </div>
 
             <StatsSection
               stress={stressLevel}
               energy={energyLevel}
-              pausesTaken={3}
-              pausesSkipped={1}
+              pausesTaken={pausesTaken}
+              pausesSkipped={pausesSkipped}
             />
-
-            {/* <section className="section">
-              <h2>Supabase data</h2>
-              {recentSessions.length > 0 ? (
-                <ul>
-                  {recentSessions.map((session) => (
-                    <li key={session.id}>
-                      Sessiestart: {new Date(session.start_time).toLocaleString()}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>Geen recente work sessions geladen.</p>
-              )}
-            </section> */}
           </div>
 
           <div className="home-right-column">
@@ -332,6 +362,49 @@ export default function App() {
     }
 
     loadProfile();
+
+    return () => {
+      active = false;
+    };
+  }, [user?.id]);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadWellbeingSnapshot() {
+      if (!user?.id) {
+        if (active) {
+          setStressLevel(3);
+          setEnergyLevel(2);
+          setPausesTaken(0);
+          setPausesSkipped(0);
+        }
+        return;
+      }
+
+      const { data, error } = await loadLatestWellbeingSnapshot();
+      if (!active) return;
+
+      if (error) {
+        console.error("Failed to load wellbeing snapshot:", error);
+        return;
+      }
+
+      if (!data) {
+        setStressLevel(3);
+        setEnergyLevel(2);
+        setPausesTaken(0);
+        setPausesSkipped(0);
+        return;
+      }
+
+      setStressLevel(data.stressLevel ?? 3);
+      setEnergyLevel(data.energyLevel ?? 2);
+      setPausesTaken(data.pausesTaken ?? 0);
+      setPausesSkipped(data.pausesSkipped ?? 0);
+    }
+
+    loadWellbeingSnapshot();
 
     return () => {
       active = false;

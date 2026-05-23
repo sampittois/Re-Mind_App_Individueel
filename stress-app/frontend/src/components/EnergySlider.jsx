@@ -1,9 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../styles/sliders.css";
 import energyIcon from "../assets/energieLevel.svg";
 
-export default function EnergySlider({ label, icon, onEnergyChange }) {
+export default function EnergySlider({ label, onEnergyChange, value }) {
   const [energyLevel, setEnergyLevel] = useState(1);
+
+  useEffect(() => {
+    if (Number.isFinite(value) && value >= 1 && value <= 5) {
+      setEnergyLevel(value);
+    }
+  }, [value]);
 
   const handleClick = (value) => {
     setEnergyLevel(value);
@@ -32,6 +38,7 @@ export default function EnergySlider({ label, icon, onEnergyChange }) {
             {[1, 2, 3, 4, 5].map((value) => (
               <button
                 key={value}
+                type="button"
                 className={`slider-dot pos-${value} ${energyLevel === value ? "active" : ""}`}
                 onClick={() => handleClick(value)}
                 aria-label={`Set energy level to ${value}`}
