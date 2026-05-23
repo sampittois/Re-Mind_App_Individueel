@@ -244,48 +244,78 @@ a {
   color: var(--text);
 }
 
+.workday-overlay__switch {
+  display: inline-flex;
+  gap: 0;
+  background: var(--highlight-light);
+  border: var(--border-width-sm) solid var(--primary-dark);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  width: 280px;
+  height: 40px;
+  margin-top: 28px;
+}
+
+.workday-overlay__switch-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: var(--space-2) var(--space-5);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  font-family: var(--text-button-label-font-family);
+  font-size: var(--text-button-label-font-size);
+  line-height: var(--text-button-label-line-height);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text);
+}
+
+.workday-overlay__switch-btn.active {
+  background: var(--primary);
+  color: var(--background);
+  border: var(--border-width-sm) solid var(--primary-dark);
+  height: 32px;
+}
+
 .workday-overlay__form {
   width: 100%;
-  flex: 1;
-  margin-top: 36px;
+  margin-top: 28px;
 }
 
-.workday-overlay__editor {
-  position: relative;
+.workday-overlay__entry-row {
+  display: flex;
+  gap: 12px;
   width: 100%;
-  min-height: 260px;
-  height: 100%;
-  border-radius: 22px;
+  align-items: stretch;
+}
+
+.workday-overlay__input {
+  flex: 1;
+  width: 100%;
+  height: 40px;
+  min-height: 40px;
+  border-radius: var(--radius-md);
   border: var(--border-width-sm) solid color-mix(in srgb, var(--text) 40%, transparent);
   background: transparent;
-  overflow: hidden;
-}
-
-.workday-overlay__textarea {
-  width: 100%;
-  height: 100%;
-  min-height: 260px;
-  border: 0;
-  outline: none;
-  resize: none;
-  padding: 20px 20px 88px;
-  background: transparent;
+  padding: 10px 14px;
   color: var(--primary-dark);
   font-family: var(--text-body-regular-font-family);
   font-size: var(--text-body-regular-font-size);
   line-height: var(--text-body-regular-line-height);
   font-weight: var(--text-body-regular-font-weight);
+  outline: none;
 }
 
-.workday-overlay__textarea::placeholder {
+.workday-overlay__input::placeholder {
   color: color-mix(in srgb, var(--text) 55%, transparent);
 }
 
+.workday-overlay__add,
 .workday-overlay__submit {
-  position: absolute;
-  right: 18px;
-  bottom: 18px;
-  min-width: 150px;
+  min-width: 140px;
   height: 54px;
   border-radius: var(--radius-md);
   border: var(--border-width-sm) solid color-mix(in srgb, var(--text) 65%, transparent);
@@ -299,9 +329,131 @@ a {
   box-shadow: var(--shadow-sm);
 }
 
+.workday-overlay__add:hover,
 .workday-overlay__submit:hover {
   background: var(--highlight-light);
   border-color: var(--primary);
+}
+
+.workday-overlay__add {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  align-self: center;
+  margin-top: 0;
+}
+
+.workday-overlay__delete {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: var(--border-width-md) solid var(--primary);
+  background: var(--highlight-light);
+  color: var(--primary);
+  align-self: center;
+}
+
+.workday-overlay__list {
+  width: 100%;
+  list-style: none;
+  margin: 24px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+
+.workday-overlay__item,
+.workday-overlay__empty {
+  width: 100%;
+  min-height: 62px;
+  border-radius: 22px;
+  border: var(--border-width-sm) solid color-mix(in srgb, var(--text) 40%, transparent);
+  background: transparent;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.workday-overlay__empty {
+  justify-content: center;
+  color: color-mix(in srgb, var(--text) 65%, transparent);
+  font-family: var(--text-body-regular-font-family);
+  font-size: var(--text-body-regular-font-size);
+}
+
+.workday-overlay__item-label {
+  flex: 1;
+  color: var(--primary-dark);
+  font-family: var(--text-body-regular-font-family);
+  font-size: var(--text-body-regular-font-size);
+  line-height: var(--text-body-regular-line-height);
+  font-weight: var(--text-body-regular-font-weight);
+}
+
+.workday-overlay__delete {
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: var(--text-button-label-font-family);
+  font-size: 16px;
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  padding: 6px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* checkbox-like control acting as the bullet */
+.workday-overlay__check {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  border: var(--border-width-md) solid var(--primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--background);
+}
+
+.workday-overlay__check.done {
+  background: var(--primary);
+  color: var(--background);
+  border-color: var(--primary-dark);
+}
+
+.workday-overlay__check-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.workday-overlay__item-label.done {
+  text-decoration: line-through;
+  color: var(--primary);
+}
+
+.workday-overlay__input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 8%, transparent);
+}
+
+.workday-overlay__submit {
+  margin-top: auto;
+  align-self: center;
+  min-width: 160px;
 }
 
 .pause-page-shell {
@@ -447,18 +599,18 @@ a {
   line-height: var(--text-heading-3-line-height);
   font-weight: var(--text-heading-3-font-weight);
   letter-spacing: var(--text-heading-3-letter-spacing);
-}
-
-/* Favorite button */
-.pause-favBtn {
-  position: absolute;
-  top: calc(var(--space-4) * -1);
-  right: calc(var(--space-4) * -1);
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-full);
-  border: var(--border-width-sm) solid var(--text);
-  background: var(--highlight-light);
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text);
   cursor: pointer;
   font-size: var(--text-body-regular-font-size);
   line-height: 1;
@@ -638,11 +790,17 @@ a {
 }
 
 .exercise-detail-top-row {
-  display: flex;
-  align-items: center;
-  position: relative;
-  margin-bottom: var(--space-6);
-}
+    width: 18px;
+    height: 18px;
+    display: block;
+    filter: none;
+    opacity: 0;
+    transition: opacity 140ms ease;
+  }
+
+  .workday-overlay__check.done .workday-overlay__check-icon {
+    opacity: 1;
+  }
 
 .back-btn.exercise-detail-back {
   width: 40px;
@@ -664,19 +822,7 @@ a {
 .exercise-detail-stage {
   min-height: calc(100vh - 240px);
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-6);
-  text-align: center;
-}
-
-.exercise-phase {
-  min-height: 1.5em;
-  margin: 0;
-  font-family: var(--text-heading-1-font-family);
-  font-size: clamp(1.8rem, 2.8vw, 3rem);
-  line-height: 1;
+    margin-top: 0;
   font-weight: var(--text-heading-1-font-weight);
   color: var(--text);
   opacity: 0;

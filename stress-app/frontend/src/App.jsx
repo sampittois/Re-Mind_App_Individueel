@@ -61,7 +61,6 @@ export default function App() {
   const [breathingReturnPage, setBreathingReturnPage] = useState("home");
   const [user, setUser] = useState(null);
   const [workdayReflectionOpen, setWorkdayReflectionOpen] = useState(false);
-  const [workdayReflectionText, setWorkdayReflectionText] = useState("");
   const [workdayReflectionShowFinishedTitle, setWorkdayReflectionShowFinishedTitle] = useState(false);
 
   async function saveProfilePatch(patch) {
@@ -158,13 +157,11 @@ export default function App() {
 
   function closeWorkdayReflection() {
     setWorkdayReflectionOpen(false);
-    setWorkdayReflectionText("");
     setWorkdayReflectionShowFinishedTitle(false);
   }
 
   function handleWorkdayReflectionSubmit() {
     setWorkdayReflectionOpen(false);
-    setWorkdayReflectionText("");
     setWorkdayReflectionShowFinishedTitle(false);
   }
 
@@ -338,8 +335,6 @@ export default function App() {
 
         <WorkdayReflectionOverlay
           open={workdayReflectionOpen}
-          value={workdayReflectionText}
-          onChange={setWorkdayReflectionText}
           onClose={closeWorkdayReflection}
           onSubmit={handleWorkdayReflectionSubmit}
           showFinishedTitle={workdayReflectionShowFinishedTitle}
