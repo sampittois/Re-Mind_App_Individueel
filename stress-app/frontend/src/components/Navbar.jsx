@@ -1,7 +1,7 @@
 import "../styles/navbar.css";
 import logo from "../assets/logo_primary.png";
 
-export default function Navbar({ currentPage, setCurrentPage, avatar }) {
+export default function Navbar({ currentPage, setCurrentPage, avatar, onOpenReflection }) {
   return (
     <header className="nav">
       <div className="navInner">
@@ -35,6 +35,10 @@ export default function Navbar({ currentPage, setCurrentPage, avatar }) {
               Pauzesuggesties
             </button>
           </nav>
+
+          <button className="link" type="button" onClick={onOpenReflection} aria-label="Werkdagreflectie openen">
+            Reflectie
+          </button>
 
           <button
             className={`profile ${currentPage === "profile" ? "active" : ""}`}

@@ -18,7 +18,6 @@ import Reports from "./screens/Reports";
 import LoginPage from "./screens/LoginPage";
 import RegisterPage from "./screens/RegisterPage";
 import OnboardingPage from "./screens/OnboardingPage";
-import workdayReflectionIcon from "./assets/notebook-pen.svg";
 
 const DEFAULT_NAME = "John Doe";
 const PROFILE_SELECT = "id, full_name, first_name, last_name, email, avatar_url, plan, work_start, work_end, break_frequency_mins, fixed_breaks, pause_habit, work_style, work_type, allow_reminders, dark_mode, use_company_colors, calendar_linked, company_management_enabled";
@@ -325,16 +324,6 @@ export default function App() {
               <Timer onOpenReflection={openWorkdayReflection} />
             </div>
 
-            <button
-              className="home-reflection-launcher"
-              type="button"
-              onClick={openWorkdayReflection}
-              aria-label="Werkdagreflectie openen"
-              title="Werkdagreflectie"
-            >
-              <img src={workdayReflectionIcon} alt="" aria-hidden="true" className="home-reflection-launcher__icon" />
-            </button>
-
             <PauseSuggestions
               onViewMore={() => setCurrentPage("pause")}
               onStartBreathingExercise={() => openBreathingExercise("box", "home")}
@@ -487,7 +476,14 @@ export default function App() {
 
   return (
     <div className={currentPage !== "login" && currentPage !== "register" && currentPage !== "onboarding" ? "app appWithNavbar" : "app"}>
-      {currentPage !== "login" && currentPage !== "register" && currentPage !== "onboarding" && <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} avatar={avatar} />}
+      {currentPage !== "login" && currentPage !== "register" && currentPage !== "onboarding" && (
+        <Navbar
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          avatar={avatar}
+          onOpenReflection={openWorkdayReflection}
+        />
+      )}
       {pageContent}
     </div>
   );
