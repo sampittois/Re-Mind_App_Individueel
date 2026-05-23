@@ -4,18 +4,18 @@ import { supabase } from "./lib/supabaseClient";
 
 import Navbar from "./components/Navbar";
 import Timer from "./components/Timer";
-import PauseSuggestions from "./components/PauseSuggestions";
-import BreathingExercises from "./components/BreathingExercises";
-import BreathingExerciseDetail from "./components/BreathingExerciseDetail";
+import PauseSuggestions from "./screens/PauseSuggestions";
+import BreathingExercises from "./screens/BreathingExercises";
+import BreathingExerciseDetail from "./screens/BreathingExerciseDetail";
 import RatingCard from "./components/RatingCard";
 import StressSlider from "./components/StressSlider";
 import EnergySlider from "./components/EnergySlider";
 import StatsSection from "./components/StatsSection";
-import ProfileSection from "./components/ProfileSection";
-import Reports from "./components/Reports";
-import LoginPage from "./components/LoginPage";
-import RegisterPage from "./components/RegisterPage";
-import OnboardingPage from "./components/OnboardingPage";
+import ProfileSection from "./screens/ProfileSection";
+import Reports from "./screens/Reports";
+import LoginPage from "./screens/LoginPage";
+import RegisterPage from "./screens/RegisterPage";
+import OnboardingPage from "./screens/OnboardingPage";
 
 const DEFAULT_NAME = "John Doe";
 const PROFILE_SELECT = "id, full_name, first_name, last_name, email, avatar_url, plan, work_start, work_end, break_frequency_mins, fixed_breaks, pause_habit, work_style, work_type, allow_reminders, dark_mode, use_company_colors, calendar_linked, company_management_enabled";

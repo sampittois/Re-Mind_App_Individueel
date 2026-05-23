@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import "../styles/pauseSuggestions.css";
-import PauseCard from "./PauseCard";
+import PauseCard from "../components/PauseCard";
 import { supabase } from "../lib/supabaseClient";
 import { addBreak } from "../lib/session";
 
@@ -101,7 +101,6 @@ const BREAK_DETAILS = {
       "Sta recht en strek je armen boven je hoofd.",
       "Rol je schouders rustig naar achter.",
       "Buig zachtjes naar links en rechts.",
-      "Adem diep in en uit.",
     ],
     effect:
       "Stretchen vermindert spanning in je lichaam en stimuleert je bloedsomloop. Zo voel je je losser en kan je je beter concentreren.",
@@ -443,4 +442,3 @@ function SuggestionOverlay({
     </div>
   );
 }
-

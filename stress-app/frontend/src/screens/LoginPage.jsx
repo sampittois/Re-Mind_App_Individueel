@@ -1,7 +1,6 @@
-
 import { useState } from "react";
 import "../styles/login.css";
-import Breathe from "./Breathe";
+import Breathe from "../components/Breathe";
 import { supabase } from "../lib/supabaseClient";
 
 export default function LoginPage({ onLogin, onGoToRegister, onSkip }) {

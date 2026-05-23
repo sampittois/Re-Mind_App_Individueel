@@ -1,8 +1,8 @@
 import { useState } from "react";
 import "../styles/login.css";
 import "../styles/settings.css";
-import Breathe from "./Breathe";
-import CustomDropdown from "./CustomDropdown";
+import Breathe from "../components/Breathe";
+import CustomDropdown from "../components/CustomDropdown";
 
 export default function OnboardingPage({ onComplete, onSkip }) {
   const [step, setStep] = useState(1);
