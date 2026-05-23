@@ -164,6 +164,146 @@ a {
   max-width: 100%;
 }
 
+.home-reflection-launcher {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-full);
+  border: var(--border-width-sm) solid var(--primary-dark);
+  background: var(--background-dark);
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  margin-left: auto;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.home-reflection-launcher:hover {
+  background: var(--highlight-light);
+  border-color: var(--primary);
+}
+
+.home-reflection-launcher__icon {
+  width: 30px;
+  height: 30px;
+  display: block;
+}
+
+.workday-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: var(--space-6);
+  background: transparent;
+}
+
+.workday-overlay__card {
+  width: min(680px, 100%);
+  min-height: min(560px, calc(100vh - 64px));
+  border-radius: 24px;
+  border: var(--border-width-sm) solid color-mix(in srgb, var(--text) 45%, transparent);
+  background: var(--background-dark);
+  padding: clamp(20px, 3vw, 32px);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+}
+
+.workday-overlay__title {
+  margin: 6px 0 0;
+  font-family: var(--text-heading-1-font-family);
+  font-size: calc(var(--text-heading-1-font-size) * 0.88);
+  line-height: var(--text-heading-1-line-height);
+  font-weight: var(--text-heading-1-font-weight);
+  letter-spacing: var(--text-heading-1-letter-spacing);
+  color: var(--text);
+}
+
+.workday-overlay__question {
+  margin: 40px 0 0;
+  font-family: var(--text-heading-2-font-family);
+  font-size: calc(var(--text-heading-2-font-size) * 0.92);
+  line-height: var(--text-heading-2-line-height);
+  font-weight: var(--text-heading-2-font-weight);
+  letter-spacing: var(--text-heading-2-letter-spacing);
+  color: var(--text);
+}
+
+.workday-overlay__helper {
+  margin: 18px 0 0;
+  font-family: var(--text-body-regular-font-family);
+  font-size: var(--text-body-regular-font-size);
+  line-height: var(--text-body-regular-line-height);
+  font-weight: var(--text-body-regular-font-weight);
+  color: var(--text);
+}
+
+.workday-overlay__form {
+  width: 100%;
+  flex: 1;
+  margin-top: 36px;
+}
+
+.workday-overlay__editor {
+  position: relative;
+  width: 100%;
+  min-height: 260px;
+  height: 100%;
+  border-radius: 22px;
+  border: var(--border-width-sm) solid color-mix(in srgb, var(--text) 40%, transparent);
+  background: transparent;
+  overflow: hidden;
+}
+
+.workday-overlay__textarea {
+  width: 100%;
+  height: 100%;
+  min-height: 260px;
+  border: 0;
+  outline: none;
+  resize: none;
+  padding: 20px 20px 88px;
+  background: transparent;
+  color: var(--primary-dark);
+  font-family: var(--text-body-regular-font-family);
+  font-size: var(--text-body-regular-font-size);
+  line-height: var(--text-body-regular-line-height);
+  font-weight: var(--text-body-regular-font-weight);
+}
+
+.workday-overlay__textarea::placeholder {
+  color: color-mix(in srgb, var(--text) 55%, transparent);
+}
+
+.workday-overlay__submit {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  min-width: 150px;
+  height: 54px;
+  border-radius: var(--radius-md);
+  border: var(--border-width-sm) solid color-mix(in srgb, var(--text) 65%, transparent);
+  background: var(--background);
+  color: var(--text);
+  font-family: var(--text-button-label-font-family);
+  font-size: var(--text-button-label-font-size);
+  line-height: var(--text-button-label-line-height);
+  font-weight: var(--text-button-label-font-weight);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.workday-overlay__submit:hover {
+  background: var(--highlight-light);
+  border-color: var(--primary);
+}
+
 .pause-page-shell {
   max-width: 1200px;
   margin: 0 auto;

@@ -56,7 +56,7 @@ function BreathingLogo({ progress = 0, active = false }) {
   );
 }
 
-export default function Timer() {
+export default function Timer({ onOpenReflection }) {
   const [workStarted, setWorkStarted] = useState(false);
   const [onBreak, setOnBreak] = useState(false);
   const [finished, setFinished] = useState(false);
@@ -100,10 +100,20 @@ export default function Timer() {
   const endDay = () => {
     setFinished(true);
     setOnBreak(false);
+    onOpenReflection?.();
   };
 
   const takeBreak = () => setOnBreak(true);
   const endBreak = () => setOnBreak(false);
+
+  const openReflection = () => {
+    if (onOpenReflection) {
+      onOpenReflection();
+      return;
+    }
+
+    alert("Reflectie (demo)");
+  };
 
   return (
     <div className="timer-card">
@@ -154,7 +164,7 @@ export default function Timer() {
           {finished && (
             <>
               <div className="finished-message">Je bent klaar voor vandaag!</div>
-              <button className="btn" onClick={() => alert("Reflectie (demo)")}>
+              <button className="btn" onClick={openReflection}>
                 Vul nu de reflectie in
               </button>
               <button className="btn" onClick={startDay}>

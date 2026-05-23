@@ -8,6 +8,7 @@ import Timer from "./components/Timer";
 import PauseSuggestions from "./screens/PauseSuggestions";
 import BreathingExercises from "./screens/BreathingExercises";
 import BreathingExerciseDetail from "./screens/BreathingExerciseDetail";
+import WorkdayReflectionOverlay from "./components/WorkdayReflectionOverlay";
 import RatingCard from "./components/RatingCard";
 import StressSlider from "./components/StressSlider";
 import EnergySlider from "./components/EnergySlider";
@@ -17,6 +18,7 @@ import Reports from "./screens/Reports";
 import LoginPage from "./screens/LoginPage";
 import RegisterPage from "./screens/RegisterPage";
 import OnboardingPage from "./screens/OnboardingPage";
+import workdayReflectionIcon from "./assets/notebook-pen.svg";
 
 const DEFAULT_NAME = "John Doe";
 const PROFILE_SELECT = "id, full_name, first_name, last_name, email, avatar_url, plan, work_start, work_end, break_frequency_mins, fixed_breaks, pause_habit, work_style, work_type, allow_reminders, dark_mode, use_company_colors, calendar_linked, company_management_enabled";
@@ -59,6 +61,8 @@ export default function App() {
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [breathingReturnPage, setBreathingReturnPage] = useState("home");
   const [user, setUser] = useState(null);
+  const [workdayReflectionOpen, setWorkdayReflectionOpen] = useState(false);
+  const [workdayReflectionText, setWorkdayReflectionText] = useState("");
 
   async function saveProfilePatch(patch) {
     if (!user?.id) {
@@ -145,6 +149,20 @@ export default function App() {
     setSelectedExercise(exerciseId);
     setBreathingReturnPage(returnPage);
     setCurrentPage("exercise-detail");
+  }
+
+  function openWorkdayReflection() {
+    setWorkdayReflectionOpen(true);
+  }
+
+  function closeWorkdayReflection() {
+    setWorkdayReflectionOpen(false);
+    setWorkdayReflectionText("");
+  }
+
+  function handleWorkdayReflectionSubmit() {
+    setWorkdayReflectionOpen(false);
+    setWorkdayReflectionText("");
   }
 
   async function refreshWellbeingSnapshot() {
@@ -304,8 +322,18 @@ export default function App() {
 
           <div className="home-right-column">
             <div className="timer-section">
-              <Timer />
+              <Timer onOpenReflection={openWorkdayReflection} />
             </div>
+
+            <button
+              className="home-reflection-launcher"
+              type="button"
+              onClick={openWorkdayReflection}
+              aria-label="Werkdagreflectie openen"
+              title="Werkdagreflectie"
+            >
+              <img src={workdayReflectionIcon} alt="" aria-hidden="true" className="home-reflection-launcher__icon" />
+            </button>
 
             <PauseSuggestions
               onViewMore={() => setCurrentPage("pause")}
@@ -314,6 +342,14 @@ export default function App() {
             />
           </div>
         </section>
+
+        <WorkdayReflectionOverlay
+          open={workdayReflectionOpen}
+          value={workdayReflectionText}
+          onChange={setWorkdayReflectionText}
+          onClose={closeWorkdayReflection}
+          onSubmit={handleWorkdayReflectionSubmit}
+        />
       </main>
     );
   }
