@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-export default function WorkdayReflectionOverlay({ open, value, onChange, onClose, onSubmit }) {
+export default function WorkdayReflectionOverlay({ open, value, onChange, onClose, onSubmit, showFinishedTitle = true }) {
   useEffect(() => {
     if (!open) return undefined;
 
@@ -24,11 +24,20 @@ export default function WorkdayReflectionOverlay({ open, value, onChange, onClos
   }
 
   return (
-    <div className="workday-overlay" role="dialog" aria-modal="true" aria-labelledby="workday-overlay-title" onMouseDown={() => onClose?.()}>
+    <div
+      className="workday-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={showFinishedTitle ? "workday-overlay-title" : undefined}
+      aria-label={showFinishedTitle ? undefined : "Werkdagreflectie"}
+      onMouseDown={() => onClose?.()}
+    >
       <div className="workday-overlay__card" onMouseDown={(event) => event.stopPropagation()}>
-        <h2 className="workday-overlay__title" id="workday-overlay-title">
-          Werkdag afgerond.
-        </h2>
+        {showFinishedTitle ? (
+          <h2 className="workday-overlay__title" id="workday-overlay-title">
+            Werkdag afgerond.
+          </h2>
+        ) : null}
         <p className="workday-overlay__question">Waar wil je morgen zeker nog aan werken?</p>
         <p className="workday-overlay__helper">We herinneren je er morgen nog eens aan.</p>
 
