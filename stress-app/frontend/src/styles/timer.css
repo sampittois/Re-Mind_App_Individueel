@@ -212,6 +212,147 @@
   background: color-mix(in srgb, var(--highlight-light) 70%, var(--primary) 30%);
 }
 
+.timer-break-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  background: color-mix(in srgb, var(--text) 24%, transparent);
+  backdrop-filter: blur(4px);
+}
+
+.timer-break-overlay__card {
+  position: relative;
+  width: min(780px, 100%);
+  border-radius: var(--radius-lg);
+  border: var(--border-width-sm) solid var(--border);
+  background: var(--background);
+  padding: var(--space-8);
+  box-shadow: 0 24px 56px color-mix(in srgb, var(--text) 20%, transparent);
+}
+
+.timer-break-overlay__close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--radius-circle);
+  background: var(--highlight-light);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.timer-break-overlay__close-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.timer-break-overlay__eyebrow {
+  margin: 0 0 var(--space-2);
+  color: var(--primary-dark);
+  font-family: var(--text-button-label-font-family);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.timer-break-overlay__title {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-family-heading);
+  font-size: clamp(1.4rem, 2.5vw, 2.15rem);
+  line-height: 1.08;
+  color: var(--text);
+}
+
+.timer-break-overlay__copy {
+  margin: 0;
+  max-width: 60ch;
+  color: var(--text-light);
+  font-family: var(--text-body-regular-font-family);
+  line-height: var(--text-body-regular-line-height);
+}
+
+.timer-break-overlay__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.timer-break-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-height: 170px;
+  padding: var(--space-4);
+  border: var(--border-width-sm) solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--highlight-light);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    border-color 140ms ease,
+    background 140ms ease;
+}
+
+.timer-break-option:hover,
+.timer-break-option:focus-visible {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--primary) 24%, var(--border));
+  box-shadow: 0 16px 28px color-mix(in srgb, var(--text) 12%, transparent);
+  background: var(--background);
+}
+
+.timer-break-option__duration {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.7rem;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--primary) 15%, transparent);
+  color: var(--primary-dark);
+  font-family: var(--text-button-label-font-family);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.timer-break-option__title {
+  font-family: var(--font-family-heading);
+  font-size: 1.1rem;
+  line-height: 1.15;
+  font-weight: var(--font-weight-bold);
+}
+
+.timer-break-option__copy {
+  color: var(--text-light);
+  font-family: var(--text-body-small-font-family);
+  font-size: var(--text-body-small-font-size);
+  line-height: var(--text-body-small-line-height);
+  font-weight: var(--text-body-small-font-weight);
+}
+
+.timer-break-overlay__back {
+  margin-top: var(--space-6);
+  background: var(--highlight-light);
+}
+
+.timer-break-overlay__back:hover {
+  background: color-mix(in srgb, var(--highlight-light) 70%, var(--primary) 30%);
+}
+
 @media (max-width: 720px) {
   .timer-reminder-card {
     padding: var(--space-6);
@@ -223,6 +364,23 @@
   }
 
   .timer-reminder-card__actions .btn {
+    width: 100%;
+  }
+
+  .timer-break-overlay__card {
+    padding: var(--space-6);
+    border-radius: var(--radius-md);
+  }
+
+  .timer-break-overlay__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .timer-break-option {
+    min-height: auto;
+  }
+
+  .timer-break-overlay__back {
     width: 100%;
   }
 }

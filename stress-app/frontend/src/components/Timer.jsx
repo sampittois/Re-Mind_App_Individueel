@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import "../styles/timer.css";
 import Breathe from "./Breathe";
+import BreakSuggestionsOverlay from "./BreakSuggestionsOverlay";
 import { addBreak, addBreakReminderDecision } from "../lib/session";
 
 const TIMER_STATE_STORAGE_KEY = "remind.timerState";
@@ -72,6 +73,58 @@ function buildReminderPayload(reminderAt, frequencyMins) {
   };
 }
 
+function parseTimeToMinutes(value) {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const [hoursText, minutesText] = value.split(":");
+  const hours = Number(hoursText);
+  const minutes = Number(minutesText);
+
+  if (!Number.isFinite(hours) || !Number.isFinite(minutes)) {
+    return null;
+  }
+
+  return hours * 60 + minutes;
+}
+
+function hasNoonFixedBreak(fixedBreaks) {
+  if (!Array.isArray(fixedBreaks)) {
+    return false;
+  }
+
+  const noonMinutes = 12 * 60;
+
+  return fixedBreaks.some((pause) => {
+    const startMinutes = parseTimeToMinutes(pause?.start);
+    const endMinutes = parseTimeToMinutes(pause?.end);
+
+    if (!Number.isFinite(startMinutes) || !Number.isFinite(endMinutes)) {
+      return false;
+    }
+
+    return startMinutes <= noonMinutes && endMinutes >= noonMinutes;
+  });
+}
+
+function getBreakSuggestionMode(profile) {
+  if (hasNoonFixedBreak(profile?.fixed_breaks)) {
+    return "lunch";
+  }
+
+  const frequencyMins = Number(profile?.break_frequency_mins);
+  if (Number.isFinite(frequencyMins) && frequencyMins <= 20) {
+    return "short";
+  }
+
+  if (Number.isFinite(frequencyMins) && frequencyMins >= 60) {
+    return "long";
+  }
+
+  return "balanced";
+}
+
 function BreathingLogo({ progress = 0, active = false }) {
   const timerSize = 200;
   const timerStroke = 4;
@@ -128,6 +181,8 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
   const [finished, setFinished] = useState(initialTimerState?.finished ?? false);
   const [activeReminder, setActiveReminder] = useState(initialTimerState?.activeReminder ?? null);
   const [nextReminderAt, setNextReminderAt] = useState(initialTimerState?.nextReminderAt ?? null);
+  const [activeBreakType, setActiveBreakType] = useState(initialTimerState?.breakType ?? "walk");
+  const [breakSuggestionsRequest, setBreakSuggestionsRequest] = useState(null);
 
   const [workSeconds, setWorkSeconds] = useState(initialTimerState?.workSeconds ?? 0);
   const [breakSeconds, setBreakSeconds] = useState(initialTimerState?.breakSeconds ?? 0);
@@ -147,11 +202,12 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
       finished,
       activeReminder,
       nextReminderAt,
+      breakType: activeBreakType,
       workSeconds,
       breakSeconds,
       lastTickAt,
     });
-  }, [workStarted, workStartedAt, onBreak, finished, activeReminder, nextReminderAt, workSeconds, breakSeconds, lastTickAt]);
+  }, [workStarted, workStartedAt, onBreak, finished, activeReminder, nextReminderAt, activeBreakType, workSeconds, breakSeconds, lastTickAt]);
 
   useEffect(() => {
     const notificationsApi = window.electronNotifications;
@@ -256,6 +312,8 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
     setFinished(false);
     setOnBreak(false);
     setActiveReminder(null);
+    setBreakSuggestionsRequest(null);
+    setActiveBreakType("walk");
     setNextReminderAt(reminderIntervalMs ? now + reminderIntervalMs : null);
     setWorkSeconds(0);
     setBreakSeconds(0);
@@ -266,6 +324,8 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
     setFinished(true);
     setOnBreak(false);
     setActiveReminder(null);
+    setBreakSuggestionsRequest(null);
+    setActiveBreakType("walk");
     setNextReminderAt(null);
     setLastTickAt(Date.now());
     onOpenReflection?.();
@@ -289,13 +349,22 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
     setLastTickAt(Date.now());
   };
 
-  const takeBreak = async (fromReminder = false) => {
-    if (fromReminder) {
+  const takeBreak = (fromReminder = false) => {
+    setBreakSuggestionsRequest({
+      fromReminder,
+      mode: getBreakSuggestionMode(profile),
+    });
+  };
+
+  const startBreakFromSuggestion = async (suggestion) => {
+    if (breakSuggestionsRequest?.fromReminder) {
       await logReminderDecision("taken");
     }
 
+    setBreakSuggestionsRequest(null);
     setActiveReminder(null);
     setOnBreak(true);
+    setActiveBreakType(suggestion?.type || "walk");
     setNextReminderAt(null);
     setBreakSeconds(0);
     setLastTickAt(Date.now());
@@ -303,12 +372,14 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
 
   const endBreak = async () => {
     const durationMinutes = Math.max(1, Math.round(breakSeconds / 60));
+    const breakType = activeBreakType || "walk";
     setOnBreak(false);
     setBreakSeconds(0);
+    setActiveBreakType("walk");
     setNextReminderAt(reminderIntervalMs ? Date.now() + reminderIntervalMs : null);
     setLastTickAt(Date.now());
 
-    const { error } = await addBreak({ type: "walk", duration_minutes: durationMinutes });
+    const { error } = await addBreak({ type: breakType, duration_minutes: durationMinutes });
     if (error) {
       console.error("Failed to register timer break:", error);
       return;
@@ -405,6 +476,15 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
             </div>
           </div>
         </div>
+      ) : null}
+
+      {breakSuggestionsRequest ? (
+        <BreakSuggestionsOverlay
+          open={Boolean(breakSuggestionsRequest)}
+          mode={breakSuggestionsRequest.mode}
+          onClose={() => setBreakSuggestionsRequest(null)}
+          onSelectSuggestion={startBreakFromSuggestion}
+        />
       ) : null}
     </div>
   );
