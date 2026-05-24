@@ -487,7 +487,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
             <p className="timer-reminder-card__eyebrow">Break reminder</p>
             <h2 className="timer-reminder-card__title">Het is tijd voor een pauze</h2>
             <p className="timer-reminder-card__copy">
-              Je ingestelde reminder staat gepland voor {formatClockTime(new Date(activeReminder.at))}.
+              Je ingestelde reminder staat ingesteld op {activeReminder?.label ?? formatClockTime(new Date(activeReminder.at))}.
             </p>
 
             <div className="timer-reminder-card__actions">
