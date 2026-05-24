@@ -7,13 +7,13 @@ import { addBreak, addBreakReminderDecision } from "../lib/session";
 const TIMER_STATE_STORAGE_KEY = "remind.timerState";
 const DAY_TARGET_SECONDS = 8 * 60 * 60;
 
-function loadTimerState() {
+function loadTimerState(key = TIMER_STATE_STORAGE_KEY) {
   if (typeof window === "undefined") {
     return null;
   }
 
   try {
-    const raw = window.localStorage.getItem(TIMER_STATE_STORAGE_KEY);
+    const raw = window.localStorage.getItem(key);
     if (!raw) {
       return null;
     }
@@ -40,13 +40,13 @@ function loadTimerState() {
   }
 }
 
-function saveTimerState(snapshot) {
+function saveTimerState(snapshot, key = TIMER_STATE_STORAGE_KEY) {
   if (typeof window === "undefined") {
     return;
   }
 
   try {
-    window.localStorage.setItem(TIMER_STATE_STORAGE_KEY, JSON.stringify(snapshot));
+    window.localStorage.setItem(key, JSON.stringify(snapshot));
   } catch {
     // Ignore localStorage write issues.
   }
@@ -182,7 +182,11 @@ function BreathingLogo({ progress = 0, active = false }) {
 }
 
 export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecisionLogged, profile, onStartBreathingExercise, onOpenSuggestion }) {
-  const initialTimerState = useMemo(() => loadTimerState(), []);
+  const storageKey = useMemo(() => {
+    return profile?.id ? `${TIMER_STATE_STORAGE_KEY}.${profile.id}` : TIMER_STATE_STORAGE_KEY;
+  }, [profile?.id]);
+
+  const initialTimerState = useMemo(() => loadTimerState(storageKey), [storageKey]);
   const [workStarted, setWorkStarted] = useState(initialTimerState?.workStarted ?? false);
   const [workStartedAt, setWorkStartedAt] = useState(initialTimerState?.workStartedAt ?? null);
   const [onBreak, setOnBreak] = useState(initialTimerState?.onBreak ?? false);
@@ -196,6 +200,37 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
   const [breakSeconds, setBreakSeconds] = useState(initialTimerState?.breakSeconds ?? 0);
   const [lastTickAt, setLastTickAt] = useState(() => initialTimerState?.lastTickAt ?? Date.now());
 
+  // When the storage key changes (user switched), reload timer state for the new user
+  useEffect(() => {
+    const state = loadTimerState(storageKey);
+    if (!state) {
+      setWorkStarted(false);
+      setWorkStartedAt(null);
+      setOnBreak(false);
+      setFinished(false);
+      setActiveReminder(null);
+      setNextReminderAt(null);
+      setActiveBreakType("walk");
+      setBreakSuggestionsRequest(null);
+      setWorkSeconds(0);
+      setBreakSeconds(0);
+      setLastTickAt(Date.now());
+      return;
+    }
+
+    setWorkStarted(Boolean(state.workStarted));
+    setWorkStartedAt(state.workStartedAt ?? null);
+    setOnBreak(Boolean(state.onBreak));
+    setFinished(Boolean(state.finished));
+    setActiveReminder(state.activeReminder ?? null);
+    setNextReminderAt(state.nextReminderAt ?? null);
+    setActiveBreakType(state.breakType ?? "walk");
+    setBreakSuggestionsRequest(null);
+    setWorkSeconds(state.workSeconds ?? 0);
+    setBreakSeconds(state.breakSeconds ?? 0);
+    setLastTickAt(state.lastTickAt ?? Date.now());
+  }, [storageKey]);
+
   const frequencyMins = Number(profile?.break_frequency_mins);
   const reminderIntervalMs =
     Boolean(profile?.allow_reminders) && Number.isFinite(frequencyMins) && frequencyMins > 0
@@ -203,19 +238,22 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
       : null;
 
   useEffect(() => {
-    saveTimerState({
-      workStarted,
-      workStartedAt,
-      onBreak,
-      finished,
-      activeReminder,
-      nextReminderAt,
-      breakType: activeBreakType,
-      workSeconds,
-      breakSeconds,
-      lastTickAt,
-    });
-  }, [workStarted, workStartedAt, onBreak, finished, activeReminder, nextReminderAt, activeBreakType, workSeconds, breakSeconds, lastTickAt]);
+    saveTimerState(
+      {
+        workStarted,
+        workStartedAt,
+        onBreak,
+        finished,
+        activeReminder,
+        nextReminderAt,
+        breakType: activeBreakType,
+        workSeconds,
+        breakSeconds,
+        lastTickAt,
+      },
+      storageKey
+    );
+  }, [workStarted, workStartedAt, onBreak, finished, activeReminder, nextReminderAt, activeBreakType, workSeconds, breakSeconds, lastTickAt, storageKey]);
 
   useEffect(() => {
     const notificationsApi = window.electronNotifications;

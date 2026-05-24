@@ -219,35 +219,39 @@ export default function OnboardingPage({ onComplete, onSkip }) {
         return (
           <>
             <p className="login-body">We sturen je korte, subtiele reminders wanneer je te lang doorwerkt.</p>
-            <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginTop: "0.5rem" }}>
-              <label className="form-label">Reminders toestaan?</label>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "0.5rem", marginTop: "0.5rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                <label className="form-label">Reminders toestaan?</label>
 
-              <div
-                role="switch"
-                tabIndex={0}
-                aria-checked={allowReminders}
-                className={`toggle-switch ${allowReminders ? "active" : ""}`}
-                onClick={() => setAllowReminders((v) => !v)}
-                onKeyDown={(e) => {
-                  if (e.key === " " || e.key === "Enter") {
-                    e.preventDefault();
-                    setAllowReminders((v) => !v);
-                  }
-                }}
-                style={{ outline: "none" }}
-              >
-                <div className="toggle-thumb" />
+                <div
+                  role="switch"
+                  tabIndex={0}
+                  aria-checked={allowReminders}
+                  className={`toggle-switch ${allowReminders ? "active" : ""}`}
+                  onClick={() => setAllowReminders((v) => !v)}
+                  onKeyDown={(e) => {
+                    if (e.key === " " || e.key === "Enter") {
+                      e.preventDefault();
+                      setAllowReminders((v) => !v);
+                    }
+                  }}
+                  style={{ outline: "none" }}
+                >
+                  <div className="toggle-thumb" />
+                </div>
+
+                <span style={{ marginLeft: 6 }}>{allowReminders ? "Aan" : "Uit"}</span>
               </div>
-              <span style={{ marginLeft: 6 }}>{allowReminders ? "Aan" : "Uit"}</span>
-            <label className="form-label">Werktype</label>
-            <div className="dropdown-wrapper">
-              <CustomDropdown
-                value={workType}
-                onChange={setWorkType}
-                placeholder="Kies een type werk"
-                options={workTypeOptions}
-              />
-            </div>
+
+              <label className="form-label">Werktype</label>
+              <div className="dropdown-wrapper">
+                <CustomDropdown
+                  value={workType}
+                  onChange={setWorkType}
+                  placeholder="Kies een type werk"
+                  options={workTypeOptions}
+                />
+              </div>
             </div>
           </>
         );
