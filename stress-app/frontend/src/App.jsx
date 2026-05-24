@@ -15,6 +15,7 @@ import EnergySlider from "./components/EnergySlider";
 import StatsSection from "./components/StatsSection";
 import ProfileSection from "./screens/ProfileSection";
 import Reports from "./screens/Reports";
+import UpgradePage from "./screens/UpgradePage";
 import LoginPage from "./screens/LoginPage";
 import RegisterPage from "./screens/RegisterPage";
 import OnboardingPage from "./screens/OnboardingPage";
@@ -282,6 +283,7 @@ export default function App() {
           user={user}
           onUpdateProfile={saveProfilePatch}
           hasStoredName={Boolean(profile?.full_name || profile?.first_name || profile?.last_name)}
+          setCurrentPage={setCurrentPage}
         />
       </main>
     );
@@ -361,6 +363,13 @@ export default function App() {
             />
           </div>
         </section>
+      </main>
+    );
+  }
+  if (currentPage === "upgrade") {
+    pageContent = (
+      <main className="page upgrade-page">
+        <UpgradePage profile={profile} onUpdateProfile={saveProfilePatch} setCurrentPage={setCurrentPage} />
       </main>
     );
   }

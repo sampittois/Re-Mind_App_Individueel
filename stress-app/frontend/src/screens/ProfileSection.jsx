@@ -30,7 +30,7 @@ const ALL_SUGGESTIONS = [
 
 const SUGGESTION_BY_ID = new Map(ALL_SUGGESTIONS.map((item) => [item.id, item]));
 
-export default function ProfileSection({ profile, initialName = "John Doe", onSaveName, onSaveAvatar, onLogout, user, onUpdateProfile, hasStoredName = true }) {
+export default function ProfileSection({ profile, initialName = "John Doe", onSaveName, onSaveAvatar, onLogout, user, onUpdateProfile, hasStoredName = true, setCurrentPage }) {
   const [name, setName] = useState(hasStoredName ? initialName : "");
   useEffect(() => {
     setName(hasStoredName ? initialName : "");
@@ -221,9 +221,8 @@ export default function ProfileSection({ profile, initialName = "John Doe", onSa
           <button
             className="action-btn"
             type="button"
-            onClick={async () => {
-              const nextPlan = profile?.plan === "basic" ? "premium" : profile?.plan === "premium" ? "bedrijfslicentie" : "basic";
-              await onUpdateProfile?.({ plan: nextPlan });
+            onClick={() => {
+              setCurrentPage?.("upgrade");
             }}
           >
             Upgrade Plan
