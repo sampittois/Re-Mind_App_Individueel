@@ -347,26 +347,26 @@ a {
   color: color-mix(in srgb, var(--text) 55%, transparent);
 }
 
-.workday-overlay__add,
-.workday-overlay__submit {
-  min-width: 140px;
-  height: 54px;
-  border-radius: var(--radius-md);
-  border: var(--border-width-sm) solid var(--primary-dark);
-  background: var(--primary);
-  color: var(--background);
-  font-family: var(--text-button-label-font-family);
-  font-size: var(--text-button-label-font-size);
-  line-height: var(--text-button-label-line-height);
-  font-weight: var(--text-button-label-font-weight);
-  cursor: pointer;
-  box-shadow: var(--shadow-sm);
-}
-
-.workday-overlay__add:hover,
-.workday-overlay__submit:hover {
+.workday-overlay__add:hover {
   background: var(--highlight-dark);
   border-color: var(--primary-dark);
+}
+
+.workday-overlay__submit {
+  align-self: center;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border, var(--text));
+  background: var(--background);
+  color: var(--text);
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-sm);
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.workday-overlay__submit:hover {
+  background: var(--highlight-light);
 }
 
 .workday-overlay__add {
