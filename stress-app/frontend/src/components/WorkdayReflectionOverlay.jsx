@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "../styles/settings.css";
+import xIcon from "../assets/x.svg";
 
 const EMPTY_LISTS = { today: [], tomorrow: [] };
 
@@ -74,6 +75,10 @@ export default function WorkdayReflectionOverlay({ open, onClose, onSubmit, show
       onMouseDown={() => onClose?.()}
     >
       <div className="workday-overlay__card" onMouseDown={(event) => event.stopPropagation()}>
+        <button className="workday-overlay__close" type="button" onClick={() => onClose?.()} aria-label="Overlay sluiten">
+          <img src={xIcon} alt="" className="workday-overlay__close-icon" />
+        </button>
+
         {showFinishedTitle ? (
           <h2 className="workday-overlay__title" id="workday-overlay-title">
             Werkdag afgerond.

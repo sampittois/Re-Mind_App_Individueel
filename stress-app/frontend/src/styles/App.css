@@ -208,11 +208,44 @@ a {
   background: var(--background-dark);
   padding: clamp(20px, 3vw, 32px);
   box-shadow: var(--shadow-lg);
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
   text-align: center;
+}
+
+.workday-overlay__close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid var(--primary-dark);
+  background: var(--highlight-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.workday-overlay__close:hover {
+  background: var(--primary);
+}
+
+.workday-overlay__close:hover .workday-overlay__close-icon {
+  filter: brightness(0) invert(1);
+}
+
+.workday-overlay__close-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  display: block;
 }
 
 .workday-overlay__title {
