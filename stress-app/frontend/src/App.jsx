@@ -332,13 +332,6 @@ export default function App() {
             />
           </div>
         </section>
-
-        <WorkdayReflectionOverlay
-          open={workdayReflectionOpen}
-          onClose={closeWorkdayReflection}
-          onSubmit={handleWorkdayReflectionSubmit}
-          showFinishedTitle={workdayReflectionShowFinishedTitle}
-        />
       </main>
     );
   }
@@ -485,6 +478,12 @@ export default function App() {
         />
       )}
       {pageContent}
+      <WorkdayReflectionOverlay
+        open={workdayReflectionOpen}
+        onClose={closeWorkdayReflection}
+        onSubmit={handleWorkdayReflectionSubmit}
+        showFinishedTitle={workdayReflectionShowFinishedTitle}
+      />
     </div>
   );
 }
