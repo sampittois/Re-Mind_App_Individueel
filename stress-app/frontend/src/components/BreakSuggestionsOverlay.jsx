@@ -190,6 +190,7 @@ export default function BreakSuggestionsOverlay({ open, mode = "balanced", onClo
                 title={suggestion.title}
                 onSelect={() => {
                   if (suggestion.type === "breathing" && onStartBreathingExercise) {
+                    onClose?.();
                     onStartBreathingExercise();
                     return;
                   }

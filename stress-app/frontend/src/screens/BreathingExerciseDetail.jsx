@@ -63,7 +63,7 @@ const durationToMs = (duration) => {
     return seconds * 1000;
 };
 
-export default function BreathingExerciseDetail({ exerciseId, onBack }) {
+export default function BreathingExerciseDetail({ exerciseId, onBack, autoStart = false }) {
     const [isActive, setIsActive] = useState(false);
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const timerRef = useRef(null);
@@ -97,6 +97,13 @@ export default function BreathingExerciseDetail({ exerciseId, onBack }) {
 
         handleStart();
     };
+
+    useEffect(() => {
+        if (!autoStart) return;
+
+        setIsActive(true);
+        setCurrentStepIndex(0);
+    }, [autoStart, exerciseId]);
 
     // Handle step cycling
     useEffect(() => {

@@ -58,6 +58,7 @@ export default function App() {
 
   const [currentPage, setCurrentPage] = useState("home");
   const [selectedExercise, setSelectedExercise] = useState(null);
+  const [selectedExerciseAutoStart, setSelectedExerciseAutoStart] = useState(false);
   const [breathingReturnPage, setBreathingReturnPage] = useState("home");
   const [user, setUser] = useState(null);
   const [workdayReflectionOpen, setWorkdayReflectionOpen] = useState(false);
@@ -144,8 +145,9 @@ export default function App() {
     setCurrentPage("home");
   }
 
-  function openBreathingExercise(exerciseId, returnPage = "home") {
+  function openBreathingExercise(exerciseId, returnPage = "home", autoStart = false) {
     setSelectedExercise(exerciseId);
+    setSelectedExerciseAutoStart(autoStart);
     setBreathingReturnPage(returnPage);
     setCurrentPage("exercise-detail");
   }
@@ -213,6 +215,7 @@ export default function App() {
     pageContent = (
       <BreathingExerciseDetail
         exerciseId={selectedExercise}
+        autoStart={selectedExerciseAutoStart}
         onBack={() => setCurrentPage(breathingReturnPage)}
       />
     );
@@ -327,7 +330,7 @@ export default function App() {
                 onOpenReflection={() => openWorkdayReflection("finished-day")}
                 onBreakLogged={refreshWellbeingSnapshot}
                 onReminderDecisionLogged={refreshWellbeingSnapshot}
-                onStartBreathingExercise={() => openBreathingExercise("box", "home")}
+                onStartBreathingExercise={() => openBreathingExercise("box", "home", true)}
               />
             </div>
 
