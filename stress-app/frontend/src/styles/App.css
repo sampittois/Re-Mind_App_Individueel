@@ -347,11 +347,6 @@ a {
   color: color-mix(in srgb, var(--text) 55%, transparent);
 }
 
-.workday-overlay__add:hover {
-  background: var(--highlight-dark);
-  border-color: var(--primary-dark);
-}
-
 .workday-overlay__submit {
   align-self: center;
   padding: 10px 14px;
@@ -376,10 +371,29 @@ a {
   padding: 0;
   box-sizing: border-box;
   border-radius: var(--radius-md);
+  border: var(--border-width-sm) solid var(--primary-dark);
+  background: var(--highlight-light);
+  color: var(--primary-dark);
+  font-family: var(--text-button-label-font-family);
+  font-size: 20px;
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
   align-self: center;
   margin-top: 0;
   flex-shrink: 0;
   line-height: 1;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.12s ease;
+}
+
+.workday-overlay__add:hover,
+.workday-overlay__add:focus-visible {
+  background: var(--highlight-dark);
+  border-color: var(--primary-dark);
+  color: var(--background);
+}
+
+.workday-overlay__add:active {
+  transform: translateY(1px);
 }
 
 .workday-overlay__delete {

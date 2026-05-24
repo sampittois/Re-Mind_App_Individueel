@@ -34,7 +34,7 @@ export default function WorkdayReflectionOverlay({ open, onClose, onSubmit, show
   const currentItems = itemsByTab[activeTab] || [];
 
   function handleAddItem(event) {
-    event.preventDefault();
+    event?.preventDefault?.();
 
     const nextText = draftItem.trim();
     if (!nextText) return;
@@ -121,7 +121,7 @@ export default function WorkdayReflectionOverlay({ open, onClose, onSubmit, show
               autoFocus
             />
 
-            <button className="workday-overlay__add" type="submit" aria-label="Taak toevoegen">
+            <button className="workday-overlay__add" type="button" onClick={handleAddItem} aria-label="Taak toevoegen">
               +
             </button>
           </div>
