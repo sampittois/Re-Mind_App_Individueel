@@ -226,6 +226,8 @@
 .timer-break-overlay__card {
   position: relative;
   width: min(780px, 100%);
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
   border-radius: var(--radius-lg);
   border: var(--border-width-sm) solid var(--border);
   background: var(--background);
@@ -235,22 +237,35 @@
 
 .timer-break-overlay__close {
   position: absolute;
-  top: var(--space-4);
-  right: var(--space-4);
+  top: 12px;
+  right: 12px;
   width: 40px;
   height: 40px;
-  display: grid;
-  place-items: center;
-  border: 0;
-  border-radius: var(--radius-circle);
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid var(--primary-dark);
   background: var(--highlight-light);
   color: var(--text);
   cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.timer-break-overlay__close:hover {
+  background: var(--primary);
+}
+
+.timer-break-overlay__close:hover .timer-break-overlay__close-icon {
+  filter: brightness(0) invert(1);
 }
 
 .timer-break-overlay__close-icon {
   width: 16px;
   height: 16px;
+  object-fit: contain;
+  display: block;
 }
 
 .timer-break-overlay__eyebrow {
@@ -286,37 +301,16 @@
   margin-top: var(--space-6);
 }
 
-.timer-break-option {
+.timer-break-option-group {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   gap: var(--space-2);
-  min-height: 170px;
-  padding: var(--space-4);
-  border: var(--border-width-sm) solid var(--border);
-  border-radius: var(--radius-md);
-  background: var(--highlight-light);
-  color: var(--text);
-  text-align: left;
-  cursor: pointer;
-  transition:
-    transform 140ms ease,
-    box-shadow 140ms ease,
-    border-color 140ms ease,
-    background 140ms ease;
 }
 
-.timer-break-option:hover,
-.timer-break-option:focus-visible {
-  transform: translateY(-2px);
-  border-color: color-mix(in srgb, var(--primary) 24%, var(--border));
-  box-shadow: 0 16px 28px color-mix(in srgb, var(--text) 12%, transparent);
-  background: var(--background);
-}
-
-.timer-break-option__duration {
+.timer-break-option-group__label {
   display: inline-flex;
   align-items: center;
+  align-self: flex-start;
   min-height: 1.7rem;
   padding: 0 var(--space-2);
   border-radius: var(--radius-sm);
@@ -327,21 +321,6 @@
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-}
-
-.timer-break-option__title {
-  font-family: var(--font-family-heading);
-  font-size: 1.1rem;
-  line-height: 1.15;
-  font-weight: var(--font-weight-bold);
-}
-
-.timer-break-option__copy {
-  color: var(--text-light);
-  font-family: var(--text-body-small-font-family);
-  font-size: var(--text-body-small-font-size);
-  line-height: var(--text-body-small-line-height);
-  font-weight: var(--text-body-small-font-weight);
 }
 
 .timer-break-overlay__back {
@@ -374,10 +353,6 @@
 
   .timer-break-overlay__grid {
     grid-template-columns: 1fr;
-  }
-
-  .timer-break-option {
-    min-height: auto;
   }
 
   .timer-break-overlay__back {

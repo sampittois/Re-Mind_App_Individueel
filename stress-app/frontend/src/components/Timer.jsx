@@ -503,6 +503,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
           mode={breakSuggestionsRequest.mode}
           onClose={() => setBreakSuggestionsRequest(null)}
           onSelectSuggestion={startBreakFromSuggestion}
+          onStartBreathingExercise={onStartBreathingExercise}
         />
       ) : null}
     </div>

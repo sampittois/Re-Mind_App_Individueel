@@ -1,5 +1,14 @@
 import { useEffect } from "react";
+import PauseCard from "./PauseCard";
 import xIcon from "../assets/x.svg";
+import breathing from "../assets/ademhaling.png";
+import stretching from "../assets/stretchen.png";
+import shortWalk from "../assets/korteWandeling.png";
+import eyeReset from "../assets/oogReset.png";
+import postureCheck from "../assets/houdingCheck.png";
+import handStretch from "../assets/handStretch.png";
+import handToChestReset from "../assets/handToChestReset.png";
+import drinkPause from "../assets/drinkPauze.png";
 
 const BREAK_MODES = {
   short: {
@@ -13,6 +22,7 @@ const BREAK_MODES = {
         copy: "Sta even recht en maak je nek, schouders en rug los.",
         durationLabel: "3-5 min",
         type: "stretch",
+        icon: stretching,
       },
       {
         id: "short-breath",
@@ -20,6 +30,7 @@ const BREAK_MODES = {
         copy: "Neem een minuut de tijd om in en uit te ademen op een rustig tempo.",
         durationLabel: "2-3 min",
         type: "breathing",
+        icon: breathing,
       },
       {
         id: "short-walk",
@@ -27,6 +38,7 @@ const BREAK_MODES = {
         copy: "Loop kort weg van je scherm en drink meteen iets.",
         durationLabel: "3-5 min",
         type: "walk",
+        icon: shortWalk,
       },
     ],
   },
@@ -41,6 +53,7 @@ const BREAK_MODES = {
         copy: "Ga even buiten of loop een rondje door het gebouw.",
         durationLabel: "10-15 min",
         type: "walk",
+        icon: shortWalk,
       },
       {
         id: "long-stretch",
@@ -48,6 +61,7 @@ const BREAK_MODES = {
         copy: "Geef je lichaam wat extra ruimte en beweging.",
         durationLabel: "8-10 min",
         type: "stretch",
+        icon: handStretch,
       },
       {
         id: "long-breath",
@@ -55,6 +69,7 @@ const BREAK_MODES = {
         copy: "Gebruik een rustig ritme om je hoofd even te laten zakken.",
         durationLabel: "5-10 min",
         type: "breathing",
+        icon: breathing,
       },
     ],
   },
@@ -69,6 +84,7 @@ const BREAK_MODES = {
         copy: "Leg je scherm weg en neem je lunch rustig.",
         durationLabel: "20-30 min",
         type: "walk",
+        icon: drinkPause,
       },
       {
         id: "lunch-drink",
@@ -76,6 +92,7 @@ const BREAK_MODES = {
         copy: "Pak water, thee of koffie naast je maaltijd.",
         durationLabel: "15-20 min",
         type: "walk",
+        icon: drinkPause,
       },
       {
         id: "lunch-reset",
@@ -83,6 +100,7 @@ const BREAK_MODES = {
         copy: "Sta op, beweeg even en kom daarna terug met nieuwe energie.",
         durationLabel: "20-30 min",
         type: "walk",
+        icon: postureCheck,
       },
     ],
   },
@@ -97,6 +115,7 @@ const BREAK_MODES = {
         copy: "Maak je nek, schouders en rug even los.",
         durationLabel: "5 min",
         type: "stretch",
+        icon: stretching,
       },
       {
         id: "balanced-walk",
@@ -104,6 +123,7 @@ const BREAK_MODES = {
         copy: "Weg van het scherm voor wat frisse focus.",
         durationLabel: "5-10 min",
         type: "walk",
+        icon: shortWalk,
       },
       {
         id: "balanced-breath",
@@ -111,12 +131,13 @@ const BREAK_MODES = {
         copy: "Neem even ruimte om te vertragen en te resetten.",
         durationLabel: "3-5 min",
         type: "breathing",
+        icon: breathing,
       },
     ],
   },
 };
 
-export default function BreakSuggestionsOverlay({ open, mode = "balanced", onClose, onSelectSuggestion }) {
+export default function BreakSuggestionsOverlay({ open, mode = "balanced", onClose, onSelectSuggestion, onStartBreathingExercise }) {
   const content = BREAK_MODES[mode] || BREAK_MODES.balanced;
 
   useEffect(() => {
@@ -162,16 +183,23 @@ export default function BreakSuggestionsOverlay({ open, mode = "balanced", onClo
 
         <div className="timer-break-overlay__grid">
           {content.suggestions.map((suggestion) => (
-            <button
-              className="timer-break-option"
-              type="button"
-              key={suggestion.id}
-              onClick={() => onSelectSuggestion?.(suggestion)}
-            >
-              <span className="timer-break-option__duration">{suggestion.durationLabel}</span>
-              <span className="timer-break-option__title">{suggestion.title}</span>
-              <span className="timer-break-option__copy">{suggestion.copy}</span>
-            </button>
+            <div className="timer-break-option-group" key={suggestion.id}>
+              <span className="timer-break-option-group__label">{suggestion.durationLabel}</span>
+              <PauseCard
+                icon={suggestion.icon}
+                title={suggestion.title}
+                onSelect={() => {
+                  if (suggestion.type === "breathing" && onStartBreathingExercise) {
+                    onStartBreathingExercise();
+                    return;
+                  }
+
+                  onSelectSuggestion?.(suggestion);
+                }}
+                compact
+                showFavorite={false}
+              />
+            </div>
           ))}
         </div>
 

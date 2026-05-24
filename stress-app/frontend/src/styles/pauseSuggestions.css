@@ -130,6 +130,41 @@
 	background: var(--background-dark);
 	color: var(--text);
 	box-sizing: border-box;
+	transition:
+		transform 160ms ease,
+		box-shadow 160ms ease,
+		border-color 160ms ease,
+		background-color 160ms ease;
+}
+
+.pause-suggestion-card--compact {
+	width: 100%;
+	min-height: 118px;
+}
+
+.pause-suggestion-card--compact .pause-suggestion-card__media {
+	padding: var(--space-3) var(--space-2);
+}
+
+.pause-suggestion-card--compact .pause-suggestion-card__media img {
+	width: 56px;
+	height: 56px;
+}
+
+.pause-suggestion-card--compact .pause-suggestion-card__body {
+	padding: var(--space-3) var(--space-4) var(--space-3) var(--space-3);
+}
+
+.pause-suggestion-card--compact .pause-suggestion-card__title {
+	margin-top: 6px;
+	font-size: var(--font-size-sm);
+}
+
+.pause-suggestion-card:not(.pause-suggestion-card--no-hover):hover,
+.pause-suggestion-card:not(.pause-suggestion-card--no-hover):focus-visible {
+	transform: translateY(-3px);
+	border-color: var(--primary-dark);
+	box-shadow: 0 16px 30px color-mix(in srgb, var(--text) 16%, transparent);
 }
 
 .pause-suggestion-card[role="button"] {
@@ -249,6 +284,10 @@
 .pause-suggestion-card__favorite:hover {
 	border-color: var(--primary);
 	box-shadow: none;
+}
+
+.pause-suggestion-card--compact .pause-suggestion-card__favorite {
+	display: none;
 }
 
 .pause-suggestions__cta {
