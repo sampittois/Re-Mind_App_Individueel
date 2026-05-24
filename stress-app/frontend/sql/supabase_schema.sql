@@ -45,6 +45,7 @@ create table if not exists public.profiles (
   work_end time,
   break_frequency_mins integer check (break_frequency_mins > 0),
   fixed_breaks jsonb not null default '[]'::jsonb,
+  break_reminders jsonb not null default '[]'::jsonb,
   pause_habit text,
   work_style text,
   work_type text,
@@ -67,6 +68,7 @@ alter table public.profiles add column if not exists work_start time;
 alter table public.profiles add column if not exists work_end time;
 alter table public.profiles add column if not exists break_frequency_mins integer;
 alter table public.profiles add column if not exists fixed_breaks jsonb not null default '[]'::jsonb;
+alter table public.profiles add column if not exists break_reminders jsonb not null default '[]'::jsonb;
 alter table public.profiles add column if not exists pause_habit text;
 alter table public.profiles add column if not exists work_style text;
 alter table public.profiles add column if not exists work_type text;

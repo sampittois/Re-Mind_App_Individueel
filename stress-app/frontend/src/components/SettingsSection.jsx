@@ -21,6 +21,18 @@ function normalizePauses(value) {
   }));
 }
 
+function normalizeReminderAmount(value) {
+  if (!Number.isFinite(value) || value <= 0) {
+    return { amount: "", unit: "minutes" };
+  }
+
+  if (value % 60 === 0 && value >= 60) {
+    return { amount: String(value / 60), unit: "hours" };
+  }
+
+  return { amount: String(value), unit: "minutes" };
+}
+
 function createPauseId() {
   return Date.now() + Math.random();
 }
@@ -30,14 +42,17 @@ export default function SettingsSection({ profile, onUpdateProfile }) {
   const [workEnd, setWorkEnd] = useState("17:00");
   const [pauses, setPauses] = useState([{ id: 1, start: "12:00", end: "12:30" }]);
   const [remindersEnabled, setRemindersEnabled] = useState(false);
-  const [reminderFrequency, setReminderFrequency] = useState("60");
+  const [reminderAmount, setReminderAmount] = useState("");
+  const [reminderUnit, setReminderUnit] = useState("minutes");
 
   useEffect(() => {
     setWorkStart(normalizeTime(profile?.work_start, "08:00"));
     setWorkEnd(normalizeTime(profile?.work_end, "17:00"));
     setPauses(normalizePauses(profile?.fixed_breaks));
     setRemindersEnabled(Boolean(profile?.allow_reminders));
-    setReminderFrequency(profile?.break_frequency_mins ? String(profile.break_frequency_mins) : "60");
+    const normalizedReminder = normalizeReminderAmount(profile?.break_frequency_mins);
+    setReminderAmount(normalizedReminder.amount);
+    setReminderUnit(normalizedReminder.unit);
   }, [profile?.work_start, profile?.work_end, profile?.fixed_breaks, profile?.allow_reminders, profile?.break_frequency_mins]);
 
   async function saveProfileFields(nextFields) {
@@ -73,9 +88,32 @@ export default function SettingsSection({ profile, onUpdateProfile }) {
     await saveProfileFields({ work_end: value || null });
   };
 
-  const updateReminderFrequency = async (value) => {
-    setReminderFrequency(value);
-    await saveProfileFields({ break_frequency_mins: value ? Number(value) : null });
+  const updateReminderAmount = async (value) => {
+    setReminderAmount(value);
+
+    const numericAmount = Number(value);
+    const frequencyMins =
+      Number.isFinite(numericAmount) && numericAmount > 0
+        ? reminderUnit === "hours"
+          ? Math.round(numericAmount * 60)
+          : Math.round(numericAmount)
+        : null;
+
+    await saveProfileFields({ break_frequency_mins: frequencyMins });
+  };
+
+  const updateReminderUnit = async (value) => {
+    setReminderUnit(value);
+
+    const numericAmount = Number(reminderAmount);
+    const frequencyMins =
+      Number.isFinite(numericAmount) && numericAmount > 0
+        ? value === "hours"
+          ? Math.round(numericAmount * 60)
+          : Math.round(numericAmount)
+        : null;
+
+    await saveProfileFields({ break_frequency_mins: frequencyMins });
   };
 
   const toggleReminders = async () => {
@@ -83,14 +121,6 @@ export default function SettingsSection({ profile, onUpdateProfile }) {
     setRemindersEnabled(nextValue);
     await saveProfileFields({ allow_reminders: nextValue });
   };
-
-  const reminderFrequencyOptions = [
-    { value: "30", label: "Elke 30 minuten" },
-    { value: "45", label: "Elke 45 minuten" },
-    { value: "60", label: "Elke 1 uur" },
-    { value: "90", label: "Elke 1,5 uur" },
-    { value: "120", label: "Elke 2 uur" },
-  ];
 
   return (
     <section className="settings-section">
@@ -173,13 +203,32 @@ export default function SettingsSection({ profile, onUpdateProfile }) {
           </button>
         </div>
 
-        <div className="dropdown-wrapper">
-          <CustomDropdown
-            value={reminderFrequency}
-            onChange={updateReminderFrequency}
-            placeholder="Hoe vaak moet de app je pauze herinneren?"
-            options={reminderFrequencyOptions}
-          />
+        <div className="time-inputs-row reminders-interval-row">
+          <div className="time-input-group">
+            <label className="settings-label">Elke hoeveel tijd?</label>
+            <input
+              type="number"
+              min="1"
+              step="1"
+              value={reminderAmount}
+              onChange={(e) => updateReminderAmount(e.target.value)}
+              className="time-input"
+              placeholder="1"
+            />
+          </div>
+
+          <div className="time-input-group">
+            <label className="settings-label">Eenheid</label>
+            <CustomDropdown
+              value={reminderUnit}
+              onChange={updateReminderUnit}
+              placeholder="Kies eenheid"
+              options={[
+                { value: "minutes", label: "Minuten" },
+                { value: "hours", label: "Uren" },
+              ]}
+            />
+          </div>
         </div>
       </div>
 

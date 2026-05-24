@@ -26,6 +26,26 @@
   background: var(--highlight-light);
 }
 
+.reminder-times-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.reminders-empty {
+  margin: 0;
+  color: var(--text-light);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-sm);
+}
+
+.reminder-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: end;
+}
+
 /* Working Hours Group */
 .time-inputs-row {
   display: grid;
