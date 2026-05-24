@@ -142,6 +142,21 @@ alter table public.breaks add column if not exists duration_minutes integer;
 alter table public.breaks add column if not exists created_at timestamptz not null default now();
 alter table public.breaks add column if not exists updated_at timestamptz not null default now();
 
+create table if not exists public.break_reminder_events (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users (id) on delete cascade,
+  session_id uuid not null references public.work_sessions (id) on delete cascade,
+  action text not null check (action in ('taken', 'skipped')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.break_reminder_events add column if not exists user_id uuid;
+alter table public.break_reminder_events add column if not exists session_id uuid;
+alter table public.break_reminder_events add column if not exists action text;
+alter table public.break_reminder_events add column if not exists created_at timestamptz not null default now();
+alter table public.break_reminder_events add column if not exists updated_at timestamptz not null default now();
+
 create table if not exists public.favorite_pauses (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users (id) on delete cascade,
@@ -176,6 +191,9 @@ create index if not exists energy_checkins_user_session_created_at_idx
 
 create index if not exists breaks_user_session_created_at_idx
   on public.breaks (user_id, session_id, created_at desc);
+
+create index if not exists break_reminder_events_user_session_created_at_idx
+  on public.break_reminder_events (user_id, session_id, created_at desc);
 
 create index if not exists favorite_pauses_user_pause_idx
   on public.favorite_pauses (user_id, pause_id);
@@ -236,6 +254,11 @@ create trigger set_breaks_updated_at
 before update on public.breaks
 for each row execute function public.set_updated_at();
 
+drop trigger if exists set_break_reminder_events_updated_at on public.break_reminder_events;
+create trigger set_break_reminder_events_updated_at
+before update on public.break_reminder_events
+for each row execute function public.set_updated_at();
+
 drop trigger if exists set_favorite_pauses_updated_at on public.favorite_pauses;
 create trigger set_favorite_pauses_updated_at
 before update on public.favorite_pauses
@@ -272,6 +295,11 @@ for each row execute function public.check_user_matches_session();
 drop trigger if exists check_user_session_breaks on public.breaks;
 create trigger check_user_session_breaks
 before insert or update on public.breaks
+for each row execute function public.check_user_matches_session();
+
+drop trigger if exists check_user_session_break_reminder_events on public.break_reminder_events;
+create trigger check_user_session_break_reminder_events
+before insert or update on public.break_reminder_events
 for each row execute function public.check_user_matches_session();
 
 create or replace function public.check_user_owns_favorite_pause()
@@ -341,6 +369,7 @@ alter table public.work_sessions enable row level security;
 alter table public.stress_checkins enable row level security;
 alter table public.energy_checkins enable row level security;
 alter table public.breaks enable row level security;
+alter table public.break_reminder_events enable row level security;
 alter table public.favorite_pauses enable row level security;
 
 drop policy if exists "profiles_select_own" on public.profiles;
@@ -465,6 +494,31 @@ with check (auth.uid() = user_id);
 drop policy if exists "breaks_delete_own" on public.breaks;
 create policy "breaks_delete_own"
 on public.breaks
+for delete
+using (auth.uid() = user_id);
+
+drop policy if exists "break_reminder_events_select_own" on public.break_reminder_events;
+create policy "break_reminder_events_select_own"
+on public.break_reminder_events
+for select
+using (auth.uid() = user_id);
+
+drop policy if exists "break_reminder_events_insert_own" on public.break_reminder_events;
+create policy "break_reminder_events_insert_own"
+on public.break_reminder_events
+for insert
+with check (auth.uid() = user_id);
+
+drop policy if exists "break_reminder_events_update_own" on public.break_reminder_events;
+create policy "break_reminder_events_update_own"
+on public.break_reminder_events
+for update
+using (auth.uid() = user_id)
+with check (auth.uid() = user_id);
+
+drop policy if exists "break_reminder_events_delete_own" on public.break_reminder_events;
+create policy "break_reminder_events_delete_own"
+on public.break_reminder_events
 for delete
 using (auth.uid() = user_id);
 

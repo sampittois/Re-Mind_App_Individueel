@@ -126,6 +126,45 @@ export async function addBreak({ type = "walk", duration_minutes = 5 } = {}, ses
   return { data, error };
 }
 
+export async function addBreakReminderDecision(action, sessionId = null) {
+  const user = await getCurrentUser();
+  if (!user) return { data: null, error: new Error("No user logged in") };
+
+  if (!["taken", "skipped"].includes(action)) {
+    return { data: null, error: new Error("Invalid reminder action") };
+  }
+
+  let session_id = sessionId;
+  if (!session_id) {
+    const latest = await ensureCurrentSessionForUser();
+    if (latest.error) return { data: null, error: latest.error };
+    session_id = latest.data?.id;
+  }
+
+  const { data, error } = await supabase.from("break_reminder_events").insert([
+    {
+      user_id: user.id,
+      session_id,
+      action,
+    },
+  ]);
+
+  return { data, error };
+}
+
+function isMissingReminderEventsTableError(error) {
+  if (!error) return false;
+
+  const code = String(error.code || "").toLowerCase();
+  const message = `${error.message || ""} ${error.details || ""}`.toLowerCase();
+
+  return (
+    code === "42p01" ||
+    code === "pgrst205" ||
+    message.includes("break_reminder_events")
+  );
+}
+
 export async function loadLatestWellbeingSnapshot() {
   const user = await getCurrentUser();
   if (!user) return { data: null, error: new Error("No user logged in") };
@@ -138,7 +177,7 @@ export async function loadLatestWellbeingSnapshot() {
     return { data: null, error: null };
   }
 
-  const [stressResult, energyResult, breakResult] = await Promise.all([
+  const [stressResult, energyResult, breakResult, reminderResult] = await Promise.all([
     supabase
       .from("stress_checkins")
       .select("stress_level, created_at")
@@ -157,9 +196,16 @@ export async function loadLatestWellbeingSnapshot() {
       .eq("user_id", user.id)
       .eq("session_id", session.id)
       .order("created_at", { ascending: false }),
+    supabase
+      .from("break_reminder_events")
+      .select("action, created_at")
+      .eq("user_id", user.id)
+      .eq("session_id", session.id)
+      .order("created_at", { ascending: false }),
   ]);
 
-  const firstError = stressResult.error || energyResult.error || breakResult.error;
+  const reminderTableMissing = isMissingReminderEventsTableError(reminderResult.error);
+  const firstError = stressResult.error || energyResult.error || breakResult.error || (!reminderTableMissing ? reminderResult.error : null);
   if (firstError) {
     return { data: null, error: firstError };
   }
@@ -167,19 +213,22 @@ export async function loadLatestWellbeingSnapshot() {
   const stressCheckins = stressResult.data || [];
   const energyCheckins = energyResult.data || [];
   const breaks = breakResult.data || [];
+  const reminderEvents = reminderTableMissing ? [] : reminderResult.data || [];
   const latestStress = stressCheckins[0]?.stress_level ?? 3;
   const latestEnergy = energyCheckins[0]?.energy_level ?? 2;
   const pauseSuggestions =
     stressCheckins.filter((entry) => entry.stress_level >= 4).length +
     energyCheckins.filter((entry) => entry.energy_level <= 2).length;
+  const remindersTaken = reminderEvents.filter((entry) => entry.action === "taken").length;
+  const remindersSkipped = reminderEvents.filter((entry) => entry.action === "skipped").length;
 
   return {
     data: {
       session,
       stressLevel: latestStress,
       energyLevel: latestEnergy,
-      pausesTaken: breaks.length,
-      pausesSkipped: Math.max(pauseSuggestions - breaks.length, 0),
+      pausesTaken: reminderEvents.length ? remindersTaken : breaks.length,
+      pausesSkipped: reminderEvents.length ? remindersSkipped : Math.max(pauseSuggestions - breaks.length, 0),
     },
     error: null,
   };
@@ -243,7 +292,7 @@ export async function loadLatestSessionTimeline() {
     return { data: null, error: null };
   }
 
-  const [stressResult, energyResult, breakResult] = await Promise.all([
+  const [stressResult, energyResult, breakResult, reminderResult] = await Promise.all([
     supabase
       .from("stress_checkins")
       .select("id, stress_level, created_at")
@@ -262,9 +311,16 @@ export async function loadLatestSessionTimeline() {
       .eq("user_id", user.id)
       .eq("session_id", session.id)
       .order("created_at", { ascending: true }),
+    supabase
+      .from("break_reminder_events")
+      .select("id, action, created_at")
+      .eq("user_id", user.id)
+      .eq("session_id", session.id)
+      .order("created_at", { ascending: true }),
   ]);
 
-  const firstError = stressResult.error || energyResult.error || breakResult.error;
+  const reminderTableMissing = isMissingReminderEventsTableError(reminderResult.error);
+  const firstError = stressResult.error || energyResult.error || breakResult.error || (!reminderTableMissing ? reminderResult.error : null);
   if (firstError) {
     return { data: null, error: firstError };
   }
@@ -272,6 +328,7 @@ export async function loadLatestSessionTimeline() {
   const stressCheckins = stressResult.data || [];
   const energyCheckins = energyResult.data || [];
   const breaks = breakResult.data || [];
+  const reminderEvents = reminderTableMissing ? [] : reminderResult.data || [];
 
   const events = [
     ...stressCheckins.map((entry) => ({
@@ -301,6 +358,15 @@ export async function loadLatestSessionTimeline() {
       detail: `Pauze genomen: ${entry.duration_minutes} min`,
       iconType: "break",
     })),
+    ...reminderEvents.map((entry) => ({
+      id: `reminder-${entry.id}`,
+      createdAt: entry.created_at,
+      type: "reminder",
+      title: "Pauzeherinnering",
+      value: entry.action,
+      detail: entry.action === "taken" ? "Herinnering: pauze genomen" : "Herinnering: doorgewerkt",
+      iconType: entry.action === "taken" ? "break" : "warning",
+    })),
   ].sort((left, right) => new Date(left.createdAt) - new Date(right.createdAt))
     .map((entry) => ({
       ...entry,
@@ -310,6 +376,8 @@ export async function loadLatestSessionTimeline() {
   const pauseSuggestions =
     stressCheckins.filter((entry) => entry.stress_level >= 4).length +
     energyCheckins.filter((entry) => entry.energy_level <= 2).length;
+  const remindersTaken = reminderEvents.filter((entry) => entry.action === "taken").length;
+  const remindersSkipped = reminderEvents.filter((entry) => entry.action === "skipped").length;
 
   return {
     data: {
@@ -317,8 +385,8 @@ export async function loadLatestSessionTimeline() {
       timeline: events,
       stressLevel: stressCheckins[stressCheckins.length - 1]?.stress_level ?? 3,
       energyLevel: energyCheckins[energyCheckins.length - 1]?.energy_level ?? 2,
-      pausesTaken: breaks.length,
-      pausesSkipped: Math.max(pauseSuggestions - breaks.length, 0),
+      pausesTaken: reminderEvents.length ? remindersTaken : breaks.length,
+      pausesSkipped: reminderEvents.length ? remindersSkipped : Math.max(pauseSuggestions - breaks.length, 0),
     },
     error: null,
   };
@@ -346,7 +414,7 @@ export async function loadWeeklyWellbeingReport() {
 
   const sessionIds = sessionList.map((session) => session.id);
 
-  const [stressResult, energyResult, breakResult] = await Promise.all([
+  const [stressResult, energyResult, breakResult, reminderResult] = await Promise.all([
     supabase
       .from("stress_checkins")
       .select("session_id, stress_level, created_at")
@@ -362,9 +430,15 @@ export async function loadWeeklyWellbeingReport() {
       .select("session_id, created_at")
       .eq("user_id", user.id)
       .in("session_id", sessionIds),
+    supabase
+      .from("break_reminder_events")
+      .select("session_id, action, created_at")
+      .eq("user_id", user.id)
+      .in("session_id", sessionIds),
   ]);
 
-  const firstError = stressResult.error || energyResult.error || breakResult.error;
+  const reminderTableMissing = isMissingReminderEventsTableError(reminderResult.error);
+  const firstError = stressResult.error || energyResult.error || breakResult.error || (!reminderTableMissing ? reminderResult.error : null);
   if (firstError) {
     return { data: null, error: firstError };
   }
@@ -372,23 +446,30 @@ export async function loadWeeklyWellbeingReport() {
   const stressBySession = groupBySessionId(stressResult.data || []);
   const energyBySession = groupBySessionId(energyResult.data || []);
   const breaksBySession = groupBySessionId(breakResult.data || []);
+  const remindersBySession = groupBySessionId(reminderTableMissing ? [] : reminderResult.data || []);
 
   const weeklyRows = sessionList.map((session) => {
     const stressRows = stressBySession.get(session.id) || [];
     const energyRows = energyBySession.get(session.id) || [];
     const breakRows = breaksBySession.get(session.id) || [];
+    const reminderRows = remindersBySession.get(session.id) || [];
     const suggestedCount =
       stressRows.filter((entry) => entry.stress_level >= 4).length +
       energyRows.filter((entry) => entry.energy_level <= 2).length;
-    const missedCount = Math.max(suggestedCount - breakRows.length, 0);
+    const reminderTakenCount = reminderRows.filter((entry) => entry.action === "taken").length;
+    const reminderSkippedCount = reminderRows.filter((entry) => entry.action === "skipped").length;
+    const hasReminderRows = reminderRows.length > 0;
+    const takenCount = hasReminderRows ? reminderTakenCount : breakRows.length;
+    const missedCount = hasReminderRows ? reminderSkippedCount : Math.max(suggestedCount - breakRows.length, 0);
+    const totalSuggestions = hasReminderRows ? takenCount + missedCount : suggestedCount;
 
     return {
       day: formatShortDayLabel(session.start_time),
       fullDay: formatLongDayLabel(session.start_time),
       stress: average(stressRows.map((entry) => entry.stress_level), 3),
       energy: average(energyRows.map((entry) => entry.energy_level), 2),
-      taken: breakRows.length,
-      suggested: suggestedCount,
+      taken: takenCount,
+      suggested: totalSuggestions,
       missed: missedCount,
     };
   });

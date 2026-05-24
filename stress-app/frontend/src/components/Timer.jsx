@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import "../styles/timer.css";
 import Breathe from "./Breathe";
-import { addBreak } from "../lib/session";
+import { addBreak, addBreakReminderDecision } from "../lib/session";
 
 const TIMER_STATE_STORAGE_KEY = "remind.timerState";
 const DAY_TARGET_SECONDS = 8 * 60 * 60;
@@ -28,7 +28,7 @@ function loadTimerState() {
       onBreak: Boolean(parsed.onBreak),
       finished: Boolean(parsed.finished),
       activeReminder: parsed.activeReminder && typeof parsed.activeReminder === "object" ? parsed.activeReminder : null,
-      dismissedReminderKeys: Array.isArray(parsed.dismissedReminderKeys) ? parsed.dismissedReminderKeys : [],
+      nextReminderAt: Number.isFinite(parsed.nextReminderAt) ? parsed.nextReminderAt : null,
       workSeconds: Number.isFinite(parsed.workSeconds) ? Math.max(0, Math.floor(parsed.workSeconds)) : 0,
       breakSeconds: Number.isFinite(parsed.breakSeconds) ? Math.max(0, Math.floor(parsed.breakSeconds)) : 0,
       lastTickAt: Number.isFinite(parsed.lastTickAt) ? parsed.lastTickAt : Date.now(),
@@ -56,26 +56,6 @@ function formatTime(totalSeconds) {
   return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
 }
 
-function normalizeTime(value) {
-  if (typeof value !== "string" || value.length < 5) {
-    return null;
-  }
-
-  return value.slice(0, 5);
-}
-
-function buildDateAtTime(baseDate, timeValue) {
-  const [hours, minutes] = timeValue.split(":").map((part) => Number.parseInt(part, 10));
-
-  if (!Number.isFinite(hours) || !Number.isFinite(minutes)) {
-    return null;
-  }
-
-  const nextDate = new Date(baseDate);
-  nextDate.setHours(hours, minutes, 0, 0);
-  return nextDate;
-}
-
 function formatClockTime(dateValue) {
   return new Intl.DateTimeFormat("nl-NL", {
     hour: "2-digit",
@@ -83,45 +63,13 @@ function formatClockTime(dateValue) {
   }).format(dateValue);
 }
 
-function buildReminderSchedule(profile, referenceDate = new Date()) {
-  if (!profile?.allow_reminders) {
-    return [];
-  }
-
-  const reminders = [];
-  const workStart = normalizeTime(profile?.work_start);
-  const workEnd = normalizeTime(profile?.work_end);
-  const dayStart = workStart ? buildDateAtTime(referenceDate, workStart) : null;
-  const dayEnd = workEnd ? buildDateAtTime(referenceDate, workEnd) : null;
-
-  const breakFrequencyMins = Number(profile?.break_frequency_mins);
-
-  if (dayStart && dayEnd && Number.isFinite(breakFrequencyMins) && breakFrequencyMins > 0 && dayStart < dayEnd) {
-    let reminderTime = new Date(dayStart);
-    reminderTime.setMinutes(reminderTime.getMinutes() + breakFrequencyMins);
-
-    while (reminderTime < dayEnd) {
-      reminders.push({
-        key: `interval-${reminderTime.toISOString()}`,
-        at: reminderTime.getTime(),
-        source: "interval",
-        label: `elke ${breakFrequencyMins} minuten`,
-      });
-
-      reminderTime = new Date(reminderTime.getTime() + breakFrequencyMins * 60 * 1000);
-    }
-  }
-
-  const uniqueReminders = new Map();
-  reminders.forEach((reminder) => {
-    const duplicateKey = `${reminder.at}`;
-
-    if (!uniqueReminders.has(duplicateKey)) {
-      uniqueReminders.set(duplicateKey, reminder);
-    }
-  });
-
-  return Array.from(uniqueReminders.values()).sort((left, right) => left.at - right.at);
+function buildReminderPayload(reminderAt, frequencyMins) {
+  return {
+    key: `interval-${reminderAt}`,
+    at: reminderAt,
+    source: "interval",
+    label: `elke ${frequencyMins} minuten`,
+  };
 }
 
 function BreathingLogo({ progress = 0, active = false }) {
@@ -172,20 +120,24 @@ function BreathingLogo({ progress = 0, active = false }) {
   );
 }
 
-export default function Timer({ onOpenReflection, onBreakLogged, profile }) {
+export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecisionLogged, profile }) {
   const initialTimerState = useMemo(() => loadTimerState(), []);
   const [workStarted, setWorkStarted] = useState(initialTimerState?.workStarted ?? false);
   const [workStartedAt, setWorkStartedAt] = useState(initialTimerState?.workStartedAt ?? null);
   const [onBreak, setOnBreak] = useState(initialTimerState?.onBreak ?? false);
   const [finished, setFinished] = useState(initialTimerState?.finished ?? false);
   const [activeReminder, setActiveReminder] = useState(initialTimerState?.activeReminder ?? null);
-  const [dismissedReminderKeys, setDismissedReminderKeys] = useState(() => new Set(initialTimerState?.dismissedReminderKeys ?? []));
+  const [nextReminderAt, setNextReminderAt] = useState(initialTimerState?.nextReminderAt ?? null);
 
   const [workSeconds, setWorkSeconds] = useState(initialTimerState?.workSeconds ?? 0);
   const [breakSeconds, setBreakSeconds] = useState(initialTimerState?.breakSeconds ?? 0);
   const [lastTickAt, setLastTickAt] = useState(() => initialTimerState?.lastTickAt ?? Date.now());
 
-  const reminderSchedule = useMemo(() => buildReminderSchedule(profile), [profile]);
+  const frequencyMins = Number(profile?.break_frequency_mins);
+  const reminderIntervalMs =
+    Boolean(profile?.allow_reminders) && Number.isFinite(frequencyMins) && frequencyMins > 0
+      ? Math.round(frequencyMins * 60 * 1000)
+      : null;
 
   useEffect(() => {
     saveTimerState({
@@ -194,12 +146,12 @@ export default function Timer({ onOpenReflection, onBreakLogged, profile }) {
       onBreak,
       finished,
       activeReminder,
-      dismissedReminderKeys: Array.from(dismissedReminderKeys),
+      nextReminderAt,
       workSeconds,
       breakSeconds,
       lastTickAt,
     });
-  }, [workStarted, workStartedAt, onBreak, finished, activeReminder, dismissedReminderKeys, workSeconds, breakSeconds, lastTickAt]);
+  }, [workStarted, workStartedAt, onBreak, finished, activeReminder, nextReminderAt, workSeconds, breakSeconds, lastTickAt]);
 
   useEffect(() => {
     const notificationsApi = window.electronNotifications;
@@ -207,23 +159,34 @@ export default function Timer({ onOpenReflection, onBreakLogged, profile }) {
       return undefined;
     }
 
-    const frequencyMins = Number(profile?.break_frequency_mins);
     const shouldRunNotifications =
       workStarted &&
       !finished &&
       !onBreak &&
-      Boolean(profile?.allow_reminders) &&
-      Number.isFinite(frequencyMins) &&
-      frequencyMins > 0;
+      Boolean(reminderIntervalMs);
 
     if (!shouldRunNotifications) {
       void notificationsApi.stopBreakReminders();
       return undefined;
     }
 
-    const intervalMs = Math.round(frequencyMins * 60 * 1000);
-    void notificationsApi.startBreakReminders(intervalMs);
-  }, [workStarted, finished, onBreak, profile?.allow_reminders, profile?.break_frequency_mins]);
+    void notificationsApi.startBreakReminders(reminderIntervalMs);
+  }, [workStarted, finished, onBreak, reminderIntervalMs]);
+
+  useEffect(() => {
+    if (!workStarted || finished) {
+      setNextReminderAt(null);
+      return;
+    }
+
+    if (onBreak || !reminderIntervalMs) {
+      return;
+    }
+
+    if (!Number.isFinite(nextReminderAt) || nextReminderAt <= Date.now()) {
+      setNextReminderAt(Date.now() + reminderIntervalMs);
+    }
+  }, [workStarted, finished, onBreak, reminderIntervalMs, nextReminderAt]);
 
   useEffect(() => {
     if (!workStarted || finished) {
@@ -261,26 +224,14 @@ export default function Timer({ onOpenReflection, onBreakLogged, profile }) {
   }, [workStarted, finished, onBreak, activeReminder, lastTickAt]);
 
   useEffect(() => {
-    if (!workStarted || finished || onBreak || activeReminder) {
+    if (!workStarted || finished || onBreak || activeReminder || !reminderIntervalMs || !Number.isFinite(nextReminderAt)) {
       return undefined;
     }
 
     const checkForReminder = () => {
       const now = Date.now();
-      const nextReminder = reminderSchedule.find((reminder) => {
-        if (dismissedReminderKeys.has(reminder.key)) {
-          return false;
-        }
-
-        if (workStartedAt && reminder.at < workStartedAt) {
-          return false;
-        }
-
-        return reminder.at <= now;
-      });
-
-      if (nextReminder) {
-        setActiveReminder(nextReminder);
+      if (now >= nextReminderAt) {
+        setActiveReminder(buildReminderPayload(nextReminderAt, frequencyMins));
       }
     };
 
@@ -288,7 +239,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, profile }) {
     const reminderTimer = setInterval(checkForReminder, 1000);
 
     return () => clearInterval(reminderTimer);
-  }, [workStarted, finished, onBreak, activeReminder, reminderSchedule, dismissedReminderKeys, workStartedAt]);
+  }, [workStarted, finished, onBreak, activeReminder, nextReminderAt, reminderIntervalMs, frequencyMins]);
 
   const mainTime = useMemo(() => formatTime(workSeconds), [workSeconds]);
 
@@ -305,7 +256,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, profile }) {
     setFinished(false);
     setOnBreak(false);
     setActiveReminder(null);
-    setDismissedReminderKeys(new Set());
+    setNextReminderAt(reminderIntervalMs ? now + reminderIntervalMs : null);
     setWorkSeconds(0);
     setBreakSeconds(0);
     setLastTickAt(now);
@@ -315,39 +266,37 @@ export default function Timer({ onOpenReflection, onBreakLogged, profile }) {
     setFinished(true);
     setOnBreak(false);
     setActiveReminder(null);
+    setNextReminderAt(null);
     setLastTickAt(Date.now());
     onOpenReflection?.();
   };
 
-  const dismissDueReminders = () => {
-    const now = Date.now();
-    const dueReminderKeys = reminderSchedule
-      .filter((reminder) => reminder.at <= now)
-      .map((reminder) => reminder.key);
-
-    if (dueReminderKeys.length === 0) {
+  const logReminderDecision = async (action) => {
+    const { error } = await addBreakReminderDecision(action);
+    if (error) {
+      console.error("Failed to store reminder decision:", error);
       return;
     }
 
-    setDismissedReminderKeys((previous) => {
-      const next = new Set(previous);
-      dueReminderKeys.forEach((key) => next.add(key));
-      return next;
-    });
+    onReminderDecisionLogged?.();
   };
 
-  const continueWorking = () => {
-    dismissDueReminders();
+  const continueWorking = async () => {
+    await logReminderDecision("skipped");
 
     setActiveReminder(null);
+    setNextReminderAt(reminderIntervalMs ? Date.now() + reminderIntervalMs : null);
     setLastTickAt(Date.now());
   };
 
-  const takeBreak = () => {
-    dismissDueReminders();
+  const takeBreak = async (fromReminder = false) => {
+    if (fromReminder) {
+      await logReminderDecision("taken");
+    }
 
     setActiveReminder(null);
     setOnBreak(true);
+    setNextReminderAt(null);
     setBreakSeconds(0);
     setLastTickAt(Date.now());
   };
@@ -356,6 +305,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, profile }) {
     const durationMinutes = Math.max(1, Math.round(breakSeconds / 60));
     setOnBreak(false);
     setBreakSeconds(0);
+    setNextReminderAt(reminderIntervalMs ? Date.now() + reminderIntervalMs : null);
     setLastTickAt(Date.now());
 
     const { error } = await addBreak({ type: "walk", duration_minutes: durationMinutes });
@@ -399,7 +349,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, profile }) {
 
           {workStarted && !finished && !onBreak && (
             <>
-              <button className="btn" onClick={takeBreak}>
+              <button className="btn" onClick={() => takeBreak(false)}>
                 Neem een pauze
               </button>
               <button className="btn" onClick={endDay}>
@@ -449,7 +399,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, profile }) {
               <button className="btn timer-reminder-card__secondary" onClick={continueWorking} type="button">
                 Doorgaan met werken
               </button>
-              <button className="btn" onClick={takeBreak} type="button">
+              <button className="btn" onClick={() => takeBreak(true)} type="button">
                 Neem een pauze
               </button>
             </div>
