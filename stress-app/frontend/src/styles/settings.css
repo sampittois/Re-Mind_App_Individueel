@@ -16,6 +16,16 @@
   gap: 16px;
 }
 
+.reminders-group {
+  width: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: var(--highlight-light);
+}
+
 /* Working Hours Group */
 .time-inputs-row {
   display: grid;

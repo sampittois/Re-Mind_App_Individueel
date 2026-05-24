@@ -151,3 +151,78 @@
   font-weight: var(--font-weight-bold);
   color: var(--primary-dark);
 }
+
+.timer-reminder-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  background: color-mix(in srgb, var(--text) 20%, transparent);
+  backdrop-filter: blur(4px);
+}
+
+.timer-reminder-card {
+  width: min(560px, 100%);
+  border-radius: var(--radius-lg);
+  border: var(--border-width-sm) solid var(--border);
+  background: var(--background);
+  padding: var(--space-8);
+  box-shadow: 0 20px 48px color-mix(in srgb, var(--text) 20%, transparent);
+}
+
+.timer-reminder-card__eyebrow {
+  margin: 0 0 var(--space-2);
+  color: var(--primary-dark);
+  font-family: var(--text-button-label-font-family);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.timer-reminder-card__title {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-family-heading);
+  font-size: clamp(1.4rem, 2.2vw, 2rem);
+  line-height: 1.1;
+  color: var(--text);
+}
+
+.timer-reminder-card__copy {
+  margin: 0;
+  color: var(--text-light);
+  font-family: var(--text-body-regular-font-family);
+  line-height: var(--text-body-regular-line-height);
+}
+
+.timer-reminder-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.timer-reminder-card__secondary {
+  background: var(--highlight-light);
+}
+
+.timer-reminder-card__secondary:hover {
+  background: color-mix(in srgb, var(--highlight-light) 70%, var(--primary) 30%);
+}
+
+@media (max-width: 720px) {
+  .timer-reminder-card {
+    padding: var(--space-6);
+    border-radius: var(--radius-md);
+  }
+
+  .timer-reminder-card__actions {
+    flex-direction: column;
+  }
+
+  .timer-reminder-card__actions .btn {
+    width: 100%;
+  }
+}

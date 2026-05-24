@@ -322,7 +322,11 @@ export default function App() {
 
           <div className="home-right-column">
             <div className="timer-section">
-              <Timer onOpenReflection={() => openWorkdayReflection("finished-day")} />
+              <Timer
+                profile={profile}
+                onOpenReflection={() => openWorkdayReflection("finished-day")}
+                onBreakLogged={refreshWellbeingSnapshot}
+              />
             </div>
 
             <PauseSuggestions
