@@ -134,8 +134,8 @@ export default function WorkdayReflectionOverlay({ open, onClose, onSubmit, show
                   aria-label={item.done ? `Markeer niet voltooid: ${item.text}` : `Markeer voltooid: ${item.text}`}
                 >
                   {item.done ? (
-                    <svg className="workday-overlay__check-icon" viewBox="0 0 26 18" aria-hidden="true" focusable="false">
-                      <path d="M25 1L8.5 17L1 9.72727" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <svg className="workday-overlay__check-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+                      <path d="M20 6L9 17L4 12" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   ) : null}
                 </button>
