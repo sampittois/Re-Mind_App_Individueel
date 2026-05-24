@@ -1,79 +1,158 @@
-/* Basic styles for the upgrade / plans page */
+/* Upgrade / pricing page styles matching the mockup */
+@import "../tokens/typography.tokens.css";
+@import "../tokens/color.tokens.css";
+@import "../tokens/radius.tokens.css";
+@import "../tokens/shadow.tokens.css";
+@import "../tokens/spacing.tokens.css";
+
 .upgrade-root {
-  padding: 32px 20px;
+  padding: var(--layout-container-padding) var(--space-4) var(--space-11);
+  background: var(--surface-page, var(--background));
 }
 .upgrade-inner {
-  max-width: 1100px;
+  max-width: 1180px;
   margin: 0 auto;
 }
-.upgrade-title {
-  font-size: 28px;
-  margin-bottom: 24px;
-  color: #2f3b33;
+.upgrade-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
 }
+.upgrade-title {
+  font-family: var(--text-heading-1-font-family);
+  font-weight: var(--text-heading-1-font-weight);
+  font-size: var(--text-heading-1-font-size);
+  line-height: var(--text-heading-1-line-height);
+  color: var(--text);
+  margin: 0;
+}
+.billing-toggle {
+  display: inline-flex;
+  gap: var(--space-2);
+  background: var(--highlight-light);
+  padding: var(--space-1);
+  border-radius: var(--radius-md);
+  border: var(--border-control-width) solid var(--border-container-color);
+}
+.billing-option {
+  background: transparent;
+  border: none;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-family: var(--text-button-label-font-family);
+  font-size: var(--text-button-label-font-size);
+  color: var(--text-light);
+  cursor: pointer;
+}
+.billing-option--active {
+  background: var(--primary);
+  color: var(--text-on-light);
+}
+.billing-option,
+.billing-option--active {
+  transition: background-color 160ms ease, color 160ms ease, transform 120ms ease;
+}
+.billing-option:focus,
+.billing-option--active:focus {
+  outline: 3px solid var(--border-state-focus);
+  outline-offset: 2px;
+}
+
 .plans-row {
   display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
-}
-.plan-card {
-  background: #f5eedf;
-  border-radius: 14px;
-  padding: 28px 22px;
-  box-shadow: 0 6px 10px rgba(0,0,0,0.06);
-  flex: 1 1 300px;
-  min-width: 260px;
-  display: flex;
-  flex-direction: column;
+  gap: 28px;
   align-items: stretch;
 }
+.plan-card {
+  background: var(--surface-card, var(--background-dark));
+  border-radius: var(--radius-lg);
+  padding: var(--layout-card-padding);
+  box-shadow: 0 8px 14px rgba(0,0,0,0.06);
+  flex: 1 1 320px;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+}
 .plan-card--featured {
-  box-shadow: 0 10px 18px rgba(0,0,0,0.09);
+  border: var(--border-control-width) solid var(--border-container-color);
 }
 .plan-heading {
   text-align: center;
-  font-size: 22px;
-  margin: 0 0 8px 0;
-  color: #33403a;
+  font-family: var(--text-heading-3-font-family);
+  font-size: var(--text-heading-3-font-size);
+  margin: 6px 0 10px 0;
+  color: var(--text-secondary);
+}
+.plan-divider {
+  border: none;
+  height: 3px;
+  max-width: 90%;
+  margin: 6px auto 18px auto;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(90deg, var(--brand-primary) 0%, rgba(0,0,0,0.03) 100%);
 }
 .plan-price {
   text-align: center;
-  font-size: 34px;
+  font-family: var(--text-heading-1-font-family);
+  font-size: var(--text-heading-1-font-size);
   margin: 6px 0 18px 0;
-  color: #3d3d3d;
+  color: var(--text);
 }
-.plan-price .small {
-  font-size: 12px;
-  display: block;
-  color: #6a6a6a;
-}
+.plan-price .per { display: block; font-size: var(--text-body-small-font-size); margin-top: 4px; color: var(--text-light); }
 .plan-features {
   list-style: none;
   padding: 0;
-  margin: 0 0 18px 0;
+  margin: 0 0 var(--space-6) 0;
   flex: 1 0 auto;
 }
 .plan-features li {
-  font-size: 18px;
-  margin: 12px 0;
-  color: #42413f;
+  font-family: var(--text-body-regular-font-family);
+  font-size: var(--text-body-regular-font-size);
+  margin: var(--space-4) 0;
+  color: var(--text-light);
+  display: flex;
+  align-items: center;
+}
+.plan-features .check {
+  display: inline-flex;
+  width: 34px;
+  height: 34px;
+  margin-right: var(--space-4);
+  border-radius: var(--radius-circle);
+  background: transparent;
+  color: var(--primary-dark);
+  font-size: 20px;
+  line-height: 34px;
+  text-align: center;
 }
 .plan-cta-wrap {
   display: flex;
   justify-content: center;
-  margin-top: 8px;
+  margin-top: 6px;
 }
 .plan-cta {
-  background: #7b9988;
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-size: 18px;
+  background: var(--primary);
+  color: var(--text-on-light);
+  border: var(--border-control-width) solid var(--border-container-color);
+  padding: calc(var(--layout-button-padding-y) + 2px) calc(var(--layout-button-padding-x) + 6px);
+  border-radius: var(--radius-md);
+  font-family: var(--text-button-label-font-family);
+  font-size: calc(var(--text-button-label-font-size) + 2px);
   cursor: pointer;
+  min-width: 180px;
+  box-shadow: var(--shadow-button-hover);
+  transition: transform 120ms ease, box-shadow 160ms ease, opacity 140ms ease;
 }
 .plan-cta:hover { opacity: 0.95; }
+.plan-cta:active { transform: translateY(1px); box-shadow: var(--shadow-input-hover); }
+.plan-cta:focus { outline: 3px solid var(--border-state-focus); outline-offset: 3px; }
 
-@media (max-width: 720px) {
+.plan-cta[disabled], .billing-option[disabled] { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+
+@media (max-width: 980px) {
   .plans-row { flex-direction: column; }
+  .upgrade-title { font-size: 36px; }
+  .plan-features li { font-size: 20px; }
 }
+
