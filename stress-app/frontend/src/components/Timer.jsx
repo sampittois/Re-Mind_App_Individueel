@@ -52,9 +52,15 @@ function saveTimerState(snapshot) {
 }
 
 function formatTime(totalSeconds) {
-  const m = Math.floor(totalSeconds / 60);
-  const s = totalSeconds % 60;
-  return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  if (hours > 0) {
+    return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+  }
+
+  return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 }
 
 function formatClockTime(dateValue) {
@@ -89,27 +95,28 @@ function parseTimeToMinutes(value) {
   return hours * 60 + minutes;
 }
 
-function hasNoonFixedBreak(fixedBreaks) {
-  if (!Array.isArray(fixedBreaks)) {
-    return false;
-  }
+function isNowNearFixedBreak(fixedBreaks, marginMins = 30) {
+  if (!Array.isArray(fixedBreaks) || fixedBreaks.length === 0) return false;
 
-  const noonMinutes = 12 * 60;
+  const now = new Date();
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
 
   return fixedBreaks.some((pause) => {
     const startMinutes = parseTimeToMinutes(pause?.start);
     const endMinutes = parseTimeToMinutes(pause?.end);
 
-    if (!Number.isFinite(startMinutes) || !Number.isFinite(endMinutes)) {
-      return false;
-    }
+    if (!Number.isFinite(startMinutes) || !Number.isFinite(endMinutes)) return false;
 
-    return startMinutes <= noonMinutes && endMinutes >= noonMinutes;
+    const windowStart = Math.max(0, startMinutes - marginMins);
+    const windowEnd = endMinutes + marginMins;
+
+    return nowMinutes >= windowStart && nowMinutes <= windowEnd;
   });
 }
 
 function getBreakSuggestionMode(profile) {
-  if (hasNoonFixedBreak(profile?.fixed_breaks)) {
+  // Only treat as 'lunch' when the current time is near a configured fixed break
+  if (isNowNearFixedBreak(profile?.fixed_breaks, 30)) {
     return "lunch";
   }
 
@@ -173,7 +180,7 @@ function BreathingLogo({ progress = 0, active = false }) {
   );
 }
 
-export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecisionLogged, profile }) {
+export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecisionLogged, profile, onStartBreathingExercise }) {
   const initialTimerState = useMemo(() => loadTimerState(), []);
   const [workStarted, setWorkStarted] = useState(initialTimerState?.workStarted ?? false);
   const [workStartedAt, setWorkStartedAt] = useState(initialTimerState?.workStartedAt ?? null);
@@ -357,6 +364,18 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
   };
 
   const startBreakFromSuggestion = async (suggestion) => {
+    // If the suggestion is a breathing exercise, open the breathing flow instead
+    if (suggestion?.type === "breathing") {
+      setBreakSuggestionsRequest(null);
+      // follow the same pattern as PauseSuggestions: launch breathing exercise
+      if (onStartBreathingExercise) {
+        onStartBreathingExercise();
+        return;
+      }
+
+      // fallback: treat as a short breathing break
+    }
+
     if (breakSuggestionsRequest?.fromReminder) {
       await logReminderDecision("taken");
     }

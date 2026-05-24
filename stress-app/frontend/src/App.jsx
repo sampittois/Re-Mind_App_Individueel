@@ -327,6 +327,7 @@ export default function App() {
                 onOpenReflection={() => openWorkdayReflection("finished-day")}
                 onBreakLogged={refreshWellbeingSnapshot}
                 onReminderDecisionLogged={refreshWellbeingSnapshot}
+                onStartBreathingExercise={() => openBreathingExercise("box", "home")}
               />
             </div>
 
