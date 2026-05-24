@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import "../styles/settings.css";
-import checkIcon from "../assets/check.svg";
 
 const EMPTY_LISTS = { today: [], tomorrow: [] };
 
@@ -117,7 +116,7 @@ export default function WorkdayReflectionOverlay({ open, onClose, onSubmit, show
               autoFocus
             />
 
-            <button className="add-pause-btn workday-overlay__add" type="submit" aria-label="Taak toevoegen">
+            <button className="workday-overlay__add" type="submit" aria-label="Taak toevoegen">
               +
             </button>
           </div>
@@ -134,7 +133,11 @@ export default function WorkdayReflectionOverlay({ open, onClose, onSubmit, show
                   aria-pressed={item.done}
                   aria-label={item.done ? `Markeer niet voltooid: ${item.text}` : `Markeer voltooid: ${item.text}`}
                 >
-                  {item.done ? <img src={checkIcon} alt="" className="workday-overlay__check-icon" /> : null}
+                  {item.done ? (
+                    <svg className="workday-overlay__check-icon" viewBox="0 0 26 18" aria-hidden="true" focusable="false">
+                      <path d="M25 1L8.5 17L1 9.72727" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  ) : null}
                 </button>
 
                 <span className={`workday-overlay__item-label ${item.done ? "done" : ""}`}>{item.text}</span>
