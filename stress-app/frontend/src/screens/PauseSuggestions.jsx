@@ -130,6 +130,9 @@ export default function PauseSuggestions({
   onBack,
   onStartBreathingExercise,
   user,
+  externalSelectedSuggestion = null,
+  externalOverlaySource = null,
+  onExternalSuggestionConsumed = null,
 }) {
   const [activeTab, setActiveTab] = useState("short");
   const [favoriteIds, setFavoriteIds] = useState(() => new Set());
@@ -162,6 +165,14 @@ export default function PauseSuggestions({
       isMounted = false;
     };
   }, [user?.id]);
+
+  useEffect(() => {
+    if (!externalSelectedSuggestion) return;
+
+    setSelectedSuggestion(externalSelectedSuggestion);
+    setOverlaySource(externalOverlaySource || "external");
+    onExternalSuggestionConsumed?.();
+  }, [externalSelectedSuggestion, externalOverlaySource, onExternalSuggestionConsumed]);
 
   async function toggleFavorite(pauseId) {
     const currentlyFavorite = favoriteIds.has(pauseId);

@@ -197,7 +197,6 @@ export default function BreakSuggestionsOverlay({ open, mode = "balanced", onClo
 
                   onSelectSuggestion?.(suggestion);
                 }}
-                compact
                 showFavorite={false}
               />
             </div>

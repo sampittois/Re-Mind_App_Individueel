@@ -181,7 +181,7 @@ function BreathingLogo({ progress = 0, active = false }) {
   );
 }
 
-export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecisionLogged, profile, onStartBreathingExercise }) {
+export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecisionLogged, profile, onStartBreathingExercise, onOpenSuggestion }) {
   const initialTimerState = useMemo(() => loadTimerState(), []);
   const [workStarted, setWorkStarted] = useState(initialTimerState?.workStarted ?? false);
   const [workStartedAt, setWorkStartedAt] = useState(initialTimerState?.workStartedAt ?? null);
@@ -379,6 +379,13 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
       }
 
       // fallback: treat as a short breathing break
+    }
+
+    // If a parent provided a handler to open the PauseSuggestions overlay, prefer that
+    if (onOpenSuggestion) {
+      setBreakSuggestionsRequest(null);
+      onOpenSuggestion(suggestion);
+      return;
     }
 
     if (breakSuggestionsRequest?.fromReminder) {

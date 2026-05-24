@@ -61,6 +61,8 @@ export default function App() {
   const [selectedExerciseAutoStart, setSelectedExerciseAutoStart] = useState(false);
   const [breathingReturnPage, setBreathingReturnPage] = useState("home");
   const [user, setUser] = useState(null);
+  const [pauseSuggestionToOpen, setPauseSuggestionToOpen] = useState(null);
+  const [pauseSuggestionOverlaySource, setPauseSuggestionOverlaySource] = useState(null);
   const [workdayReflectionOpen, setWorkdayReflectionOpen] = useState(false);
   const [workdayReflectionShowFinishedTitle, setWorkdayReflectionShowFinishedTitle] = useState(false);
 
@@ -152,6 +154,17 @@ export default function App() {
     setCurrentPage("exercise-detail");
   }
 
+  function openPauseSuggestionFromTimer(suggestion, source = "timer") {
+    setPauseSuggestionToOpen(suggestion);
+    setPauseSuggestionOverlaySource(source);
+    setCurrentPage("pause");
+  }
+
+  function clearExternalPauseSuggestion() {
+    setPauseSuggestionToOpen(null);
+    setPauseSuggestionOverlaySource(null);
+  }
+
   function openWorkdayReflection(source = "manual") {
     setWorkdayReflectionShowFinishedTitle(source === "finished-day");
     setWorkdayReflectionOpen(true);
@@ -238,6 +251,9 @@ export default function App() {
         onBack={() => setCurrentPage("home")}
         onStartBreathingExercise={() => openBreathingExercise("box", "pause")}
         user={user}
+        externalSelectedSuggestion={pauseSuggestionToOpen}
+        externalOverlaySource={pauseSuggestionOverlaySource}
+        onExternalSuggestionConsumed={clearExternalPauseSuggestion}
       />
     );
   } else if (currentPage === "profile") {
@@ -331,6 +347,7 @@ export default function App() {
                 onBreakLogged={refreshWellbeingSnapshot}
                 onReminderDecisionLogged={refreshWellbeingSnapshot}
                 onStartBreathingExercise={() => openBreathingExercise("box", "home", true)}
+                onOpenSuggestion={(suggestion) => openPauseSuggestionFromTimer(suggestion, "timer")}
               />
             </div>
 
@@ -338,6 +355,9 @@ export default function App() {
               onViewMore={() => setCurrentPage("pause")}
               onStartBreathingExercise={() => openBreathingExercise("box", "home")}
               user={user}
+              externalSelectedSuggestion={pauseSuggestionToOpen}
+              externalOverlaySource={pauseSuggestionOverlaySource}
+              onExternalSuggestionConsumed={clearExternalPauseSuggestion}
             />
           </div>
         </section>
