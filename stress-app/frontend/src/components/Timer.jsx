@@ -30,6 +30,7 @@ function loadTimerState() {
       finished: Boolean(parsed.finished),
       activeReminder: parsed.activeReminder && typeof parsed.activeReminder === "object" ? parsed.activeReminder : null,
       nextReminderAt: Number.isFinite(parsed.nextReminderAt) ? parsed.nextReminderAt : null,
+      breakType: typeof parsed.breakType === "string" && parsed.breakType.trim() ? parsed.breakType : "walk",
       workSeconds: Number.isFinite(parsed.workSeconds) ? Math.max(0, Math.floor(parsed.workSeconds)) : 0,
       breakSeconds: Number.isFinite(parsed.breakSeconds) ? Math.max(0, Math.floor(parsed.breakSeconds)) : 0,
       lastTickAt: Number.isFinite(parsed.lastTickAt) ? parsed.lastTickAt : Date.now(),
@@ -234,6 +235,10 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
     }
 
     void notificationsApi.startBreakReminders(reminderIntervalMs);
+
+    return () => {
+      void notificationsApi.stopBreakReminders();
+    };
   }, [workStarted, finished, onBreak, reminderIntervalMs]);
 
   useEffect(() => {
