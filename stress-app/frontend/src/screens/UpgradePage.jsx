@@ -61,7 +61,7 @@ export default function UpgradePage({ profile, onUpdateProfile, setCurrentPage }
           <article className="plan-card">
             <h2 className="plan-heading">Bedrijfslicentie</h2>
             <hr className="plan-divider" />
-            <div className="plan-price">€20/jaar<span className="per">per werknemer</span></div>
+            <div className="plan-price plan-price--compact">€20/jaar<span className="per">per werknemer</span></div>
             <ul className="plan-features">
               <li><CheckIcon className="plan-check"/>Alle basis functies</li>
               <li><CheckIcon className="plan-check"/>Premium functies</li>
