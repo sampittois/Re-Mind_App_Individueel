@@ -236,6 +236,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
     Boolean(profile?.allow_reminders) && Number.isFinite(frequencyMins) && frequencyMins > 0
       ? Math.round(frequencyMins * 60 * 1000)
       : null;
+  const isTimerTicking = workStarted && !finished && !onBreak;
 
   useEffect(() => {
     saveTimerState(
@@ -261,11 +262,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
       return undefined;
     }
 
-    const shouldRunNotifications =
-      workStarted &&
-      !finished &&
-      !onBreak &&
-      Boolean(reminderIntervalMs);
+    const shouldRunNotifications = isTimerTicking && Boolean(reminderIntervalMs);
 
     if (!shouldRunNotifications) {
       void notificationsApi.stopBreakReminders();
@@ -277,22 +274,23 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
     return () => {
       void notificationsApi.stopBreakReminders();
     };
-  }, [workStarted, finished, onBreak, reminderIntervalMs]);
+  }, [isTimerTicking, reminderIntervalMs]);
 
   useEffect(() => {
-    if (!workStarted || finished) {
+    if (!isTimerTicking) {
       setNextReminderAt(null);
+      setActiveReminder(null);
       return;
     }
 
-    if (onBreak || !reminderIntervalMs) {
+    if (!reminderIntervalMs) {
       return;
     }
 
     if (!Number.isFinite(nextReminderAt) || nextReminderAt <= Date.now()) {
       setNextReminderAt(Date.now() + reminderIntervalMs);
     }
-  }, [workStarted, finished, onBreak, reminderIntervalMs, nextReminderAt]);
+  }, [isTimerTicking, reminderIntervalMs, nextReminderAt]);
 
   useEffect(() => {
     if (!workStarted || finished) {
@@ -330,7 +328,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
   }, [workStarted, finished, onBreak, activeReminder, lastTickAt]);
 
   useEffect(() => {
-    if (!workStarted || finished || onBreak || activeReminder || !reminderIntervalMs || !Number.isFinite(nextReminderAt)) {
+    if (!isTimerTicking || activeReminder || !reminderIntervalMs || !Number.isFinite(nextReminderAt)) {
       return undefined;
     }
 
@@ -345,7 +343,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
     const reminderTimer = setInterval(checkForReminder, 1000);
 
     return () => clearInterval(reminderTimer);
-  }, [workStarted, finished, onBreak, activeReminder, nextReminderAt, reminderIntervalMs, frequencyMins]);
+  }, [isTimerTicking, activeReminder, nextReminderAt, reminderIntervalMs, frequencyMins]);
 
   const mainTime = useMemo(() => formatTime(workSeconds), [workSeconds]);
 
