@@ -137,9 +137,41 @@ const STORAGE_KEYS = {
   employees: "remind:company-employees",
   theme: "remind:company-theme",
   newEmployeeColors: "remind:company-new-employee-colors",
+  customTheme: "remind:company-custom-theme",
 };
 
 const DEFAULT_THEME_ID = "sage";
+
+const DEFAULT_CUSTOM_THEME = {
+  vars: {
+    background: "#f7f4ef",
+    backgroundDark: "#ece5db",
+    text: "#202020",
+    textLight: "#4a4a4a",
+    border: "#c8c1b7",
+    primaryDark: "#5f6f67",
+    primary: "#7c8f85",
+    highlightDark: "#8da097",
+    highlight: "#b3c1ba",
+    highlightLight: "#e6ece8",
+    highlightHover: "#f2f5f3",
+    success: "#7aa184",
+    warning: "#d8c07d",
+    warningLight: "#f5ead1",
+    error: "#d58d8d",
+    errorDark: "#9f5f5f",
+    info: "#8ab0c4",
+  },
+};
+
+const CUSTOM_THEME_FIELDS = [
+  { key: "background", label: "Achtergrond" },
+  { key: "primary", label: "Hoofdkleur" },
+  { key: "primaryDark", label: "Donkere accentkleur" },
+  { key: "highlightLight", label: "Zachte achtergrond" },
+  { key: "text", label: "Tekstkleur" },
+  { key: "border", label: "Randkleur" },
+];
 
 function readStoredValue(key, fallback) {
   if (typeof window === "undefined") return fallback;
@@ -175,9 +207,35 @@ function getThemeById(themeId) {
   return COMPANY_THEME_OPTIONS.find((theme) => theme.id === themeId) || COMPANY_THEME_OPTIONS[0];
 }
 
-function formatHours(hoursWorked) {
-  const normalizedHours = Number.isFinite(hoursWorked) ? hoursWorked : 0;
-  return `${new Intl.NumberFormat("nl-NL", { minimumFractionDigits: 0, maximumFractionDigits: 1 }).format(normalizedHours)} uur`;
+function normalizeCustomTheme(theme) {
+  const nextTheme = theme && typeof theme === "object" ? theme : {};
+  const nextVars = nextTheme.vars && typeof nextTheme.vars === "object" ? nextTheme.vars : {};
+
+  return {
+    vars: {
+      background: nextVars.background || DEFAULT_CUSTOM_THEME.vars.background,
+      backgroundDark: nextVars.backgroundDark || DEFAULT_CUSTOM_THEME.vars.backgroundDark,
+      text: nextVars.text || DEFAULT_CUSTOM_THEME.vars.text,
+      textLight: nextVars.textLight || DEFAULT_CUSTOM_THEME.vars.textLight,
+      border: nextVars.border || DEFAULT_CUSTOM_THEME.vars.border,
+      primaryDark: nextVars.primaryDark || DEFAULT_CUSTOM_THEME.vars.primaryDark,
+      primary: nextVars.primary || DEFAULT_CUSTOM_THEME.vars.primary,
+      highlightDark: nextVars.highlightDark || DEFAULT_CUSTOM_THEME.vars.highlightDark,
+      highlight: nextVars.highlight || DEFAULT_CUSTOM_THEME.vars.highlight,
+      highlightLight: nextVars.highlightLight || DEFAULT_CUSTOM_THEME.vars.highlightLight,
+      highlightHover: nextVars.highlightHover || DEFAULT_CUSTOM_THEME.vars.highlightHover,
+      success: nextVars.success || DEFAULT_CUSTOM_THEME.vars.success,
+      warning: nextVars.warning || DEFAULT_CUSTOM_THEME.vars.warning,
+      warningLight: nextVars.warningLight || DEFAULT_CUSTOM_THEME.vars.warningLight,
+      error: nextVars.error || DEFAULT_CUSTOM_THEME.vars.error,
+      errorDark: nextVars.errorDark || DEFAULT_CUSTOM_THEME.vars.errorDark,
+      info: nextVars.info || DEFAULT_CUSTOM_THEME.vars.info,
+    },
+  };
+}
+
+function themeToPreview(theme) {
+  return [theme.vars.background, theme.vars.primary, theme.vars.primaryDark, theme.vars.highlightLight];
 }
 
 function createDefaultEmployees() {
@@ -244,37 +302,42 @@ function paletteForEmployee(employee, selectedTheme) {
   return employee.usesCompanyColors ? selectedTheme : COMPANY_THEME_OPTIONS[0];
 }
 
+function buildThemeVariables(theme) {
+  return {
+    "--background": theme.vars.background,
+    "--background-dark": theme.vars.backgroundDark,
+    "--text": theme.vars.text,
+    "--text-light": theme.vars.textLight,
+    "--border": theme.vars.border,
+    "--primary-dark": theme.vars.primaryDark,
+    "--primary": theme.vars.primary,
+    "--highlight-dark": theme.vars.highlightDark,
+    "--highlight": theme.vars.highlight,
+    "--highlight-light": theme.vars.highlightLight,
+    "--highlight-hover": theme.vars.highlightHover,
+    "--success": theme.vars.success,
+    "--warning": theme.vars.warning,
+    "--warning-light": theme.vars.warningLight,
+    "--error": theme.vars.error,
+    "--error-dark": theme.vars.errorDark,
+    "--info": theme.vars.info,
+  };
+}
+
 export default function CompanyManagementPage({ profile, setCurrentPage }) {
   const [employees, setEmployees] = useState(() => readStoredValue(STORAGE_KEYS.employees, createDefaultEmployees()));
   const [themeId, setThemeId] = useState(() => readStoredValue(STORAGE_KEYS.theme, DEFAULT_THEME_ID));
   const [newEmployeeColorsDefault, setNewEmployeeColorsDefault] = useState(() => readStoredValue(STORAGE_KEYS.newEmployeeColors, true));
+  const [customTheme, setCustomTheme] = useState(() => normalizeCustomTheme(readStoredValue(STORAGE_KEYS.customTheme, DEFAULT_CUSTOM_THEME)));
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
   const [formValues, setFormValues] = useState(createInitialForm());
 
-  const activeTheme = getThemeById(themeId);
+  const activeTheme = themeId === "custom" ? customTheme : getThemeById(themeId);
   const selectedEmployee = employees.find((employee) => employee.id === selectedEmployeeId) || null;
   const adminLabel = profile?.full_name || profile?.first_name || profile?.email || "Bedrijfsbeheerder";
-
-  const themedVariables = {
-    "--background": activeTheme.vars.background,
-    "--background-dark": activeTheme.vars.backgroundDark,
-    "--text": activeTheme.vars.text,
-    "--text-light": activeTheme.vars.textLight,
-    "--border": activeTheme.vars.border,
-    "--primary-dark": activeTheme.vars.primaryDark,
-    "--primary": activeTheme.vars.primary,
-    "--highlight-dark": activeTheme.vars.highlightDark,
-    "--highlight": activeTheme.vars.highlight,
-    "--highlight-light": activeTheme.vars.highlightLight,
-    "--highlight-hover": activeTheme.vars.highlightHover,
-    "--success": activeTheme.vars.success,
-    "--warning": activeTheme.vars.warning,
-    "--warning-light": activeTheme.vars.warningLight,
-    "--error": activeTheme.vars.error,
-    "--error-dark": activeTheme.vars.errorDark,
-    "--info": activeTheme.vars.info,
-  };
+  const themedVariables = buildThemeVariables(activeTheme);
+  const selectedThemePreview = themeId === "custom" ? themeToPreview(activeTheme) : activeTheme.preview;
 
   useEffect(() => {
     writeStoredValue(STORAGE_KEYS.employees, employees);
@@ -289,17 +352,19 @@ export default function CompanyManagementPage({ profile, setCurrentPage }) {
   }, [newEmployeeColorsDefault]);
 
   useEffect(() => {
+    writeStoredValue(STORAGE_KEYS.customTheme, customTheme);
+  }, [customTheme]);
+
+  useEffect(() => {
     if (!isCreateOpen && !selectedEmployeeId) {
       return undefined;
     }
 
     function handleKeyDown(event) {
-      if (event.key !== "Escape") {
-        return;
+      if (event.key === "Escape") {
+        setIsCreateOpen(false);
+        setSelectedEmployeeId(null);
       }
-
-      setIsCreateOpen(false);
-      setSelectedEmployeeId(null);
     }
 
     window.addEventListener("keydown", handleKeyDown);
@@ -309,6 +374,16 @@ export default function CompanyManagementPage({ profile, setCurrentPage }) {
   function openCreateModal() {
     setFormValues(createInitialForm());
     setIsCreateOpen(true);
+  }
+
+  function updateCustomThemeField(field, value) {
+    setCustomTheme((previous) => ({
+      ...previous,
+      vars: {
+        ...previous.vars,
+        [field]: value,
+      },
+    }));
   }
 
   function submitEmployee(event) {
@@ -332,7 +407,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage }) {
       usesCompanyColors: Boolean(newEmployeeColorsDefault),
       createdAt: new Date().toISOString(),
       createdBy: adminLabel,
-      themeId: newEmployeeColorsDefault ? activeTheme.id : DEFAULT_THEME_ID,
+      themeId: newEmployeeColorsDefault ? themeId : DEFAULT_THEME_ID,
     };
 
     setEmployees((previous) => [nextEmployee, ...previous]);
@@ -364,7 +439,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage }) {
         </button>
       </div>
 
-      <div className="company-management-grid">
+      <div className="company-management-stack">
         <section className="company-management-panel employees-panel">
           <div className="company-management-panel__header">
             <div>
@@ -417,11 +492,11 @@ export default function CompanyManagementPage({ profile, setCurrentPage }) {
           </div>
         </section>
 
-        <aside className="company-management-panel theme-panel">
+        <section className="company-management-panel theme-panel">
           <div className="company-management-panel__header">
             <div>
               <h2 className="company-management-panel__title">Bedrijfskleuren</h2>
-              <p className="company-management-panel__copy">Klik om een palet te kiezen. De nieuwe accounts nemen dit over als de toggle aan staat.</p>
+              <p className="company-management-panel__copy">Kies een voorgesteld palet of stel je eigen kleuren in.</p>
             </div>
           </div>
 
@@ -430,9 +505,9 @@ export default function CompanyManagementPage({ profile, setCurrentPage }) {
               <button
                 key={option.id}
                 type="button"
-                className={`theme-swatch${option.id === activeTheme.id ? " theme-swatch--active" : ""}`}
+                className={`theme-swatch${option.id === themeId ? " theme-swatch--active" : ""}`}
                 onClick={() => setThemeId(option.id)}
-                aria-pressed={option.id === activeTheme.id}
+                aria-pressed={option.id === themeId}
               >
                 <span className="theme-swatch__swatches" aria-hidden="true">
                   {option.preview.map((color) => (
@@ -443,7 +518,57 @@ export default function CompanyManagementPage({ profile, setCurrentPage }) {
                 <span className="theme-swatch__description">{option.description}</span>
               </button>
             ))}
+
+            <button
+              type="button"
+              className={`theme-swatch theme-swatch--custom${themeId === "custom" ? " theme-swatch--active" : ""}`}
+              onClick={() => setThemeId("custom")}
+              aria-pressed={themeId === "custom"}
+            >
+              <span className="theme-swatch__swatches" aria-hidden="true">
+                {selectedThemePreview.map((color) => (
+                  <span key={color} className="theme-swatch__chip" style={{ background: color }} />
+                ))}
+              </span>
+              <span className="theme-swatch__label">Eigen kleuren</span>
+              <span className="theme-swatch__description">Stel je eigen bedrijfsstijl samen</span>
+            </button>
           </div>
+
+          {themeId === "custom" ? (
+            <div className="custom-theme-editor">
+              <div className="custom-theme-editor__header">
+                <div>
+                  <h3 className="custom-theme-editor__title">Eigen kleuren instellen</h3>
+                  <p className="company-management-panel__copy">Pas de belangrijkste kleuren aan en bekijk meteen het resultaat.</p>
+                </div>
+              </div>
+
+              <div className="custom-theme-editor__grid">
+                {CUSTOM_THEME_FIELDS.map((field) => (
+                  <label className="company-field company-field--color" key={field.key}>
+                    <span>{field.label}</span>
+                    <input
+                      type="color"
+                      value={customTheme.vars[field.key]}
+                      onChange={(event) => updateCustomThemeField(field.key, event.target.value)}
+                    />
+                  </label>
+                ))}
+              </div>
+
+              <div className="theme-preview theme-preview--compact">
+                <div className="theme-preview__badge">Eigen palet</div>
+                <h3 className="theme-preview__title">Eigen kleuren</h3>
+                <p className="theme-preview__copy">Deze kleuren worden gebruikt voor nieuwe accounts wanneer de toggle aan staat.</p>
+                <div className="theme-preview__bars" aria-hidden="true">
+                  {selectedThemePreview.map((color) => (
+                    <span key={color} style={{ background: color }} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : null}
 
           <div className="company-toggle-row">
             <div>
@@ -461,18 +586,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage }) {
               <span className="toggle-thumb" />
             </button>
           </div>
-
-          <div className="theme-preview">
-            <div className="theme-preview__badge">Voorbeeld</div>
-            <h3 className="theme-preview__title">{activeTheme.name}</h3>
-            <p className="theme-preview__copy">{activeTheme.description}</p>
-            <div className="theme-preview__bars" aria-hidden="true">
-              {activeTheme.preview.map((color) => (
-                <span key={color} style={{ background: color }} />
-              ))}
-            </div>
-          </div>
-        </aside>
+        </section>
       </div>
 
       {isCreateOpen ? (
@@ -588,7 +702,11 @@ export default function CompanyManagementPage({ profile, setCurrentPage }) {
             <div className="company-stats-grid">
               <article className="company-stat-card">
                 <span className="company-stat-card__label">Uren gewerkt</span>
-                <strong className="company-stat-card__value">{formatHours(selectedEmployee.hoursWorked)}</strong>
+                <strong className="company-stat-card__value">
+                  {Number.isFinite(selectedEmployee.hoursWorked)
+                    ? `${selectedEmployee.hoursWorked.toFixed(selectedEmployee.hoursWorked % 1 === 0 ? 0 : 1)} uur`
+                    : "0 uur"}
+                </strong>
                 <span className="company-stat-card__meta">Sinds {new Date(selectedEmployee.createdAt).toLocaleDateString("nl-NL")}</span>
               </article>
 
