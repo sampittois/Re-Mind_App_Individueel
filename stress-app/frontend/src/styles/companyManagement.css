@@ -17,7 +17,7 @@
 
 .company-management-header {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr;
   gap: var(--space-4);
   align-items: start;
   margin-bottom: var(--space-7);
@@ -99,6 +99,10 @@
   justify-content: space-between;
   gap: var(--space-3);
   margin-bottom: var(--space-4);
+}
+
+.company-management-panel__header--employees {
+  align-items: center;
 }
 
 .company-management-panel__title {
@@ -287,7 +291,7 @@
 .employee-table__header,
 .employee-row {
   display: grid;
-  grid-template-columns: 1.05fr 1fr 0.7fr 0.55fr;
+  grid-template-columns: 1.05fr 1fr 0.7fr 0.55fr 0.55fr;
   gap: var(--space-3);
   align-items: center;
 }
@@ -318,6 +322,7 @@
   font-family: var(--text-body-regular-font-family);
   font-size: var(--text-body-regular-font-size);
   line-height: var(--text-body-regular-line-height);
+  cursor: pointer;
 }
 
 .employee-row:hover {
@@ -336,13 +341,14 @@
   font-weight: var(--font-weight-bold);
 }
 
-.employee-badge {
-  padding: 4px var(--space-2);
-  border-radius: 999px;
-  background: var(--primary);
-  color: var(--background);
-  font-size: var(--text-body-small-font-size);
-  font-weight: var(--font-weight-bold);
+.employee-colors-cell {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.toggle-switch--compact {
+  transform: scale(0.92);
+  transform-origin: left center;
 }
 
 .employee-status {
@@ -550,16 +556,6 @@
   line-height: var(--text-body-small-line-height);
 }
 
-.company-stats-footnote {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-3);
-  margin-top: var(--space-4);
-  padding-top: var(--space-4);
-  border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
-  color: var(--text-light);
-}
-
 @media (max-width: 1080px) {
   .company-management-header {
     grid-template-columns: 1fr;
@@ -590,7 +586,6 @@
   }
 
   .company-stats__header,
-  .company-stats-footnote,
   .company-toggle-row {
     flex-direction: column;
     align-items: stretch;

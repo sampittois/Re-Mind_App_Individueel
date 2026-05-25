@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import "./styles/App.css";
 import { supabase } from "./lib/supabaseClient";
 import { addEnergyCheck, addStressCheck, loadLatestWellbeingSnapshot } from "./lib/session";
@@ -16,7 +16,15 @@ import StatsSection from "./components/StatsSection";
 import ProfileSection from "./screens/ProfileSection";
 import Reports from "./screens/Reports";
 import UpgradePage from "./screens/UpgradePage";
-import CompanyManagementPage from "./screens/CompanyManagementPage";
+import CompanyManagementPage, {
+  DEFAULT_CUSTOM_THEME,
+  DEFAULT_THEME_ID,
+  STORAGE_KEYS,
+  buildThemeVariables,
+  getThemeById,
+  normalizeCustomTheme,
+  readStoredValue,
+} from "./screens/CompanyManagementPage";
 import LoginPage from "./screens/LoginPage";
 import RegisterPage from "./screens/RegisterPage";
 import OnboardingPage from "./screens/OnboardingPage";
@@ -24,6 +32,25 @@ import OnboardingPage from "./screens/OnboardingPage";
 const DEFAULT_NAME = "John Doe";
 const PROFILE_SELECT = "id, full_name, first_name, last_name, email, avatar_url, plan, work_start, work_end, break_frequency_mins, fixed_breaks, break_reminders, pause_habit, work_style, work_type, allow_reminders, dark_mode, use_company_colors, calendar_linked, company_management_enabled";
 const LAST_PAGE_STORAGE_KEY = "remind:last-page";
+const THEME_VARIABLES = [
+  "--background",
+  "--background-dark",
+  "--text",
+  "--text-light",
+  "--border",
+  "--primary-dark",
+  "--primary",
+  "--highlight-dark",
+  "--highlight",
+  "--highlight-light",
+  "--highlight-hover",
+  "--success",
+  "--warning",
+  "--warning-light",
+  "--error",
+  "--error-dark",
+  "--info",
+];
 
 const AUTH_PAGES = new Set(["login", "register", "onboarding"]);
 const RESTORABLE_PAGES = new Set(["home", "pause", "breathing", "exercise-detail", "reports", "profile", "upgrade", "bedrijfsbeheer"]);
@@ -78,6 +105,32 @@ function buildDisplayName(profile, user) {
   return DEFAULT_NAME;
 }
 
+function readCompanyThemeFromStorage() {
+  const themeId = readStoredValue(STORAGE_KEYS.theme, DEFAULT_THEME_ID);
+  const customTheme = normalizeCustomTheme(readStoredValue(STORAGE_KEYS.customTheme, DEFAULT_CUSTOM_THEME));
+
+  return themeId === "custom" ? customTheme : getThemeById(themeId);
+}
+
+function applyCompanyThemeToRoot(theme, useCompanyColors) {
+  if (typeof document === "undefined") return;
+
+  const root = document.documentElement;
+
+  if (!useCompanyColors) {
+    THEME_VARIABLES.forEach((variable) => root.style.removeProperty(variable));
+    return;
+  }
+
+  const themeVariables = buildThemeVariables(theme);
+  THEME_VARIABLES.forEach((variable) => {
+    const value = themeVariables[variable];
+    if (value) {
+      root.style.setProperty(variable, value);
+    }
+  });
+}
+
 export default function App() {
   const [name, setName] = useState(DEFAULT_NAME);
   const [avatar, setAvatar] = useState(null);
@@ -96,6 +149,10 @@ export default function App() {
   const [pauseSuggestionOverlaySource, setPauseSuggestionOverlaySource] = useState(null);
   const [workdayReflectionOpen, setWorkdayReflectionOpen] = useState(false);
   const [workdayReflectionShowFinishedTitle, setWorkdayReflectionShowFinishedTitle] = useState(false);
+  const [companyThemeRevision, setCompanyThemeRevision] = useState(0);
+  const handleCompanyThemeChange = useCallback(() => {
+    setCompanyThemeRevision((previous) => previous + 1);
+  }, []);
 
   useEffect(() => {
     const savedPage = readLastPage();
@@ -327,7 +384,13 @@ export default function App() {
       </main>
     );
   } else if (currentPage === "bedrijfsbeheer") {
-    pageContent = <CompanyManagementPage profile={profile} setCurrentPage={setCurrentPage} />;
+    pageContent = (
+      <CompanyManagementPage
+        profile={profile}
+        setCurrentPage={setCurrentPage}
+        onThemeChange={handleCompanyThemeChange}
+      />
+    );
   } else if (currentPage === "login") {
     pageContent = (
       <main className="page login-root">
@@ -478,6 +541,10 @@ export default function App() {
       active = false;
     };
   }, [user]);
+
+  useEffect(() => {
+    applyCompanyThemeToRoot(readCompanyThemeFromStorage(), Boolean(profile?.use_company_colors));
+  }, [profile?.use_company_colors, profile?.id, companyThemeRevision]);
 
   useEffect(() => {
     let active = true;

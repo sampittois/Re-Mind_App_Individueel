@@ -5,7 +5,7 @@ import closeIcon from "../assets/x.svg";
 import swirl from "../assets/swirl.png";
 import "../styles/companyManagement.css";
 
-const COMPANY_THEME_OPTIONS = [
+export const COMPANY_THEME_OPTIONS = [
   {
     id: "sage",
     name: "Sage",
@@ -133,16 +133,16 @@ const COMPANY_THEME_OPTIONS = [
   },
 ];
 
-const STORAGE_KEYS = {
+export const STORAGE_KEYS = {
   employees: "remind:company-employees",
   theme: "remind:company-theme",
   newEmployeeColors: "remind:company-new-employee-colors",
   customTheme: "remind:company-custom-theme",
 };
 
-const DEFAULT_THEME_ID = "sage";
+export const DEFAULT_THEME_ID = "sage";
 
-const DEFAULT_CUSTOM_THEME = {
+export const DEFAULT_CUSTOM_THEME = {
   vars: {
     background: "#f7f4ef",
     backgroundDark: "#ece5db",
@@ -173,7 +173,7 @@ const CUSTOM_THEME_FIELDS = [
   { key: "border", label: "Randkleur" },
 ];
 
-function readStoredValue(key, fallback) {
+export function readStoredValue(key, fallback) {
   if (typeof window === "undefined") return fallback;
 
   try {
@@ -203,11 +203,11 @@ function createEmployeeId() {
   return `employee-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-function getThemeById(themeId) {
+export function getThemeById(themeId) {
   return COMPANY_THEME_OPTIONS.find((theme) => theme.id === themeId) || COMPANY_THEME_OPTIONS[0];
 }
 
-function normalizeCustomTheme(theme) {
+export function normalizeCustomTheme(theme) {
   const nextTheme = theme && typeof theme === "object" ? theme : {};
   const nextVars = nextTheme.vars && typeof nextTheme.vars === "object" ? nextTheme.vars : {};
 
@@ -302,7 +302,7 @@ function paletteForEmployee(employee, selectedTheme) {
   return employee.usesCompanyColors ? selectedTheme : COMPANY_THEME_OPTIONS[0];
 }
 
-function buildThemeVariables(theme) {
+export function buildThemeVariables(theme) {
   return {
     "--background": theme.vars.background,
     "--background-dark": theme.vars.backgroundDark,
@@ -324,7 +324,7 @@ function buildThemeVariables(theme) {
   };
 }
 
-export default function CompanyManagementPage({ profile, setCurrentPage }) {
+export default function CompanyManagementPage({ profile, setCurrentPage, onThemeChange }) {
   const [employees, setEmployees] = useState(() => readStoredValue(STORAGE_KEYS.employees, createDefaultEmployees()));
   const [themeId, setThemeId] = useState(() => readStoredValue(STORAGE_KEYS.theme, DEFAULT_THEME_ID));
   const [newEmployeeColorsDefault, setNewEmployeeColorsDefault] = useState(() => readStoredValue(STORAGE_KEYS.newEmployeeColors, true));
@@ -338,6 +338,10 @@ export default function CompanyManagementPage({ profile, setCurrentPage }) {
   const adminLabel = profile?.full_name || profile?.first_name || profile?.email || "Bedrijfsbeheerder";
   const themedVariables = buildThemeVariables(activeTheme);
   const selectedThemePreview = themeId === "custom" ? themeToPreview(activeTheme) : activeTheme.preview;
+
+  useEffect(() => {
+    onThemeChange?.(activeTheme);
+  }, [activeTheme, onThemeChange]);
 
   useEffect(() => {
     writeStoredValue(STORAGE_KEYS.employees, employees);
@@ -374,6 +378,20 @@ export default function CompanyManagementPage({ profile, setCurrentPage }) {
   function openCreateModal() {
     setFormValues(createInitialForm());
     setIsCreateOpen(true);
+  }
+
+  function updateEmployeeColors(employeeId, nextUsesCompanyColors) {
+    setEmployees((previousEmployees) => previousEmployees.map((employee) => {
+      if (employee.id !== employeeId) {
+        return employee;
+      }
+
+      return {
+        ...employee,
+        usesCompanyColors: nextUsesCompanyColors,
+        themeId: nextUsesCompanyColors ? themeId : DEFAULT_THEME_ID,
+      };
+    }));
   }
 
   function updateCustomThemeField(field, value) {
@@ -433,19 +451,20 @@ export default function CompanyManagementPage({ profile, setCurrentPage }) {
           </p>
         </div>
 
-        <button className="company-management-add" type="button" onClick={openCreateModal}>
-          <img src={plusIcon} alt="" aria-hidden="true" />
-          Werknemer toevoegen
-        </button>
       </div>
 
       <div className="company-management-stack">
         <section className="company-management-panel employees-panel">
-          <div className="company-management-panel__header">
+          <div className="company-management-panel__header company-management-panel__header--employees">
             <div>
               <h2 className="company-management-panel__title">Werknemers</h2>
               <p className="company-management-panel__copy">Klik op een werknemer om hun prestaties en pauzes te bekijken.</p>
             </div>
+
+            <button className="company-management-add" type="button" onClick={openCreateModal}>
+              <img src={plusIcon} alt="" aria-hidden="true" />
+              Werknemer toevoegen
+            </button>
           </div>
 
           <div className="employee-table" role="table" aria-label="Werknemerslijst">
@@ -454,22 +473,30 @@ export default function CompanyManagementPage({ profile, setCurrentPage }) {
               <span role="columnheader">E-mail</span>
               <span role="columnheader">Afdeling</span>
               <span role="columnheader">Status</span>
+              <span role="columnheader">Kleuren</span>
             </div>
 
             <div className="employee-table__body">
               {employees.map((employee) => {
                 const employeeTheme = paletteForEmployee(employee, activeTheme);
+                const employeeUsesCompanyColors = Boolean(employee.usesCompanyColors);
 
                 return (
-                  <button
+                  <div
                     key={employee.id}
-                    type="button"
                     className={`employee-row${selectedEmployeeId === employee.id ? " employee-row--selected" : ""}`}
+                    role="button"
+                    tabIndex={0}
                     onClick={() => setSelectedEmployeeId(employee.id)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        setSelectedEmployeeId(employee.id);
+                      }
+                    }}
                   >
                     <span className="employee-name">
                       {employee.name}
-                      {employee.usesCompanyColors ? <span className="employee-badge">Bedrijfskleuren</span> : null}
                     </span>
                     <span>{employee.email}</span>
                     <span>{employee.department}</span>
@@ -485,7 +512,22 @@ export default function CompanyManagementPage({ profile, setCurrentPage }) {
                         {employee.status}
                       </span>
                     </span>
-                  </button>
+                    <span className="employee-colors-cell">
+                      <button
+                        className={`toggle-switch toggle-switch--compact ${employeeUsesCompanyColors ? "active" : ""}`}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          updateEmployeeColors(employee.id, !employeeUsesCompanyColors);
+                        }}
+                        type="button"
+                        role="switch"
+                        aria-checked={employeeUsesCompanyColors}
+                        aria-label={`${employee.name} gebruikt ${employeeUsesCompanyColors ? "bedrijfskleuren" : "remind-kleuren"}`}
+                      >
+                        <span className="toggle-thumb" />
+                      </button>
+                    </span>
+                  </div>
                 );
               })}
             </div>
@@ -717,10 +759,6 @@ export default function CompanyManagementPage({ profile, setCurrentPage }) {
               </article>
             </div>
 
-            <div className="company-stats-footnote">
-              <span>Bedrijfskleuren</span>
-              <strong>{selectedEmployee.usesCompanyColors ? "Actief voor dit account" : "Uit voor dit account"}</strong>
-            </div>
           </div>
         </div>
       ) : null}
