@@ -231,10 +231,10 @@
   justify-content: center;
   white-space: nowrap;
   box-shadow: var(--shadow-button-hover);
-  transition: transform 120ms ease, box-shadow 160ms ease, opacity 140ms ease, background-color 160ms ease, color 160ms ease;
+  transition: box-shadow 160ms ease, opacity 140ms ease, background-color 160ms ease, color 160ms ease;
 }
-.plan-cta:hover { background: var(--highlight-200, var(--highlight)); color: var(--text); transform: translateY(-1px); }
-.plan-cta:active { transform: translateY(1px); box-shadow: 0 6px 10px rgba(0,0,0,0.06); }
+.plan-cta:hover { background: var(--primary-dark); color: var(--background); }
+.plan-cta:active { box-shadow: 0 6px 10px rgba(0,0,0,0.06); }
 .plan-cta:focus { outline: var(--border-width-md) solid var(--border-state-focus); outline-offset: var(--space-1); }
 
 .plan-cta[disabled], .billing-option[disabled] { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
@@ -261,7 +261,7 @@
   box-shadow: 0 12px 30px rgba(0,0,0,0.12);
   width: min(420px, calc(100% - 40px));
 }
-.payment-card h3 { margin: 0 0 8px 0; }
+.payment-card h3 { margin: 0 0 8px 0; font-family: var(--text-heading-3-font-family); }
 .payment-card p { margin: 0 0 12px 0; color: var(--text-light); }
 .payment-actions {
   display: flex;
@@ -274,8 +274,8 @@
   flex: 1 1 0;
 }
 .payment-actions .plan-cta.plan-cta--secondary {
-  background: transparent;
+  background: var(--brand-highlight, var(--highlight-light));
   color: var(--text);
-  border: var(--border-width-md) solid var(--primary-dark);
+  border: var(--border-width-md) solid var(--highlight-dark);
 }
 
