@@ -8,8 +8,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Initialize Supabase client (uses anon key from backend/.env)
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+// Initialize Supabase client. Prefer service role key on backend when present.
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
+const supabase = createClient(process.env.SUPABASE_URL, supabaseKey);
 
 app.post("/checkin", (req, res) => {
   const { stress, energy } = req.body;
@@ -36,7 +37,7 @@ app.get('/supabase-health', async (req, res) => {
 // if available). Expects { user_id, plan } in the body.
 app.post('/set-plan', async (req, res) => {
   try {
-    const { user_id, plan } = req.body || {};
+    const { user_id, plan, payment_details } = req.body || {};
     if (!user_id || !plan) return res.status(400).json({ ok: false, error: 'Missing user_id or plan' });
 
     // Upsert the profile row with the plan
@@ -45,6 +46,22 @@ app.post('/set-plan', async (req, res) => {
 
     if (error) {
       return res.status(500).json({ ok: false, error: error.message });
+    }
+
+    // Store payment details (optional fields, demo mode accepted).
+    const paymentRow = {
+      user_id,
+      plan,
+      cardholder_name: payment_details?.cardholder_name || null,
+      card_last4: payment_details?.card_last4 || null,
+      card_expiry: payment_details?.card_expiry || null,
+      billing_email: payment_details?.billing_email || null,
+      payment_status: 'paid',
+    };
+
+    const { error: paymentError } = await supabase.from('payment_details').insert([paymentRow]);
+    if (paymentError) {
+      return res.status(500).json({ ok: false, error: paymentError.message });
     }
 
     return res.json({ ok: true, data });

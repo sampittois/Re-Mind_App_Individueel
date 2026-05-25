@@ -263,6 +263,39 @@
 }
 .payment-card h3 { margin: 0 0 8px 0; font-family: var(--text-heading-3-font-family); }
 .payment-card p { margin: 0 0 12px 0; color: var(--text-light); }
+.payment-fields {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.payment-inline-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.payment-label {
+  display: block;
+  font-family: var(--text-body-small-font-family);
+  font-size: var(--text-body-small-font-size);
+  color: var(--text-light);
+  margin-bottom: 2px;
+}
+.payment-input {
+  width: 100%;
+  height: 38px;
+  border: var(--border-width-sm) solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0 10px;
+  font-family: var(--text-body-regular-font-family);
+  font-size: var(--text-body-small-font-size);
+  color: var(--text);
+  background: var(--background);
+  box-sizing: border-box;
+}
+.payment-input:focus {
+  outline: 2px solid var(--border-state-focus);
+  outline-offset: 1px;
+}
 .payment-actions {
   display: flex;
   gap: var(--space-3);
@@ -277,5 +310,11 @@
   background: var(--brand-highlight, var(--highlight-light));
   color: var(--text);
   border: var(--border-width-md) solid var(--highlight-dark);
+}
+
+@media (max-width: 640px) {
+  .payment-inline-fields {
+    grid-template-columns: 1fr;
+  }
 }
 

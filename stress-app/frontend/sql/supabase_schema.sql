@@ -171,6 +171,30 @@ alter table public.favorite_pauses add column if not exists pause_id text;
 alter table public.favorite_pauses add column if not exists created_at timestamptz not null default now();
 alter table public.favorite_pauses add column if not exists updated_at timestamptz not null default now();
 
+create table if not exists public.payment_details (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users (id) on delete cascade,
+  plan user_plan not null,
+  cardholder_name text,
+  card_last4 text,
+  card_expiry text,
+  billing_email text,
+  payment_status text not null default 'paid',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint payment_details_status_check check (payment_status in ('pending', 'paid', 'failed'))
+);
+
+alter table public.payment_details add column if not exists user_id uuid;
+alter table public.payment_details add column if not exists plan public.user_plan;
+alter table public.payment_details add column if not exists cardholder_name text;
+alter table public.payment_details add column if not exists card_last4 text;
+alter table public.payment_details add column if not exists card_expiry text;
+alter table public.payment_details add column if not exists billing_email text;
+alter table public.payment_details add column if not exists payment_status text not null default 'paid';
+alter table public.payment_details add column if not exists created_at timestamptz not null default now();
+alter table public.payment_details add column if not exists updated_at timestamptz not null default now();
+
 create index if not exists profiles_full_name_idx
   on public.profiles (full_name);
 
@@ -197,6 +221,9 @@ create index if not exists break_reminder_events_user_session_created_at_idx
 
 create index if not exists favorite_pauses_user_pause_idx
   on public.favorite_pauses (user_id, pause_id);
+
+create index if not exists payment_details_user_created_at_idx
+  on public.payment_details (user_id, created_at desc);
 
 alter table public.stress_checkins
   alter column session_id set not null;
@@ -262,6 +289,11 @@ for each row execute function public.set_updated_at();
 drop trigger if exists set_favorite_pauses_updated_at on public.favorite_pauses;
 create trigger set_favorite_pauses_updated_at
 before update on public.favorite_pauses
+for each row execute function public.set_updated_at();
+
+drop trigger if exists set_payment_details_updated_at on public.payment_details;
+create trigger set_payment_details_updated_at
+before update on public.payment_details
 for each row execute function public.set_updated_at();
 
 create or replace function public.check_user_matches_session()
@@ -371,6 +403,7 @@ alter table public.energy_checkins enable row level security;
 alter table public.breaks enable row level security;
 alter table public.break_reminder_events enable row level security;
 alter table public.favorite_pauses enable row level security;
+alter table public.payment_details enable row level security;
 
 drop policy if exists "profiles_select_own" on public.profiles;
 create policy "profiles_select_own"
@@ -544,5 +577,30 @@ with check (auth.uid() = user_id);
 drop policy if exists "favorite_pauses_delete_own" on public.favorite_pauses;
 create policy "favorite_pauses_delete_own"
 on public.favorite_pauses
+for delete
+using (auth.uid() = user_id);
+
+drop policy if exists "payment_details_select_own" on public.payment_details;
+create policy "payment_details_select_own"
+on public.payment_details
+for select
+using (auth.uid() = user_id);
+
+drop policy if exists "payment_details_insert_own" on public.payment_details;
+create policy "payment_details_insert_own"
+on public.payment_details
+for insert
+with check (auth.uid() = user_id);
+
+drop policy if exists "payment_details_update_own" on public.payment_details;
+create policy "payment_details_update_own"
+on public.payment_details
+for update
+using (auth.uid() = user_id)
+with check (auth.uid() = user_id);
+
+drop policy if exists "payment_details_delete_own" on public.payment_details;
+create policy "payment_details_delete_own"
+on public.payment_details
 for delete
 using (auth.uid() = user_id);

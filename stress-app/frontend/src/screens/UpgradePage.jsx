@@ -8,6 +8,15 @@ export default function UpgradePage({ profile, onUpdateProfile, setCurrentPage }
   const isMonthly = billingPeriod === "monthly";
   const [pendingPlan, setPendingPlan] = useState(null);
   const [isPaying, setIsPaying] = useState(false);
+  const [cardholderName, setCardholderName] = useState("");
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
+  const [billingEmail, setBillingEmail] = useState("");
+
+  function getCardLast4(numberInput) {
+    const digitsOnly = (numberInput || "").replace(/\D/g, "");
+    return digitsOnly.length >= 4 ? digitsOnly.slice(-4) : null;
+  }
 
   async function choosePlan(plan) {
     // Basic is free, immediately apply. Other plans require payment flow.
@@ -34,12 +43,19 @@ export default function UpgradePage({ profile, onUpdateProfile, setCurrentPage }
     // payments server-side or when a service key is available). It's okay if
     // this fails — the client-side upsert already handled it — but calling the
     // backend provides a stronger guarantee.
+    const paymentDetails = {
+      cardholder_name: cardholderName.trim() || null,
+      card_last4: getCardLast4(cardNumber),
+      card_expiry: expiryDate.trim() || null,
+      billing_email: billingEmail.trim() || null,
+    };
+
     try {
       if (profile?.id) {
         await fetch("http://localhost:3000/set-plan", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ user_id: profile.id, plan: pendingPlan }),
+          body: JSON.stringify({ user_id: profile.id, plan: pendingPlan, payment_details: paymentDetails }),
         });
       }
     } catch (err) {
@@ -49,6 +65,11 @@ export default function UpgradePage({ profile, onUpdateProfile, setCurrentPage }
       console.warn("Backend set-plan request failed:", err?.message || err);
     }
 
+    setCardholderName("");
+    setCardNumber("");
+    setExpiryDate("");
+    setBillingEmail("");
+
     setIsPaying(false);
     setPendingPlan(null);
     setCurrentPage?.("profile");
@@ -56,6 +77,10 @@ export default function UpgradePage({ profile, onUpdateProfile, setCurrentPage }
 
   function cancelPayment() {
     setPendingPlan(null);
+    setCardholderName("");
+    setCardNumber("");
+    setExpiryDate("");
+    setBillingEmail("");
   }
 
   return (
@@ -70,7 +95,54 @@ export default function UpgradePage({ profile, onUpdateProfile, setCurrentPage }
           <div className="payment-modal" role="dialog" aria-modal="true">
             <div className="payment-card">
               <h3>Betaling voor {pendingPlan === "premium" ? "Premium" : "Bedrijfslicentie"}</h3>
-              <p>Voer je betaalgegevens in om door te gaan. (Demo mode)</p>
+              <p>Voer je betaalgegevens in om door te gaan.</p>
+
+              <div className="payment-fields">
+                <label className="payment-label" htmlFor="payment-cardholder">Naam op kaart</label>
+                <input
+                  id="payment-cardholder"
+                  className="payment-input"
+                  type="text"
+                  placeholder="Naam zoals op kaart"
+                  value={cardholderName}
+                  onChange={(event) => setCardholderName(event.target.value)}
+                />
+
+                <label className="payment-label" htmlFor="payment-cardnumber">Kaartnummer</label>
+                <input
+                  id="payment-cardnumber"
+                  className="payment-input"
+                  type="text"
+                  placeholder="1234 5678 9012 3456"
+                  value={cardNumber}
+                  onChange={(event) => setCardNumber(event.target.value)}
+                />
+
+                <div className="payment-inline-fields">
+                  <div>
+                    <label className="payment-label" htmlFor="payment-expiry">Vervaldatum</label>
+                    <input
+                      id="payment-expiry"
+                      className="payment-input"
+                      type="text"
+                      placeholder="03/29"
+                      value={expiryDate}
+                      onChange={(event) => setExpiryDate(event.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="payment-label" htmlFor="payment-email">Facturatie e-mail</label>
+                    <input
+                      id="payment-email"
+                      className="payment-input"
+                      type="email"
+                      placeholder="naam@bedrijf.be"
+                      value={billingEmail}
+                      onChange={(event) => setBillingEmail(event.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
 
               <div className="payment-actions">
                 <button className="plan-cta" onClick={performPayment} disabled={isPaying}>
