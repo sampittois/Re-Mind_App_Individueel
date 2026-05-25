@@ -95,7 +95,7 @@
 .plan-card {
   background: var(--surface-card, var(--background-dark));
   border-radius: var(--radius-lg);
-  padding: 22px 16px 16px;
+  padding: 18px 16px 12px;
   box-shadow: 0 8px 14px rgba(0,0,0,0.06);
   width: 100%;
   max-width: none;
@@ -114,24 +114,34 @@
 .plan-heading {
   text-align: center;
   font-family: var(--text-heading-3-font-family);
-  font-size: var(--text-heading-3-font-size);
-  margin: 0 0 10px 0;
+  font-size: 22px;
+  min-height: 42px;
+  margin: 0 0 6px 0;
   color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
 }
 .plan-divider {
   border: none;
   height: 2px;
   width: min(280px, 100%);
-  margin: 10px auto 18px auto;
+  margin: 6px auto 10px auto;
   border-radius: var(--radius-sm);
   background: var(--primary);
 }
 .plan-price {
   text-align: center;
   font-family: var(--text-heading-1-font-family);
-  font-size: var(--text-heading-1-font-size);
-  margin: 0 0 12px 0;
+  font-size: 34px;
+  min-height: 52px;
+  margin: 0 0 6px 0;
   color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 .plan-price .per { display: block; font-size: var(--text-body-small-font-size); margin-top: 4px; color: var(--text-light); }
 .plan-features {
@@ -141,21 +151,23 @@
   flex: 1 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 .plan-features li {
   font-family: var(--text-body-regular-font-family);
-  font-size: var(--font-size-xs);
-  line-height: 1.15;
+  font-size: 14px;
+  line-height: 1.08;
   margin: 0;
   color: var(--text-light);
-  display: flex;
+  display: grid;
+  grid-template-columns: 24px 1fr;
   align-items: center;
+  column-gap: var(--space-4);
 }
 .plan-check {
   width: 24px;
   height: 24px;
-  margin-right: var(--space-4);
+  margin-right: 0;
   flex-shrink: 0;
   color: var(--primary-dark);
 }
@@ -163,6 +175,7 @@
   display: flex;
   justify-content: center;
   margin-top: auto;
+  padding-top: 4px;
   padding-bottom: 0;
 }
 .plan-cta {
