@@ -1,4 +1,6 @@
 import "../styles/upgrade.css";
+import CheckIcon from "../components/CheckIcon";
+import backIcon from "../assets/back.svg";
 
 export default function UpgradePage({ profile, onUpdateProfile, setCurrentPage }) {
   async function choosePlan(plan) {
@@ -12,7 +14,13 @@ export default function UpgradePage({ profile, onUpdateProfile, setCurrentPage }
     <div className="upgrade-root">
       <div className="upgrade-inner">
         <div className="upgrade-header">
-          <h1 className="upgrade-title">Kies een plan</h1>
+          <div className="upgrade-header-left">
+            <button className="upgrade-back" type="button" onClick={() => setCurrentPage?.("profile")} aria-label="Terug">
+              <img src={backIcon} alt="Terug" />
+            </button>
+            <h1 className="upgrade-title">Kies een plan</h1>
+          </div>
+
           <div className="billing-toggle" role="tablist" aria-label="Billing period">
             <button className="billing-option">Maandelijks</button>
             <button className="billing-option billing-option--active">Jaarlijks</button>
@@ -25,10 +33,10 @@ export default function UpgradePage({ profile, onUpdateProfile, setCurrentPage }
             <hr className="plan-divider" />
             <div className="plan-price">Gratis</div>
             <ul className="plan-features">
-              <li><span className="check">✓</span>Pauzesuggesties</li>
-              <li><span className="check">✓</span>Check-ins</li>
-              <li><span className="check">✓</span>Dagelijks rapport</li>
-              <li><span className="check">✓</span>Afsluitroutine</li>
+              <li><CheckIcon className="plan-check" title="Geselecteerd"/>Pauzesuggesties</li>
+              <li><CheckIcon className="plan-check"/>Check-ins</li>
+              <li><CheckIcon className="plan-check"/>Dagelijks rapport</li>
+              <li><CheckIcon className="plan-check"/>Afsluitroutine</li>
             </ul>
             <div className="plan-cta-wrap">
               <button className="plan-cta" onClick={() => choosePlan("basic")}>Kies dit plan</button>
@@ -40,10 +48,10 @@ export default function UpgradePage({ profile, onUpdateProfile, setCurrentPage }
             <hr className="plan-divider" />
             <div className="plan-price">€33/jaar</div>
             <ul className="plan-features">
-              <li><span className="check">✓</span>Alle basis functies</li>
-              <li><span className="check">✓</span>Personalizatie opties</li>
-              <li><span className="check">✓</span>Diepere inzichten</li>
-              <li><span className="check">✓</span>Wekelijks rapport</li>
+              <li><CheckIcon className="plan-check"/>Alle basis functies</li>
+              <li><CheckIcon className="plan-check"/>Personalizatie opties</li>
+              <li><CheckIcon className="plan-check"/>Diepere inzichten</li>
+              <li><CheckIcon className="plan-check"/>Wekelijks rapport</li>
             </ul>
             <div className="plan-cta-wrap">
               <button className="plan-cta" onClick={() => choosePlan("premium")}>Kies dit plan</button>
@@ -55,9 +63,9 @@ export default function UpgradePage({ profile, onUpdateProfile, setCurrentPage }
             <hr className="plan-divider" />
             <div className="plan-price">€20/jaar<span className="per">per werknemer</span></div>
             <ul className="plan-features">
-              <li><span className="check">✓</span>Alle basis functies</li>
-              <li><span className="check">✓</span>Premium functies</li>
-              <li><span className="check">✓</span>Bedrijfspersonalisatie</li>
+              <li><CheckIcon className="plan-check"/>Alle basis functies</li>
+              <li><CheckIcon className="plan-check"/>Premium functies</li>
+              <li><CheckIcon className="plan-check"/>Bedrijfspersonalisatie</li>
             </ul>
             <div className="plan-cta-wrap">
               <button className="plan-cta" onClick={() => choosePlan("bedrijfslicentie")}>Kies dit plan</button>
