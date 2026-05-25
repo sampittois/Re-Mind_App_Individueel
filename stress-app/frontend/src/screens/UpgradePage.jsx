@@ -17,11 +17,14 @@ export default function UpgradePage({ profile, onUpdateProfile, setCurrentPage }
   return (
     <div className="upgrade-root">
       <div className="upgrade-inner">
+        <div className="upgrade-top-row">
+          <button className="upgrade-back" type="button" onClick={() => setCurrentPage?.("profile")} aria-label="Terug">
+            <img src={backIcon} alt="Terug" />
+          </button>
+        </div>
+
         <div className="upgrade-header">
           <div className="upgrade-header-left">
-            <button className="upgrade-back" type="button" onClick={() => setCurrentPage?.("profile")} aria-label="Terug">
-              <img src={backIcon} alt="Terug" />
-            </button>
             <h1 className="upgrade-title">Kies een plan</h1>
           </div>
 
