@@ -30,9 +30,9 @@ export default function SettingsToggles({ profile, onUpdateProfile }) {
         </button>
       </div>
 
-      <div className="toggle-row">
-        <label className="toggle-label">Bedrijfskleuren</label>
-        {profile?.plan === "bedrijfslicentie" ? (
+      {profile?.plan === "bedrijfslicentie" && (
+        <div className="toggle-row">
+          <label className="toggle-label">Bedrijfskleuren</label>
           <button
             className={`toggle-switch ${companyColors ? "active" : ""}`}
             onClick={() => updateToggle(setCompanyColors, { use_company_colors: !companyColors }, !companyColors)}
@@ -42,10 +42,8 @@ export default function SettingsToggles({ profile, onUpdateProfile }) {
           >
             <span className="toggle-thumb" />
           </button>
-        ) : (
-          <span className="toggle-disabled">Alleen voor bedrijfslicentie</span>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
