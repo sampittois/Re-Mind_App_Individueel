@@ -457,7 +457,25 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
     onBreakLogged?.();
   };
 
+  const resetTimerForReflection = () => {
+    const now = Date.now();
+
+    setWorkStarted(false);
+    setWorkStartedAt(null);
+    setOnBreak(false);
+    setFinished(false);
+    setActiveReminder(null);
+    setNextReminderAt(null);
+    setActiveBreakType("walk");
+    setBreakSuggestionsRequest(null);
+    setWorkSeconds(0);
+    setBreakSeconds(0);
+    setLastTickAt(now);
+  };
+
   const openReflection = () => {
+    resetTimerForReflection();
+
     if (onOpenReflection) {
       onOpenReflection();
       return;
