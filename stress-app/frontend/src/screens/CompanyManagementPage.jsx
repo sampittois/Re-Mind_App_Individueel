@@ -329,6 +329,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
   const [themeId, setThemeId] = useState(() => readStoredValue(STORAGE_KEYS.theme, DEFAULT_THEME_ID));
   const [newEmployeeColorsDefault, setNewEmployeeColorsDefault] = useState(() => readStoredValue(STORAGE_KEYS.newEmployeeColors, true));
   const [customTheme, setCustomTheme] = useState(() => normalizeCustomTheme(readStoredValue(STORAGE_KEYS.customTheme, DEFAULT_CUSTOM_THEME)));
+  const [companyColorsEnabled, setCompanyColorsEnabled] = useState(() => readStoredValue(STORAGE_KEYS.companyColorsEnabled, true));
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
   const [formValues, setFormValues] = useState(createInitialForm());
@@ -360,6 +361,11 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
   }, [customTheme]);
 
   useEffect(() => {
+    writeStoredValue(STORAGE_KEYS.companyColorsEnabled, companyColorsEnabled);
+    onThemeChange?.();
+  }, [companyColorsEnabled, onThemeChange]);
+
+  useEffect(() => {
     if (!isCreateOpen && !selectedEmployeeId) {
       return undefined;
     }
@@ -380,19 +386,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
     setIsCreateOpen(true);
   }
 
-  function updateEmployeeColors(employeeId, nextUsesCompanyColors) {
-    setEmployees((previousEmployees) => previousEmployees.map((employee) => {
-      if (employee.id !== employeeId) {
-        return employee;
-      }
-
-      return {
-        ...employee,
-        usesCompanyColors: nextUsesCompanyColors,
-        themeId: nextUsesCompanyColors ? themeId : DEFAULT_THEME_ID,
-      };
-    }));
-  }
+  // per-employee preference remains in data, but admin toggles are handled globally
 
   function updateCustomThemeField(field, value) {
     setCustomTheme((previous) => ({
@@ -473,7 +467,6 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
               <span role="columnheader">E-mail</span>
               <span role="columnheader">Afdeling</span>
               <span role="columnheader">Status</span>
-              <span role="columnheader">Kleuren</span>
             </div>
 
             <div className="employee-table__body">
@@ -511,21 +504,6 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
                       >
                         {employee.status}
                       </span>
-                    </span>
-                    <span className="employee-colors-cell">
-                      <button
-                        className={`toggle-switch toggle-switch--compact ${employeeUsesCompanyColors ? "active" : ""}`}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          updateEmployeeColors(employee.id, !employeeUsesCompanyColors);
-                        }}
-                        type="button"
-                        role="switch"
-                        aria-checked={employeeUsesCompanyColors}
-                        aria-label={`${employee.name} gebruikt ${employeeUsesCompanyColors ? "bedrijfskleuren" : "remind-kleuren"}`}
-                      >
-                        <span className="toggle-thumb" />
-                      </button>
                     </span>
                   </div>
                 );
@@ -624,6 +602,23 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
               type="button"
               role="switch"
               aria-checked={newEmployeeColorsDefault}
+            >
+              <span className="toggle-thumb" />
+            </button>
+          </div>
+
+          <div className="company-toggle-row">
+            <div>
+              <h3 className="company-toggle-row__title">Bedrijfskleuren actief voor alle gebruikers</h3>
+              <p className="company-management-panel__copy">Wanneer deze toggle aan staat, worden de bedrijfskleuren voor alle gebruikers afgedwongen. Wanneer uit, kunnen werknemers zelf kiezen in hun instellingen.</p>
+            </div>
+
+            <button
+              className={`toggle-switch ${companyColorsEnabled ? "active" : ""}`}
+              onClick={() => setCompanyColorsEnabled((previous) => !previous)}
+              type="button"
+              role="switch"
+              aria-checked={companyColorsEnabled}
             >
               <span className="toggle-thumb" />
             </button>

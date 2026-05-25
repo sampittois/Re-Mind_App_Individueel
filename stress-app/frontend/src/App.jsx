@@ -543,7 +543,10 @@ export default function App() {
   }, [user]);
 
   useEffect(() => {
-    applyCompanyThemeToRoot(readCompanyThemeFromStorage(), Boolean(profile?.use_company_colors));
+    const companyEnabled = readStoredValue(STORAGE_KEYS.companyColorsEnabled, true);
+    const theme = readCompanyThemeFromStorage();
+    const shouldApply = companyEnabled ? true : Boolean(profile?.use_company_colors);
+    applyCompanyThemeToRoot(theme, shouldApply);
   }, [profile?.use_company_colors, profile?.id, companyThemeRevision]);
 
   useEffect(() => {

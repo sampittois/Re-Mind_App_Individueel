@@ -291,7 +291,7 @@
 .employee-table__header,
 .employee-row {
   display: grid;
-  grid-template-columns: 1.05fr 1fr 0.7fr 0.55fr 0.55fr;
+  grid-template-columns: 1.05fr 1fr 0.7fr 0.55fr;
   gap: var(--space-3);
   align-items: center;
 }
@@ -341,15 +341,7 @@
   font-weight: var(--font-weight-bold);
 }
 
-.employee-colors-cell {
-  display: flex;
-  justify-content: flex-start;
-}
-
-.toggle-switch--compact {
-  transform: scale(0.92);
-  transform-origin: left center;
-}
+/* per-employee toggle removed */
 
 .employee-status {
   display: inline-flex;
