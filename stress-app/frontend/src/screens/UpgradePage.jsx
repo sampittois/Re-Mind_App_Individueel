@@ -30,6 +30,25 @@ export default function UpgradePage({ profile, onUpdateProfile, setCurrentPage }
     // On success, update profile with chosen plan.
     if (onUpdateProfile) await onUpdateProfile({ plan: pendingPlan });
 
+    // Also call backend to persist the plan server-side (useful when verifying
+    // payments server-side or when a service key is available). It's okay if
+    // this fails — the client-side upsert already handled it — but calling the
+    // backend provides a stronger guarantee.
+    try {
+      if (profile?.id) {
+        await fetch("http://localhost:3000/set-plan", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: profile.id, plan: pendingPlan }),
+        });
+      }
+    } catch (err) {
+      // Silently ignore -- the client upsert already saved the plan.
+      // In production, you'd want to retry or surface an error.
+      // eslint-disable-next-line no-console
+      console.warn("Backend set-plan request failed:", err?.message || err);
+    }
+
     setIsPaying(false);
     setPendingPlan(null);
     setCurrentPage?.("profile");

@@ -31,6 +31,28 @@ app.get('/supabase-health', async (req, res) => {
   }
 });
 
+// Server-side endpoint to set a user's plan. This can be used after payment
+// verification to ensure the plan is written using the backend (service key
+// if available). Expects { user_id, plan } in the body.
+app.post('/set-plan', async (req, res) => {
+  try {
+    const { user_id, plan } = req.body || {};
+    if (!user_id || !plan) return res.status(400).json({ ok: false, error: 'Missing user_id or plan' });
+
+    // Upsert the profile row with the plan
+    const nextProfile = { id: user_id, plan };
+    const { data, error } = await supabase.from('profiles').upsert(nextProfile, { onConflict: 'id' }).select().maybeSingle();
+
+    if (error) {
+      return res.status(500).json({ ok: false, error: error.message });
+    }
+
+    return res.json({ ok: true, data });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 app.listen(3000, () => {
   console.log("Backend running on http://localhost:3000");
 });
