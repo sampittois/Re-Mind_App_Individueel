@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import backIcon from "../assets/back.svg";
 import plusIcon from "../assets/plus.svg";
 import closeIcon from "../assets/x.svg";
 import swirl from "../assets/swirl.png";
 import "../styles/companyManagement.css";
+import { supabase } from "../lib/supabaseClient";
 
 export const COMPANY_THEME_OPTIONS = [
   {
@@ -136,7 +137,6 @@ export const COMPANY_THEME_OPTIONS = [
 export const STORAGE_KEYS = {
   employees: "remind:company-employees",
   theme: "remind:company-theme",
-  newEmployeeColors: "remind:company-new-employee-colors",
   customTheme: "remind:company-custom-theme",
 };
 
@@ -295,6 +295,7 @@ function createInitialForm() {
     status: "Actief",
     hoursWorked: "",
     breaksTaken: "",
+    password: "",
   };
 }
 
@@ -327,7 +328,6 @@ export function buildThemeVariables(theme) {
 export default function CompanyManagementPage({ profile, setCurrentPage, onThemeChange }) {
   const [employees, setEmployees] = useState(() => readStoredValue(STORAGE_KEYS.employees, createDefaultEmployees()));
   const [themeId, setThemeId] = useState(() => readStoredValue(STORAGE_KEYS.theme, DEFAULT_THEME_ID));
-  const [newEmployeeColorsDefault, setNewEmployeeColorsDefault] = useState(() => readStoredValue(STORAGE_KEYS.newEmployeeColors, true));
   const [customTheme, setCustomTheme] = useState(() => normalizeCustomTheme(readStoredValue(STORAGE_KEYS.customTheme, DEFAULT_CUSTOM_THEME)));
   const [companyColorsEnabled, setCompanyColorsEnabled] = useState(() => readStoredValue(STORAGE_KEYS.companyColorsEnabled, true));
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -339,6 +339,86 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
   const adminLabel = profile?.full_name || profile?.first_name || profile?.email || "Bedrijfsbeheerder";
   const themedVariables = buildThemeVariables(activeTheme);
   const selectedThemePreview = themeId === "custom" ? themeToPreview(activeTheme) : activeTheme.preview;
+
+  const [selectedDay, setSelectedDay] = useState(() => new Date().toISOString().slice(0, 10));
+  const [employeeStats, setEmployeeStats] = useState(null);
+  const [employeeStatsLoading, setEmployeeStatsLoading] = useState(false);
+
+  async function loadEmployeeStatsForDay(employee, isoDate) {
+    setEmployeeStatsLoading(true);
+    setEmployeeStats(null);
+
+    try {
+      const email = employee?.email;
+      if (!email) {
+        setEmployeeStats({ hoursWorked: 0, breaksTaken: 0, status: "Inactief" });
+        return;
+      }
+
+      const { data: profileRow } = await supabase.from("profiles").select("id").eq("email", email).maybeSingle();
+      if (!profileRow?.id) {
+        setEmployeeStats({ hoursWorked: 0, breaksTaken: 0, status: "Inactief" });
+        return;
+      }
+
+      const userId = profileRow.id;
+      const dayStart = new Date(isoDate + "T00:00:00.000Z");
+      const dayEnd = new Date(isoDate + "T23:59:59.999Z");
+
+      const { data: sessions } = await supabase
+        .from("work_sessions")
+        .select("id, start_time, end_time")
+        .eq("user_id", userId)
+        .gte("start_time", dayStart.toISOString())
+        .lte("start_time", dayEnd.toISOString());
+
+      let hoursWorked = 0;
+      if (sessions && sessions.length) {
+        hoursWorked = sessions.reduce((sum, s) => {
+          if (s.end_time) {
+            const start = new Date(s.start_time).getTime();
+            const end = new Date(s.end_time).getTime();
+            return sum + Math.max(0, (end - start) / (1000 * 60 * 60));
+          }
+          return sum;
+        }, 0);
+      }
+
+      const { data: breaks } = await supabase
+        .from("breaks")
+        .select("id")
+        .eq("user_id", userId)
+        .gte("created_at", dayStart.toISOString())
+        .lte("created_at", dayEnd.toISOString());
+
+      const breaksTaken = breaks ? breaks.length : 0;
+
+      const { data: openSessions } = await supabase
+        .from("work_sessions")
+        .select("id")
+        .eq("user_id", userId)
+        .is("end_time", null)
+        .limit(1);
+
+      const status = openSessions && openSessions.length ? "Actief" : "Inactief";
+
+      setEmployeeStats({ hoursWorked, breaksTaken, status });
+    } catch (e) {
+      setEmployeeStats({ hoursWorked: 0, breaksTaken: 0, status: "Inactief" });
+    } finally {
+      setEmployeeStatsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (selectedEmployee) {
+      loadEmployeeStatsForDay(selectedEmployee, selectedDay);
+    } else {
+      setEmployeeStats(null);
+    }
+  }, [selectedEmployee, selectedDay]);
+
+  const visibleEmployees = employees.filter((e) => e.createdBy === adminLabel);
 
   useEffect(() => {
     onThemeChange?.(activeTheme);
@@ -352,9 +432,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
     writeStoredValue(STORAGE_KEYS.theme, themeId);
   }, [themeId]);
 
-  useEffect(() => {
-    writeStoredValue(STORAGE_KEYS.newEmployeeColors, newEmployeeColorsDefault);
-  }, [newEmployeeColorsDefault]);
+  
 
   useEffect(() => {
     writeStoredValue(STORAGE_KEYS.customTheme, customTheme);
@@ -416,10 +494,13 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
       status: formValues.status || "Actief",
       hoursWorked: Number.isFinite(Number(formValues.hoursWorked)) && formValues.hoursWorked !== "" ? Number(formValues.hoursWorked) : 0,
       breaksTaken: Number.isFinite(Number(formValues.breaksTaken)) && formValues.breaksTaken !== "" ? Number(formValues.breaksTaken) : 0,
-      usesCompanyColors: Boolean(newEmployeeColorsDefault),
+      usesCompanyColors: Boolean(companyColorsEnabled),
+      password: formValues.password || null,
+      mustChangePassword: true,
+      adminCreated: true,
       createdAt: new Date().toISOString(),
       createdBy: adminLabel,
-      themeId: newEmployeeColorsDefault ? themeId : DEFAULT_THEME_ID,
+      themeId: companyColorsEnabled ? themeId : DEFAULT_THEME_ID,
     };
 
     setEmployees((previous) => [nextEmployee, ...previous]);
@@ -437,14 +518,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
           <img src={backIcon} alt="Terug" />
         </button>
 
-        <div>
-          <p className="company-management-eyebrow">Bedrijfsbeheer</p>
-          <h1 className="company-management-title">Werknemers en bedrijfskleuren</h1>
-          <p className="company-management-intro">
-            {adminLabel} kan hier accounts aanmaken, de bedrijfskleuren kiezen en nieuwe accounts automatisch met die kleuren laten starten.
-          </p>
-        </div>
-
+        <h1 className="company-management-title">Bedrijfsbeheer</h1>
       </div>
 
       <div className="company-management-stack">
@@ -470,7 +544,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
             </div>
 
             <div className="employee-table__body">
-              {employees.map((employee) => {
+              {visibleEmployees.map((employee) => {
                 const employeeTheme = paletteForEmployee(employee, activeTheme);
                 const employeeUsesCompanyColors = Boolean(employee.usesCompanyColors);
 
@@ -507,7 +581,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
                     </span>
                   </div>
                 );
-              })}
+                })}
             </div>
           </div>
         </section>
@@ -580,7 +654,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
               <div className="theme-preview theme-preview--compact">
                 <div className="theme-preview__badge">Eigen palet</div>
                 <h3 className="theme-preview__title">Eigen kleuren</h3>
-                <p className="theme-preview__copy">Deze kleuren worden gebruikt voor nieuwe accounts wanneer de toggle aan staat.</p>
+                <p className="theme-preview__copy">Deze kleuren vormen het bedrijfspalet en kunnen voor alle gebruikers worden afgedwongen.</p>
                 <div className="theme-preview__bars" aria-hidden="true">
                   {selectedThemePreview.map((color) => (
                     <span key={color} style={{ background: color }} />
@@ -590,22 +664,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
             </div>
           ) : null}
 
-          <div className="company-toggle-row">
-            <div>
-              <h3 className="company-toggle-row__title">Nieuwe accounts gebruiken deze kleuren</h3>
-              <p className="company-management-panel__copy">Wanneer deze toggle aan staat, krijgen nieuw aangemaakte werknemers automatisch het gekozen bedrijfspalet.</p>
-            </div>
-
-            <button
-              className={`toggle-switch ${newEmployeeColorsDefault ? "active" : ""}`}
-              onClick={() => setNewEmployeeColorsDefault((previous) => !previous)}
-              type="button"
-              role="switch"
-              aria-checked={newEmployeeColorsDefault}
-            >
-              <span className="toggle-thumb" />
-            </button>
-          </div>
+          {/* new-user color default toggle removed; new accounts inherit global company setting */}
 
           <div className="company-toggle-row">
             <div>
@@ -634,7 +693,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
             </button>
 
             <h2 id="company-create-title" className="company-modal__title">Nieuw werknemersaccount</h2>
-            <p className="company-modal__copy">Maak een nieuw account aan. De geselecteerde bedrijfskleuren worden gebruikt als de toggle actief is.</p>
+            <p className="company-modal__copy">Maak een nieuw account aan. Als bedrijfskleuren actief zijn voor het bedrijf, krijgt dit account die kleuren; anders kan de gebruiker dit later in zijn instellingen kiezen.</p>
 
             <form className="company-form" onSubmit={submitEmployee}>
               <label className="company-field">
@@ -705,6 +764,16 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
                   />
                 </label>
               </div>
+
+              <label className="company-field">
+                <span>Wachtwoord (tijdelijk)</span>
+                <input
+                  type="password"
+                  value={formValues.password}
+                  onChange={(event) => setFormValues((previous) => ({ ...previous, password: event.target.value }))}
+                  placeholder="Stel een tijdelijk wachtwoord in"
+                />
+              </label>
 
               <div className="company-modal__actions">
                 <button className="company-modal__primary" type="submit">Account aanmaken</button>
