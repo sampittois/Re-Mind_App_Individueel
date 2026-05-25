@@ -48,13 +48,15 @@
 
 .reports-toggle {
   display: inline-flex;
+  align-items: center;
   gap: 0;
   background: var(--highlight-light);
   border: var(--border-width-sm) solid var(--primary-dark);
-  padding: 4px;
+  padding: 3px;
   border-radius: var(--radius-md);
   width: 240px;
   height: 40px;
+  box-sizing: border-box;
 }
 
 .toggle-btn {
@@ -65,21 +67,20 @@
   gap: 6px;
   background: none;
   border: none;
-  padding: var(--space-2) var(--space-5);
+  padding: 0 var(--space-5);
+  height: 100%;
   cursor: pointer;
   border-radius: var(--radius-sm);
   font-weight: var(--font-weight-semibold);
+  box-sizing: border-box;
 }
 
 .toggle-btn.active {
   background: var(--primary);
   color: var(--background);
   border: var(--border-width-sm) solid var(--primary-dark);
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-2) var(--space-4);
+  height: 100%;
+  padding: 0 var(--space-4);
 }
 
 .premium-icon {
