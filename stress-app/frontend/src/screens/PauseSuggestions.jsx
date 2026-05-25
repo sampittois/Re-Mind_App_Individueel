@@ -15,6 +15,7 @@ import handToChestReset from "../assets/handToChestReset.png";
 import drinkPause from "../assets/drinkPauze.png";
 import backIcon from "../assets/back.svg";
 import closeIcon from "../assets/x.svg";
+import plusIcon from "../assets/plus.svg";
 
 const PREVIEW_DATA = [
   { id: "breath", title: "Ademhaling", icon: breathing },
@@ -130,10 +131,13 @@ export default function PauseSuggestions({
   onBack,
   onStartBreathingExercise,
   user,
+  profile,
+  setCurrentPage,
   externalSelectedSuggestion = null,
   externalOverlaySource = null,
   onExternalSuggestionConsumed = null,
 }) {
+  const plan = profile?.plan || "basic";
   const [activeTab, setActiveTab] = useState("short");
   const [favoriteIds, setFavoriteIds] = useState(() => new Set());
   const [selectedSuggestion, setSelectedSuggestion] = useState(null);
@@ -176,6 +180,13 @@ export default function PauseSuggestions({
 
   async function toggleFavorite(pauseId) {
     const currentlyFavorite = favoriteIds.has(pauseId);
+
+    // Enforce basic plan favorite limit of 5
+    if (!currentlyFavorite && plan === "basic" && favoriteIds.size >= 5) {
+      // Redirect to upgrade page
+      setCurrentPage?.("upgrade");
+      return;
+    }
 
     setFavoriteIds((prev) => {
       const next = new Set(prev);
@@ -318,6 +329,15 @@ export default function PauseSuggestions({
           {activeTab === "favorites" && visibleSuggestions.length === 0 ? (
             <p className="pause-page-empty">Nog geen favorieten.</p>
           ) : null}
+
+        {activeTab === "favorites" && plan === "basic" && favoriteIds.size >= 5 ? (
+          <PauseCard
+            key="upgrade-card"
+            icon={plusIcon}
+            title="Upgrade plan"
+            onSelect={() => setCurrentPage?.("upgrade")}
+          />
+        ) : null}
         </section>
 
         {selectedSuggestion ? (

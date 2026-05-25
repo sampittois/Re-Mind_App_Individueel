@@ -279,7 +279,7 @@ export default function App() {
       />
     );
   } else if (currentPage === "reports") {
-    pageContent = <Reports setCurrentPage={setCurrentPage} />;
+    pageContent = <Reports setCurrentPage={setCurrentPage} profile={profile} />;
   } else if (currentPage === "pause") {
     pageContent = (
       <PauseSuggestions
@@ -288,6 +288,8 @@ export default function App() {
         onBack={() => setCurrentPage("home")}
         onStartBreathingExercise={() => openBreathingExercise("box", "pause")}
         user={user}
+        profile={profile}
+        setCurrentPage={setCurrentPage}
         externalSelectedSuggestion={pauseSuggestionToOpen}
         externalOverlaySource={pauseSuggestionOverlaySource}
         onExternalSuggestionConsumed={clearExternalPauseSuggestion}
@@ -393,6 +395,8 @@ export default function App() {
               onViewMore={() => setCurrentPage("pause")}
               onStartBreathingExercise={() => openBreathingExercise("box", "home")}
               user={user}
+              profile={profile}
+              setCurrentPage={setCurrentPage}
               externalSelectedSuggestion={pauseSuggestionToOpen}
               externalOverlaySource={pauseSuggestionOverlaySource}
               onExternalSuggestionConsumed={clearExternalPauseSuggestion}

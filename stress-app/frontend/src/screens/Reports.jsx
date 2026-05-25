@@ -5,8 +5,9 @@ import premiumIcon from "../assets/premium.svg";
 import backIcon from "../assets/back.svg";
 import "../styles/reports.css";
 
-export default function Reports({ setCurrentPage }) {
+export default function Reports({ setCurrentPage, profile }) {
   const [view, setView] = useState("day");
+  const plan = profile?.plan || "basic";
 
   return (
     <main className={`reports-page page${view === "week" ? " reports-week-page" : ""}`}>
@@ -20,7 +21,17 @@ export default function Reports({ setCurrentPage }) {
             Dag
           </button>
 
-          <button className={`toggle-btn ${view === "week" ? "active" : ""}`} onClick={() => setView("week")}>
+          <button
+            className={`toggle-btn ${view === "week" ? "active" : ""}`}
+            onClick={() => {
+              if (plan === "basic") {
+                // Redirect to upgrade when basic users try to open weekly reports
+                setCurrentPage?.("upgrade");
+                return;
+              }
+              setView("week");
+            }}
+          >
             <img src={premiumIcon} alt="premium" className="premium-icon" /> Week
           </button>
         </div>

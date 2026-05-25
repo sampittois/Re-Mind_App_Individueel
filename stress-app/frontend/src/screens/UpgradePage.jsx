@@ -6,12 +6,37 @@ import backIcon from "../assets/back.svg";
 export default function UpgradePage({ profile, onUpdateProfile, setCurrentPage }) {
   const [billingPeriod, setBillingPeriod] = useState("yearly");
   const isMonthly = billingPeriod === "monthly";
+  const [pendingPlan, setPendingPlan] = useState(null);
+  const [isPaying, setIsPaying] = useState(false);
 
   async function choosePlan(plan) {
-    if (onUpdateProfile) {
-      await onUpdateProfile({ plan });
+    // Basic is free, immediately apply. Other plans require payment flow.
+    if (plan === "basic") {
+      if (onUpdateProfile) await onUpdateProfile({ plan });
+      setCurrentPage?.("profile");
+      return;
     }
+
+    setPendingPlan(plan);
+  }
+
+  async function performPayment() {
+    if (!pendingPlan) return;
+    setIsPaying(true);
+
+    // Simulate payment delay / call to payment provider.
+    await new Promise((res) => setTimeout(res, 900));
+
+    // On success, update profile with chosen plan.
+    if (onUpdateProfile) await onUpdateProfile({ plan: pendingPlan });
+
+    setIsPaying(false);
+    setPendingPlan(null);
     setCurrentPage?.("profile");
+  }
+
+  function cancelPayment() {
+    setPendingPlan(null);
   }
 
   return (
@@ -22,6 +47,23 @@ export default function UpgradePage({ profile, onUpdateProfile, setCurrentPage }
             <img src={backIcon} alt="Terug" />
           </button>
         </div>
+        {pendingPlan ? (
+          <div className="payment-modal" role="dialog" aria-modal="true">
+            <div className="payment-card">
+              <h3>Betaling voor {pendingPlan === "premium" ? "Premium" : "Bedrijfslicentie"}</h3>
+              <p>Voer je betaalgegevens in om door te gaan. (Demo mode)</p>
+
+              <div className="payment-actions">
+                <button className="plan-cta" onClick={performPayment} disabled={isPaying}>
+                  {isPaying ? "Bezig..." : "Betaal"}
+                </button>
+                <button className="plan-cta plan-cta--secondary" onClick={cancelPayment} disabled={isPaying}>
+                  Annuleer
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         <div className="upgrade-header">
           <div className="upgrade-header-left">

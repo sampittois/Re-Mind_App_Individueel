@@ -15,6 +15,7 @@ import nameOneWin from "../assets/nameOneWin.png";
 import handStretch from "../assets/handStretch.png";
 import handToChestReset from "../assets/handToChestReset.png";
 import drinkPause from "../assets/drinkPauze.png";
+import plusIcon from "../assets/plus.svg";
 
 const ALL_SUGGESTIONS = [
   { id: "houding-check", title: "Houding check", icon: postureCheck },
@@ -227,24 +228,29 @@ export default function ProfileSection({ profile, initialName = "John Doe", onSa
           >
             Upgrade Plan
           </button>
-          <button
-            className="action-btn"
-            type="button"
-            onClick={async () => {
-              await onUpdateProfile?.({ calendar_linked: !Boolean(profile?.calendar_linked) });
-            }}
-          >
-            Link Agenda
-          </button>
-          <button
-            className="action-btn"
-            type="button"
-            onClick={async () => {
-              await onUpdateProfile?.({ company_management_enabled: !Boolean(profile?.company_management_enabled) });
-            }}
-          >
-            Bedrijfsbeheer
-          </button>
+          {profile?.plan !== "basic" ? (
+            <button
+              className="action-btn"
+              type="button"
+              onClick={async () => {
+                await onUpdateProfile?.({ calendar_linked: !Boolean(profile?.calendar_linked) });
+              }}
+            >
+              Link Agenda
+            </button>
+          ) : null}
+
+          {profile?.plan === "bedrijfslicentie" ? (
+            <button
+              className="action-btn"
+              type="button"
+              onClick={async () => {
+                await onUpdateProfile?.({ company_management_enabled: !Boolean(profile?.company_management_enabled) });
+              }}
+            >
+              Bedrijfsbeheer
+            </button>
+          ) : null}
           <button className="action-btn logout-btn" type="button" onClick={() => onLogout?.()}>Log uit</button>
         </div>
       </div>
@@ -265,6 +271,14 @@ export default function ProfileSection({ profile, initialName = "John Doe", onSa
               onToggleFavorite={() => removeFavorite(item.id)}
             />
           ))}
+          {profile?.plan === "basic" && favorites.length >= 5 ? (
+            <PauseCard
+              key="upgrade-card"
+              icon={plusIcon}
+              title="Upgrade plan"
+              onSelect={() => setCurrentPage?.("upgrade")}
+            />
+          ) : null}
         </div>
       </section>
 
