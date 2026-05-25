@@ -225,6 +225,10 @@ option:hover {
   border-color: var(--primary-dark);
 }
 
+.toggle-switch:hover:not(:disabled):not(.disabled) .toggle-thumb {
+  background: var(--primary-dark);
+}
+
 .toggle-switch.active {
   background: var(--primary);
 }
@@ -243,10 +247,6 @@ option:hover {
   transition: left 200ms ease;
 }
 
-.toggle-switch:hover:not(:disabled):not(.disabled) .toggle-thumb {
-  background: var(--primary-dark);
-}
-
 .toggle-switch.active .toggle-thumb {
   left: calc(100% - 28px);
   background: var(--highlight-light);
@@ -259,6 +259,7 @@ option:hover {
 .toggle-switch:disabled,
 .toggle-switch.disabled {
   background: var(--border);
+  border-color: var(--border);
   cursor: not-allowed;
 }
 
