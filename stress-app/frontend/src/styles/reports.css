@@ -71,7 +71,10 @@
   height: 100%;
   cursor: pointer;
   border-radius: var(--radius-sm);
+  font-family: var(--text-button-label-font-family);
   font-weight: var(--font-weight-semibold);
+  font-size: var(--text-button-label-font-size);
+  line-height: var(--text-button-label-line-height);
   box-sizing: border-box;
 }
 

@@ -1,8 +1,12 @@
+import { useState } from "react";
 import "../styles/upgrade.css";
 import CheckIcon from "../components/CheckIcon";
 import backIcon from "../assets/back.svg";
 
 export default function UpgradePage({ profile, onUpdateProfile, setCurrentPage }) {
+  const [billingPeriod, setBillingPeriod] = useState("yearly");
+  const isMonthly = billingPeriod === "monthly";
+
   async function choosePlan(plan) {
     if (onUpdateProfile) {
       await onUpdateProfile({ plan });
@@ -21,9 +25,25 @@ export default function UpgradePage({ profile, onUpdateProfile, setCurrentPage }
             <h1 className="upgrade-title">Kies een plan</h1>
           </div>
 
-          <div className="billing-toggle" role="tablist" aria-label="Billing period">
-            <button className="billing-option">Maandelijks</button>
-            <button className="billing-option billing-option--active">Jaarlijks</button>
+          <div className="billing-toggle" role="tablist" aria-label="Facturatieperiode">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={isMonthly}
+              className={`billing-option${isMonthly ? " billing-option--active" : ""}`}
+              onClick={() => setBillingPeriod("monthly")}
+            >
+              Maandelijks
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={!isMonthly}
+              className={`billing-option${!isMonthly ? " billing-option--active" : ""}`}
+              onClick={() => setBillingPeriod("yearly")}
+            >
+              Jaarlijks
+            </button>
           </div>
         </div>
 
@@ -46,7 +66,7 @@ export default function UpgradePage({ profile, onUpdateProfile, setCurrentPage }
           <article className="plan-card plan-card--featured">
             <h2 className="plan-heading">Premium plan</h2>
             <hr className="plan-divider" />
-            <div className="plan-price">€33/jaar</div>
+            <div className="plan-price">{isMonthly ? "€2,99/maand" : "€33/jaar"}</div>
             <ul className="plan-features">
               <li><CheckIcon className="plan-check"/>Alle basis functies</li>
               <li><CheckIcon className="plan-check"/>Personalizatie opties</li>
@@ -61,7 +81,7 @@ export default function UpgradePage({ profile, onUpdateProfile, setCurrentPage }
           <article className="plan-card">
             <h2 className="plan-heading">Bedrijfslicentie</h2>
             <hr className="plan-divider" />
-            <div className="plan-price plan-price--compact">€20/jaar<span className="per">per werknemer</span></div>
+            <div className="plan-price plan-price--compact">{isMonthly ? "€2,20/maand" : "€20/jaar"}<span className="per">per werknemer</span></div>
             <ul className="plan-features">
               <li><CheckIcon className="plan-check"/>Alle basis functies</li>
               <li><CheckIcon className="plan-check"/>Premium functies</li>

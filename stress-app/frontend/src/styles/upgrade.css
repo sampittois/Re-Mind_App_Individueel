@@ -45,34 +45,42 @@
   margin: 0;
 }
 .billing-toggle {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
   background: var(--highlight-light);
+  border: var(--border-width-sm) solid var(--primary-dark);
+  padding: 3px;
+  border-radius: var(--radius-md);
   width: 240px;
   height: 40px;
-  padding: 4px;
-  border-radius: 14px;
-  border: var(--border-width-md) solid var(--background);
-  overflow: hidden;
+  box-sizing: border-box;
 }
 .billing-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: transparent;
   border: none;
-  padding: 0 var(--space-3);
-  height: 32px;
-  width: 100%;
-  border-radius: 11px;
-  font-family: var(--text-heading-3-font-family);
-  font-size: var(--font-size-xs);
-  line-height: 1;
+  padding: 0 var(--space-5);
+  height: 100%;
+  border-radius: var(--radius-sm);
+  font-family: var(--text-button-label-font-family);
+  font-weight: var(--text-button-label-font-weight);
+  font-size: var(--text-button-label-font-size);
+  line-height: var(--text-button-label-line-height);
   color: var(--text-light);
   cursor: pointer;
   white-space: nowrap;
+  box-sizing: border-box;
 }
 .billing-option--active {
   background: var(--primary);
   color: var(--background);
-  border: var(--border-width-md) solid var(--primary-dark);
+  border: var(--border-width-sm) solid var(--primary-dark);
+  height: 100%;
+  padding: 0 var(--space-4);
 }
 .billing-option,
 .billing-option--active {
