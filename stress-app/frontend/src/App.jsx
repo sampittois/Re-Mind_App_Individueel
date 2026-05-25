@@ -22,6 +22,35 @@ import OnboardingPage from "./screens/OnboardingPage";
 
 const DEFAULT_NAME = "John Doe";
 const PROFILE_SELECT = "id, full_name, first_name, last_name, email, avatar_url, plan, work_start, work_end, break_frequency_mins, fixed_breaks, break_reminders, pause_habit, work_style, work_type, allow_reminders, dark_mode, use_company_colors, calendar_linked, company_management_enabled";
+const LAST_PAGE_STORAGE_KEY = "remind:last-page";
+
+const AUTH_PAGES = new Set(["login", "register", "onboarding"]);
+const RESTORABLE_PAGES = new Set(["home", "pause", "breathing", "exercise-detail", "reports", "profile", "upgrade"]);
+
+function isRestorablePage(page) {
+  return RESTORABLE_PAGES.has(page);
+}
+
+function readLastPage() {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const savedPage = window.sessionStorage.getItem(LAST_PAGE_STORAGE_KEY);
+    return isRestorablePage(savedPage) ? savedPage : null;
+  } catch {
+    return null;
+  }
+}
+
+function persistLastPage(page) {
+  if (typeof window === "undefined" || !isRestorablePage(page)) return;
+
+  try {
+    window.sessionStorage.setItem(LAST_PAGE_STORAGE_KEY, page);
+  } catch {
+    // Ignore storage errors (private mode, disabled storage, etc.)
+  }
+}
 
 function deriveNameParts(fullNameInput = "") {
   const fullName = fullNameInput.trim();
@@ -66,6 +95,13 @@ export default function App() {
   const [pauseSuggestionOverlaySource, setPauseSuggestionOverlaySource] = useState(null);
   const [workdayReflectionOpen, setWorkdayReflectionOpen] = useState(false);
   const [workdayReflectionShowFinishedTitle, setWorkdayReflectionShowFinishedTitle] = useState(false);
+
+  useEffect(() => {
+    const savedPage = readLastPage();
+    if (savedPage) {
+      setCurrentPage(savedPage);
+    }
+  }, []);
 
   async function saveProfilePatch(patch) {
     if (!user?.id) {
@@ -381,10 +417,16 @@ export default function App() {
       setUser(data?.user ?? null);
     });
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
-      if (session?.user) {
-        setCurrentPage("home");
+
+      if (event === "SIGNED_IN" && session?.user) {
+        setCurrentPage((previousPage) => {
+          if (AUTH_PAGES.has(previousPage)) {
+            return "home";
+          }
+          return previousPage;
+        });
       }
     });
 
@@ -504,6 +546,43 @@ export default function App() {
       isMounted = false;
     };
   }, [user]);
+
+  useEffect(() => {
+    persistLastPage(currentPage);
+  }, [currentPage]);
+
+  useEffect(() => {
+    if (typeof document === "undefined" || typeof window === "undefined") return undefined;
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        persistLastPage(currentPage);
+        return;
+      }
+
+      const savedPage = readLastPage();
+      if (!savedPage) return;
+
+      setCurrentPage((previousPage) => {
+        if (AUTH_PAGES.has(previousPage) || previousPage === savedPage) {
+          return previousPage;
+        }
+        return savedPage;
+      });
+    };
+
+    const handlePageHide = () => {
+      persistLastPage(currentPage);
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("pagehide", handlePageHide);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("pagehide", handlePageHide);
+    };
+  }, [currentPage]);
 
   return (
     <div className={currentPage !== "login" && currentPage !== "register" && currentPage !== "onboarding" ? "app appWithNavbar" : "app"}>
