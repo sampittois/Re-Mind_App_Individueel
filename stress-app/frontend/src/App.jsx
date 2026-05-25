@@ -16,6 +16,7 @@ import StatsSection from "./components/StatsSection";
 import ProfileSection from "./screens/ProfileSection";
 import Reports from "./screens/Reports";
 import UpgradePage from "./screens/UpgradePage";
+import CompanyManagementPage from "./screens/CompanyManagementPage";
 import LoginPage from "./screens/LoginPage";
 import RegisterPage from "./screens/RegisterPage";
 import OnboardingPage from "./screens/OnboardingPage";
@@ -25,7 +26,7 @@ const PROFILE_SELECT = "id, full_name, first_name, last_name, email, avatar_url,
 const LAST_PAGE_STORAGE_KEY = "remind:last-page";
 
 const AUTH_PAGES = new Set(["login", "register", "onboarding"]);
-const RESTORABLE_PAGES = new Set(["home", "pause", "breathing", "exercise-detail", "reports", "profile", "upgrade"]);
+const RESTORABLE_PAGES = new Set(["home", "pause", "breathing", "exercise-detail", "reports", "profile", "upgrade", "bedrijfsbeheer"]);
 
 function isRestorablePage(page) {
   return RESTORABLE_PAGES.has(page);
@@ -325,6 +326,8 @@ export default function App() {
         />
       </main>
     );
+  } else if (currentPage === "bedrijfsbeheer") {
+    pageContent = <CompanyManagementPage profile={profile} setCurrentPage={setCurrentPage} />;
   } else if (currentPage === "login") {
     pageContent = (
       <main className="page login-root">

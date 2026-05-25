@@ -244,9 +244,7 @@ export default function ProfileSection({ profile, initialName = "John Doe", onSa
             <button
               className="action-btn"
               type="button"
-              onClick={async () => {
-                await onUpdateProfile?.({ company_management_enabled: !Boolean(profile?.company_management_enabled) });
-              }}
+              onClick={() => setCurrentPage?.("bedrijfsbeheer")}
             >
               Bedrijfsbeheer
             </button>
