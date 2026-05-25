@@ -36,6 +36,15 @@
   overflow: hidden;
 }
 
+.avatar-button:hover,
+.avatar-button:active,
+.avatar-button:focus,
+.avatar-button:focus-visible {
+  background: var(--primary);
+  border-color: var(--primary-dark);
+  color: var(--background);
+}
+
 .avatar-img {
   width: 100%;
   height: 100%;
@@ -56,8 +65,8 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 2px solid var(--primary-dark);
-  background: var(--highlight-light);
+  border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
+  background: var(--button-fill);
   padding: 0;
   display: flex;
   align-items: center;
@@ -67,11 +76,12 @@
 }
 
 .avatar-remove-btn:hover {
-  background-color: var(--primary);
+  background-color: var(--button-hover-fill);
+  border-color: var(--button-hover-border-color);
 }
 
 .avatar-remove-btn:hover img {
-  filter: brightness(0) invert(1);
+  filter: none;
 }
 
 .avatar-remove-btn img {
@@ -106,13 +116,13 @@
 }
 
 .edit-pencil {
-  background: transparent;
-  border: none;
+  background: var(--button-fill);
+  border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
   padding: 4px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-primary);
+  color: var(--button-text-color);
 }
 
 .edit-icon {
@@ -154,15 +164,17 @@
 
 .action-btn {
   font-family: var(--font-family-heading);
-  color: var(--text);
-  border: 1px solid var(--border, var(--text));
+  color: var(--button-text-color);
+  border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
   padding: 10px 14px;
   border-radius: 12px;
-  background: transparent;
+  background: var(--button-fill);
   cursor: pointer;
   box-sizing: border-box;
 }
 
 .action-btn:hover {
-  background: var(--highlight-light);
+  background: var(--button-hover-fill);
+  border-color: var(--button-hover-border-color);
+  color: var(--button-hover-text-color);
 }

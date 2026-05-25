@@ -28,21 +28,34 @@ h1 {
 }
 
 button {
-  border-radius: var(--radius-sm);
-  border: var(--border-width-sm) solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: var(--font-weight-semibold);
+  border-radius: var(--button-radius);
+  border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-button-label-font-size);
+  font-weight: var(--text-button-label-font-weight);
   font-family: inherit;
-  background-color: var(--background-dark);
+  background: var(--button-fill);
+  color: var(--button-text-color);
   cursor: pointer;
-  transition: border-color 0.25s, box-shadow 0.25s;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
 }
-button:hover {
-  border-color: var(--primary);
-  box-shadow: var(--shadow-button-hover);
+button:hover:not(:disabled) {
+  background: var(--button-hover-fill);
+  border-color: var(--button-hover-border-color);
+  color: var(--button-hover-text-color);
+}
+button:active:not(:disabled),
+button[aria-pressed="true"] {
+  background: var(--button-active-fill);
+  border-color: var(--button-active-border-color);
+  color: var(--button-active-text-color);
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 2px solid var(--button-active-border-color);
+  outline-offset: 2px;
 }

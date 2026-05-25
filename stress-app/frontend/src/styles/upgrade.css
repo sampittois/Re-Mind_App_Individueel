@@ -25,8 +25,8 @@
   transform: translateY(-50%);
   width: 40px;
   height: 40px;
-  background: var(--primary);
-  border: var(--border-width-sm) solid var(--primary-dark);
+  background: var(--button-fill);
+  border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
   padding: 0;
   display: flex;
   align-items: center;
@@ -36,9 +36,9 @@
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 .upgrade-back:hover {
-  background: var(--primary-dark);
-  border-color: var(--primary);
-  opacity: 1;
+  background: var(--button-hover-fill);
+  border-color: var(--button-hover-border-color);
+  color: var(--button-hover-text-color);
 }
 .upgrade-back img {
   width: 20px;
@@ -83,8 +83,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
-  border: none;
+  background: var(--button-fill);
+  border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
   padding: 0 var(--space-3);
   height: 32px;
   border-radius: var(--radius-xs);
@@ -92,15 +92,15 @@
   font-weight: var(--text-button-label-font-weight);
   font-size: var(--font-size-xs);
   line-height: var(--line-height-xs);
-  color: var(--text-light);
+  color: var(--button-text-color);
   cursor: pointer;
   white-space: nowrap;
   box-sizing: border-box;
 }
 .billing-option--active {
-  background: var(--primary);
-  color: var(--background);
-  border: var(--border-width-sm) solid var(--primary-dark);
+  background: var(--button-active-fill);
+  color: var(--button-active-text-color);
+  border-color: var(--button-active-border-color);
   height: 32px;
   padding: 0 var(--space-3);
 }
@@ -136,6 +136,15 @@
   position: relative;
   overflow: hidden;
   justify-self: center;
+  --button-fill: var(--button-dark-default-fill);
+  --button-border-color: var(--button-dark-default-border);
+  --button-text-color: var(--button-dark-default-text);
+  --button-hover-fill: var(--button-dark-hover-fill);
+  --button-hover-border-color: var(--button-dark-hover-border);
+  --button-hover-text-color: var(--button-dark-hover-text);
+  --button-active-fill: var(--button-dark-active-fill);
+  --button-active-border-color: var(--button-dark-active-border);
+  --button-active-text-color: var(--button-dark-active-text);
 }
 .plan-card--featured {
   /* no border */
@@ -215,9 +224,9 @@
   padding-bottom: 0;
 }
 .plan-cta {
-  background: var(--primary);
-  color: var(--background);
-  border: var(--border-width-md) solid var(--primary-dark);
+  background: var(--button-fill);
+  color: var(--button-text-color);
+  border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
   height: 40px;
   padding: 0 var(--space-4);
   border-radius: var(--radius-md);
@@ -230,11 +239,10 @@
   align-items: center;
   justify-content: center;
   white-space: nowrap;
-  box-shadow: var(--shadow-button-hover);
-  transition: box-shadow 160ms ease, opacity 140ms ease, background-color 160ms ease, color 160ms ease;
+  transition: opacity 140ms ease, background-color 160ms ease, color 160ms ease, border-color 160ms ease;
 }
-.plan-cta:hover { background: var(--primary-dark); color: var(--background); }
-.plan-cta:active { box-shadow: 0 6px 10px rgba(0,0,0,0.06); }
+.plan-cta:hover { background: var(--button-hover-fill); color: var(--button-hover-text-color); border-color: var(--button-hover-border-color); }
+.plan-cta:active { background: var(--button-active-fill); color: var(--button-active-text-color); border-color: var(--button-active-border-color); }
 .plan-cta:focus { outline: var(--border-width-md) solid var(--border-state-focus); outline-offset: var(--space-1); }
 
 .plan-cta[disabled], .billing-option[disabled] { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
@@ -260,6 +268,15 @@
   border-radius: var(--radius-md);
   box-shadow: 0 12px 30px rgba(0,0,0,0.12);
   width: min(420px, calc(100% - 40px));
+  --button-fill: var(--button-dark-default-fill);
+  --button-border-color: var(--button-dark-default-border);
+  --button-text-color: var(--button-dark-default-text);
+  --button-hover-fill: var(--button-dark-hover-fill);
+  --button-hover-border-color: var(--button-dark-hover-border);
+  --button-hover-text-color: var(--button-dark-hover-text);
+  --button-active-fill: var(--button-dark-active-fill);
+  --button-active-border-color: var(--button-dark-active-border);
+  --button-active-text-color: var(--button-dark-active-text);
 }
 .payment-card h3 { margin: 0 0 8px 0; font-family: var(--text-heading-3-font-family); }
 .payment-card p { margin: 0 0 12px 0; color: var(--text-light); }

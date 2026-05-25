@@ -24,8 +24,8 @@
   transform: translateY(-50%);
   width: 40px;
   height: 40px;
-  background: var(--primary);
-  border: var(--border-width-sm) solid var(--primary-dark);
+  background: var(--button-fill);
+  border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
   cursor: pointer;
   padding: 0;
   display: flex;
@@ -41,9 +41,9 @@
 }
 
 .back-btn.reports-back:hover {
-  background: var(--primary-dark);
-  border-color: var(--primary);
-  opacity: 1;
+  background: var(--button-hover-fill);
+  border-color: var(--button-hover-border-color);
+  color: var(--button-hover-text-color);
 }
 
 .reports-toggle {
@@ -65,8 +65,8 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  background: none;
-  border: none;
+  background: var(--button-fill);
+  border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
   padding: 0 var(--space-5);
   height: 100%;
   cursor: pointer;
@@ -75,13 +75,14 @@
   font-weight: var(--font-weight-semibold);
   font-size: var(--text-button-label-font-size);
   line-height: var(--text-button-label-line-height);
+  color: var(--button-text-color);
   box-sizing: border-box;
 }
 
 .toggle-btn.active {
-  background: var(--primary);
-  color: var(--background);
-  border: var(--border-width-sm) solid var(--primary-dark);
+  background: var(--button-active-fill);
+  color: var(--button-active-text-color);
+  border-color: var(--button-active-border-color);
   height: 100%;
   padding: 0 var(--space-4);
 }

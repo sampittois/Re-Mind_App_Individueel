@@ -11,6 +11,15 @@
   background: var(--highlight-light);
   border-radius: var(--radius-md);
   padding: var(--space-5);
+  --button-fill: var(--button-dark-default-fill);
+  --button-border-color: var(--button-dark-default-border);
+  --button-text-color: var(--button-dark-default-text);
+  --button-hover-fill: var(--button-dark-hover-fill);
+  --button-hover-border-color: var(--button-dark-hover-border);
+  --button-hover-text-color: var(--button-dark-hover-text);
+  --button-active-fill: var(--button-dark-active-fill);
+  --button-active-border-color: var(--button-dark-active-border);
+  --button-active-text-color: var(--button-dark-active-text);
 }
 
 .btnStack {
@@ -22,10 +31,10 @@
 
 .btnStack .btn {
   width: 240px;
-  background: var(--background);
-  border: var(--border-width-sm) solid var(--border);
+  background: var(--button-fill);
+  border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
   border-radius: var(--radius-md);
-  color: var(--text);
+  color: var(--button-text-color);
   padding: var(--space-3) var(--space-4);
   font-family: var(--text-button-label-font-family);
   font-size: var(--text-button-label-font-size);
@@ -170,6 +179,15 @@
   background: var(--background);
   padding: var(--space-8);
   box-shadow: 0 20px 48px color-mix(in srgb, var(--text) 20%, transparent);
+  --button-fill: var(--button-dark-default-fill);
+  --button-border-color: var(--button-dark-default-border);
+  --button-text-color: var(--button-dark-default-text);
+  --button-hover-fill: var(--button-dark-hover-fill);
+  --button-hover-border-color: var(--button-dark-hover-border);
+  --button-hover-text-color: var(--button-dark-hover-text);
+  --button-active-fill: var(--button-dark-active-fill);
+  --button-active-border-color: var(--button-dark-active-border);
+  --button-active-text-color: var(--button-dark-active-text);
 }
 
 .timer-reminder-card__eyebrow {
@@ -205,11 +223,21 @@
 }
 
 .timer-reminder-card__secondary {
-  background: var(--highlight-light);
+  --button-fill: var(--button-dark-default-fill);
+  --button-border-color: var(--button-dark-default-border);
+  --button-text-color: var(--button-dark-default-text);
+  --button-hover-fill: var(--button-dark-hover-fill);
+  --button-hover-border-color: var(--button-dark-hover-border);
+  --button-hover-text-color: var(--button-dark-hover-text);
+  --button-active-fill: var(--button-dark-active-fill);
+  --button-active-border-color: var(--button-dark-active-border);
+  --button-active-text-color: var(--button-dark-active-text);
 }
 
 .timer-reminder-card__secondary:hover {
-  background: color-mix(in srgb, var(--highlight-light) 70%, var(--primary) 30%);
+  background: var(--button-hover-fill);
+  border-color: var(--button-hover-border-color);
+  color: var(--button-hover-text-color);
 }
 
 .timer-break-overlay {
@@ -233,6 +261,15 @@
   background: var(--background);
   padding: var(--space-8);
   box-shadow: 0 24px 56px color-mix(in srgb, var(--text) 20%, transparent);
+  --button-fill: var(--button-dark-default-fill);
+  --button-border-color: var(--button-dark-default-border);
+  --button-text-color: var(--button-dark-default-text);
+  --button-hover-fill: var(--button-dark-hover-fill);
+  --button-hover-border-color: var(--button-dark-hover-border);
+  --button-hover-text-color: var(--button-dark-hover-text);
+  --button-active-fill: var(--button-dark-active-fill);
+  --button-active-border-color: var(--button-dark-active-border);
+  --button-active-text-color: var(--button-dark-active-text);
 }
 
 .timer-break-overlay__close {
@@ -246,19 +283,21 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  border: 2px solid var(--primary-dark);
-  background: var(--highlight-light);
-  color: var(--text);
+  border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
+  background: var(--button-fill);
+  color: var(--button-text-color);
   cursor: pointer;
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .timer-break-overlay__close:hover {
-  background: var(--primary);
+  background: var(--button-hover-fill);
+  border-color: var(--button-hover-border-color);
+  color: var(--button-hover-text-color);
 }
 
 .timer-break-overlay__close:hover .timer-break-overlay__close-icon {
-  filter: brightness(0) invert(1);
+  filter: none;
 }
 
 .timer-break-overlay__close-icon {
@@ -325,11 +364,21 @@
 
 .timer-break-overlay__back {
   margin-top: var(--space-6);
-  background: var(--highlight-light);
+  --button-fill: var(--button-dark-default-fill);
+  --button-border-color: var(--button-dark-default-border);
+  --button-text-color: var(--button-dark-default-text);
+  --button-hover-fill: var(--button-dark-hover-fill);
+  --button-hover-border-color: var(--button-dark-hover-border);
+  --button-hover-text-color: var(--button-dark-hover-text);
+  --button-active-fill: var(--button-dark-active-fill);
+  --button-active-border-color: var(--button-dark-active-border);
+  --button-active-text-color: var(--button-dark-active-text);
 }
 
 .timer-break-overlay__back:hover {
-  background: color-mix(in srgb, var(--highlight-light) 70%, var(--primary) 30%);
+  background: var(--button-hover-fill);
+  border-color: var(--button-hover-border-color);
+  color: var(--button-hover-text-color);
 }
 
 @media (max-width: 720px) {
