@@ -10,7 +10,7 @@ app.use(express.json());
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_SERVICE_ROLE_KEY;
 
 let supabaseClient = null;
 let supabaseAdminClient = null;
@@ -38,7 +38,7 @@ function getSupabaseAdminClient() {
   }
 
   if (!supabaseServiceRoleKey) {
-    throw new Error("SUPABASE_SERVICE_ROLE_KEY ontbreekt op de backend.");
+    throw new Error("SUPABASE_SERVICE_ROLE_KEY ontbreekt op de backend. Voeg de service_role key toe aan backend/.env (SUPABASE_SERVICE_ROLE_KEY) en herstart de server.");
   }
 
   supabaseAdminClient = createClient(supabaseUrl, supabaseServiceRoleKey);
@@ -202,9 +202,16 @@ app.post('/admin/delete-employee', async (req, res) => {
       return res.status(400).json({ ok: false, error: 'Missing user_id' });
     }
 
-    const { error } = await supabase.auth.admin.deleteUser(user_id);
-    if (error) {
-      return res.status(500).json({ ok: false, error: error.message });
+    const { error: deleteError } = await supabase.auth.admin.deleteUser(user_id);
+    if (deleteError) {
+      return res.status(500).json({ ok: false, error: deleteError.message });
+    }
+
+    // Also remove the profile row if it exists (clean up)
+    const { error: profileDeleteError } = await supabase.from('profiles').delete().eq('id', user_id);
+    if (profileDeleteError) {
+      // Log and continue — user has been deleted from auth even if profile deletion failed
+      console.error('Failed to delete profile for user', user_id, profileDeleteError.message);
     }
 
     return res.json({ ok: true });
