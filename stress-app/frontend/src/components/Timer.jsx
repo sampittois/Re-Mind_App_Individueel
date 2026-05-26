@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "../styles/timer.css";
 import Breathe from "./Breathe";
 import BreakSuggestionsOverlay from "./BreakSuggestionsOverlay";
@@ -6,6 +6,8 @@ import { addBreak, addBreakReminderDecision } from "../lib/session";
 
 const TIMER_STATE_STORAGE_KEY = "remind.timerState";
 const DAY_TARGET_SECONDS = 8 * 60 * 60;
+const ORIGINAL_BREATHING_LOGO_SIZE = 280;
+const MIN_BREATHING_LOGO_SIZE = 180;
 
 function loadTimerState(key = TIMER_STATE_STORAGE_KEY) {
   if (typeof window === "undefined") {
@@ -133,8 +135,8 @@ function getBreakSuggestionMode(profile) {
   return "balanced";
 }
 
-function BreathingLogo({ progress = 0, active = false }) {
-  const timerSize = 200;
+function BreathingLogo({ progress = 0, active = false, size = ORIGINAL_BREATHING_LOGO_SIZE }) {
+  const timerSize = size;
   const timerStroke = 4;
   const radius = (timerSize - timerStroke) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -143,7 +145,7 @@ function BreathingLogo({ progress = 0, active = false }) {
 
   return (
     <div className={`breathingLogo${active ? " breathingLogo--active" : ""}`} aria-hidden="true" style={{ position: "relative" }}>
-      <Breathe size={280} className="breathing-logo-ball" />
+      <Breathe className="breathing-logo-ball" size={timerSize} />
       <svg
         className="breathingLogo__ring"
         width={timerSize}
@@ -199,6 +201,11 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
   const [workSeconds, setWorkSeconds] = useState(initialTimerState?.workSeconds ?? 0);
   const [breakSeconds, setBreakSeconds] = useState(initialTimerState?.breakSeconds ?? 0);
   const [lastTickAt, setLastTickAt] = useState(() => initialTimerState?.lastTickAt ?? Date.now());
+  const [breathingLogoSize, setBreathingLogoSize] = useState(ORIGINAL_BREATHING_LOGO_SIZE);
+
+  const hrRowRef = useRef(null);
+  const timerTimeRef = useRef(null);
+  const btnStackRef = useRef(null);
 
   // When the storage key changes (user switched), reload timer state for the new user
   useEffect(() => {
@@ -353,6 +360,62 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
 
   const logoActive = workStarted && !onBreak && !finished && !activeReminder;
 
+  useEffect(() => {
+    const row = hrRowRef.current;
+    const timerTime = timerTimeRef.current;
+    const btnStack = btnStackRef.current;
+
+    if (!row) {
+      return undefined;
+    }
+
+    const updateBreathingLogoSize = () => {
+      const rowStyles = window.getComputedStyle(row);
+
+      if (rowStyles.flexDirection === "column") {
+        setBreathingLogoSize((current) => (current === ORIGINAL_BREATHING_LOGO_SIZE ? current : ORIGINAL_BREATHING_LOGO_SIZE));
+        return;
+      }
+
+      const availableWidth = row.clientWidth;
+      const timeWidth = timerTime?.offsetWidth ?? 0;
+      const controlsWidth = btnStack?.offsetWidth ?? 0;
+      const gap = Number.parseFloat(rowStyles.columnGap || rowStyles.gap || "0") || 0;
+      const availableForLogo = availableWidth - timeWidth - controlsWidth - gap * 2;
+      const nextSize = Math.max(MIN_BREATHING_LOGO_SIZE, Math.min(ORIGINAL_BREATHING_LOGO_SIZE, Math.floor(availableForLogo)));
+
+      setBreathingLogoSize((current) => (current === nextSize ? current : nextSize));
+    };
+
+    updateBreathingLogoSize();
+
+    if (typeof ResizeObserver !== "undefined") {
+      const observer = new ResizeObserver(updateBreathingLogoSize);
+      observer.observe(row);
+
+      if (timerTime) {
+        observer.observe(timerTime);
+      }
+
+      if (btnStack) {
+        observer.observe(btnStack);
+      }
+
+      window.addEventListener("resize", updateBreathingLogoSize);
+
+      return () => {
+        observer.disconnect();
+        window.removeEventListener("resize", updateBreathingLogoSize);
+      };
+    }
+
+    window.addEventListener("resize", updateBreathingLogoSize);
+
+    return () => {
+      window.removeEventListener("resize", updateBreathingLogoSize);
+    };
+  }, [workStarted, finished, onBreak]);
+
   const startDay = () => {
     const now = Date.now();
     setWorkStarted(true);
@@ -485,13 +548,13 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
   return (
     <div className="timer-card">
       <div className="hrRow">
-        <BreathingLogo progress={progress} active={logoActive} />
+        <BreathingLogo progress={progress} active={logoActive} size={breathingLogoSize} />
 
-        <div style={{ minWidth: 140, display: "flex", justifyContent: "center" }}>
+        <div ref={timerTimeRef} style={{ minWidth: 140, display: "flex", justifyContent: "center" }}>
           <div className="bigTime">{workStarted ? mainTime : "--:--"}</div>
         </div>
 
-        <div className="btnStack">
+        <div className="btnStack" ref={btnStackRef}>
           {!workStarted && !finished && (
             <>
               <button className="btn" onClick={startDay}>
