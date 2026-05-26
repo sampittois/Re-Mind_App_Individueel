@@ -41,6 +41,7 @@ export default function ProfileSection({ profile, initialName = "John Doe", onSa
   const [avatarSrc, setAvatarSrc] = useState(profile?.avatar_url ?? null);
   const fileRef = useRef(null);
   const [favoriteIds, setFavoriteIds] = useState(() => []);
+  const isAdminCreated = Boolean(user?.user_metadata?.admin_created || profile?.admin_created);
 
   useEffect(() => {
     setAvatarSrc(profile?.avatar_url ?? null);
@@ -219,15 +220,17 @@ export default function ProfileSection({ profile, initialName = "John Doe", onSa
         </div>
 
         <div className="profile-actions">
-          <button
-            className="action-btn"
-            type="button"
-            onClick={() => {
-              setCurrentPage?.("upgrade");
-            }}
-          >
-            Upgrade Plan
-          </button>
+          {!isAdminCreated ? (
+            <button
+              className="action-btn"
+              type="button"
+              onClick={() => {
+                setCurrentPage?.("upgrade");
+              }}
+            >
+              Upgrade Plan
+            </button>
+          ) : null}
           {profile?.plan !== "basic" ? (
             <button
               className="action-btn"
@@ -274,7 +277,7 @@ export default function ProfileSection({ profile, initialName = "John Doe", onSa
               key="upgrade-card"
               icon={plusIcon}
               title="Upgrade plan"
-              onSelect={() => setCurrentPage?.("upgrade")}
+              onSelect={() => !isAdminCreated && setCurrentPage?.("upgrade")}
             />
           ) : null}
         </div>
