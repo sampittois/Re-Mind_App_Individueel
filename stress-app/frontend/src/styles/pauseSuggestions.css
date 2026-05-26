@@ -252,7 +252,9 @@
 	width: var(--space-5);
 	height: var(--space-4);
 	object-fit: contain;
-	transition: transform 0.15s ease, opacity 0.15s ease;
+	transition: transform 150ms ease, opacity 150ms ease;
+	transform-origin: center;
+	will-change: transform, opacity;
 }
 
 /* keep custom favorite icons (like x.svg) visible even when button is active */
@@ -273,7 +275,8 @@
 	height: 19px;
 	color: var(--primary);
 	opacity: 0;
-	transition: opacity 0.15s ease, transform 0.15s ease;
+	transition: opacity 150ms ease, transform 150ms ease;
+	transform-origin: center;
 }
 
 .pause-suggestion-card__favorite-fill svg {
@@ -293,12 +296,34 @@
 
 .pause-suggestion-card__favorite:hover img,
 .pause-suggestion-card__favorite:hover .pause-suggestion-card__favorite-fill {
-	transform: scale(0.88);
+		transform: scale(0.88);
+}
+.pause-suggestion-card__favorite:focus-visible img,
+.pause-suggestion-card__favorite:focus-visible .pause-suggestion-card__favorite-fill {
+		transform: scale(0.88);
 }
 
-.pause-suggestion-card__favorite:hover {
+@media (prefers-reduced-motion: reduce) {
+	.pause-suggestion-card__favorite img,
+	.pause-suggestion-card__favorite .pause-suggestion-card__favorite-fill {
+		transition: none;
+		transform: none !important;
+	}
+}
+
+.pause-suggestion-card__favorite:hover,
+.pause-suggestion-card__favorite:focus,
+.pause-suggestion-card__favorite:focus-visible {
+	/* keep the button background and border constant on hover/focus */
+	background: var(--highlight-light);
 	border-color: var(--primary);
-	box-shadow: none;
+	color: var(--primary);
+}
+
+/* ensure active state doesn't change button background */
+.pause-suggestion-card__favorite.is-active {
+	background: var(--highlight-light);
+	border-color: var(--primary);
 }
 
 .pause-suggestion-card--compact .pause-suggestion-card__favorite {
