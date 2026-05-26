@@ -1,8 +1,7 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import backIcon from "../assets/back.svg";
 import plusIcon from "../assets/plus.svg";
 import closeIcon from "../assets/x.svg";
-import swirl from "../assets/swirl.png";
 import "../styles/companyManagement.css";
 import { supabase } from "../lib/supabaseClient";
 
@@ -138,6 +137,7 @@ export const STORAGE_KEYS = {
   employees: "remind:company-employees",
   theme: "remind:company-theme",
   customTheme: "remind:company-custom-theme",
+  companyColorsEnabled: "remind:company-colors-enabled",
 };
 
 export const DEFAULT_THEME_ID = "sage";
@@ -246,8 +246,6 @@ function createDefaultEmployees() {
       email: "jane@bedrijf.be",
       department: "Sales",
       status: "Actief",
-      hoursWorked: 36.5,
-      breaksTaken: 12,
       usesCompanyColors: true,
       createdAt: "2026-05-12T08:00:00.000Z",
     },
@@ -257,8 +255,6 @@ function createDefaultEmployees() {
       email: "bob@bedrijf.be",
       department: "IT",
       status: "Inactief",
-      hoursWorked: 28,
-      breaksTaken: 8,
       usesCompanyColors: false,
       createdAt: "2026-05-10T08:00:00.000Z",
     },
@@ -268,8 +264,6 @@ function createDefaultEmployees() {
       email: "liesbeth@bedrijf.be",
       department: "Marketing",
       status: "Actief",
-      hoursWorked: 41,
-      breaksTaken: 15,
       usesCompanyColors: true,
       createdAt: "2026-05-08T08:00:00.000Z",
     },
@@ -279,8 +273,6 @@ function createDefaultEmployees() {
       email: "steven@bedrijf.be",
       department: "Design",
       status: "Actief",
-      hoursWorked: 33.5,
-      breaksTaken: 10,
       usesCompanyColors: true,
       createdAt: "2026-05-04T08:00:00.000Z",
     },
@@ -292,9 +284,6 @@ function createInitialForm() {
     name: "",
     email: "",
     department: "Sales",
-    status: "Actief",
-    hoursWorked: "",
-    breaksTaken: "",
     password: "",
   };
 }
@@ -491,9 +480,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
       name,
       email,
       department: formValues.department.trim() || "Sales",
-      status: formValues.status || "Actief",
-      hoursWorked: Number.isFinite(Number(formValues.hoursWorked)) && formValues.hoursWorked !== "" ? Number(formValues.hoursWorked) : 0,
-      breaksTaken: Number.isFinite(Number(formValues.breaksTaken)) && formValues.breaksTaken !== "" ? Number(formValues.breaksTaken) : 0,
+      status: "Inactief",
       usesCompanyColors: Boolean(companyColorsEnabled),
       password: formValues.password || null,
       mustChangePassword: true,
@@ -511,8 +498,6 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
 
   return (
     <main className="company-management-page page" style={themedVariables}>
-      <img className="company-management-page__swirl" src={swirl} alt="" aria-hidden="true" />
-
       <div className="company-management-header">
         <button className="company-management-back" type="button" onClick={() => setCurrentPage?.("profile")} aria-label="Terug">
           <img src={backIcon} alt="Terug" />
@@ -546,7 +531,6 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
             <div className="employee-table__body">
               {visibleEmployees.map((employee) => {
                 const employeeTheme = paletteForEmployee(employee, activeTheme);
-                const employeeUsesCompanyColors = Boolean(employee.usesCompanyColors);
 
                 return (
                   <div
@@ -726,43 +710,6 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
                     placeholder="Sales"
                   />
                 </label>
-
-                <label className="company-field">
-                  <span>Status</span>
-                  <select
-                    value={formValues.status}
-                    onChange={(event) => setFormValues((previous) => ({ ...previous, status: event.target.value }))}
-                  >
-                    <option value="Actief">Actief</option>
-                    <option value="Inactief">Inactief</option>
-                  </select>
-                </label>
-              </div>
-
-              <div className="company-form__grid">
-                <label className="company-field">
-                  <span>Uren gewerkt</span>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.5"
-                    value={formValues.hoursWorked}
-                    onChange={(event) => setFormValues((previous) => ({ ...previous, hoursWorked: event.target.value }))}
-                    placeholder="0"
-                  />
-                </label>
-
-                <label className="company-field">
-                  <span>Pauzes genomen</span>
-                  <input
-                    type="number"
-                    min="0"
-                    step="1"
-                    value={formValues.breaksTaken}
-                    onChange={(event) => setFormValues((previous) => ({ ...previous, breaksTaken: event.target.value }))}
-                    placeholder="0"
-                  />
-                </label>
               </div>
 
               <label className="company-field">
@@ -800,26 +747,34 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
                 <p className="company-modal__copy">{selectedEmployee.email} · {selectedEmployee.department}</p>
               </div>
 
-              <span className={`company-stats__status company-stats__status--${selectedEmployee.status === "Actief" ? "active" : "inactive"}`}>
-                {selectedEmployee.status}
+              <span className={`company-stats__status company-stats__status--${(employeeStats?.status || selectedEmployee.status) === "Actief" ? "active" : "inactive"}`}>
+                {employeeStats?.status || selectedEmployee.status}
               </span>
+            </div>
+            <div className="company-stats-controls">
+              <label className="company-field company-field--inline">
+                <span>Dag</span>
+                <input
+                  type="date"
+                  value={selectedDay}
+                  onChange={(e) => setSelectedDay(e.target.value)}
+                />
+              </label>
             </div>
 
             <div className="company-stats-grid">
               <article className="company-stat-card">
                 <span className="company-stat-card__label">Uren gewerkt</span>
                 <strong className="company-stat-card__value">
-                  {Number.isFinite(selectedEmployee.hoursWorked)
-                    ? `${selectedEmployee.hoursWorked.toFixed(selectedEmployee.hoursWorked % 1 === 0 ? 0 : 1)} uur`
-                    : "0 uur"}
+                  {employeeStatsLoading ? "--" : `${(employeeStats?.hoursWorked || 0).toFixed((employeeStats?.hoursWorked || 0) % 1 === 0 ? 0 : 1)} uur`}
                 </strong>
-                <span className="company-stat-card__meta">Sinds {new Date(selectedEmployee.createdAt).toLocaleDateString("nl-NL")}</span>
+                <span className="company-stat-card__meta">Voor {new Date(selectedDay).toLocaleDateString("nl-NL")}</span>
               </article>
 
               <article className="company-stat-card">
                 <span className="company-stat-card__label">Pauzes genomen</span>
-                <strong className="company-stat-card__value">{selectedEmployee.breaksTaken}</strong>
-                <span className="company-stat-card__meta">Totaal geregistreerde pauzes</span>
+                <strong className="company-stat-card__value">{employeeStatsLoading ? "--" : (employeeStats?.breaksTaken || 0)}</strong>
+                <span className="company-stat-card__meta">Op {new Date(selectedDay).toLocaleDateString("nl-NL")}</span>
               </article>
             </div>
 

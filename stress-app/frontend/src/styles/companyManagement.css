@@ -380,6 +380,11 @@
 
 .company-modal__card--stats {
   width: min(620px, 100%);
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--background) 88%, white 12%),
+    color-mix(in srgb, var(--highlight-light) 20%, var(--background) 80%)
+  );
 }
 
 .company-modal__close {
@@ -485,19 +490,45 @@
   display: flex;
   justify-content: space-between;
   gap: var(--space-4);
-  align-items: start;
-  margin-bottom: var(--space-5);
-  padding-right: var(--space-9);
+  align-items: center;
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  padding-right: 0;
+}
+
+.company-stats-controls {
+  margin-bottom: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+  background: color-mix(in srgb, var(--highlight-light) 72%, white 28%);
+}
+
+.company-field--inline {
+  display: grid;
+  grid-template-columns: auto minmax(180px, 240px);
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.company-field--inline span {
+  margin: 0;
+}
+
+.company-field--inline input[type="date"] {
+  margin: 0;
 }
 
 .company-stats__status {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-2) var(--space-3);
+  padding: calc(var(--space-1)) calc(var(--space-3));
   border-radius: 999px;
   font-size: var(--text-body-small-font-size);
   font-weight: var(--font-weight-bold);
+  min-width: 86px;
 }
 
 .company-stats__status--active {
@@ -522,8 +553,9 @@
   gap: var(--space-2);
   padding: var(--space-4);
   border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--highlight-light) 66%, white 34%);
+  background: color-mix(in srgb, var(--highlight-light) 58%, white 42%);
   border: 1px solid color-mix(in srgb, var(--border) 76%, transparent);
+  box-shadow: 0 10px 26px color-mix(in srgb, var(--primary-dark) 10%, transparent);
 }
 
 .company-stat-card__label {
@@ -534,11 +566,12 @@
 }
 
 .company-stat-card__value {
-  font-family: var(--text-heading-2-font-family);
-  font-size: var(--text-heading-2-font-size);
-  line-height: var(--text-heading-2-line-height);
-  font-weight: var(--text-heading-2-font-weight);
+  font-family: var(--text-heading-1-font-family);
+  font-size: var(--text-heading-1-font-size);
+  line-height: var(--text-heading-1-line-height);
+  font-weight: var(--text-heading-1-font-weight);
   color: var(--primary-dark);
+  margin-top: calc(var(--space-1));
 }
 
 .company-stat-card__meta {
@@ -581,6 +614,10 @@
   .company-toggle-row {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .company-field--inline {
+    grid-template-columns: 1fr;
   }
 
   .company-modal {
