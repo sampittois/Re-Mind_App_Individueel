@@ -177,8 +177,8 @@
   }
 
   .slider-dot {
-    width: 28px;
-    height: 28px;
+    width: 18px;
+    height: 18px;
     border-width: 2px;
   }
 
@@ -196,9 +196,9 @@
   }
 
   .slider-line {
-    /* responsive: dots become larger; half of 28px is 14px */
-    left: calc(8px + 14px);
-    right: calc(8px + 14px);
+    /* responsive: dots are 18px; half is 9px */
+    left: calc(8px + 9px);
+    right: calc(8px + 9px);
   }
 
   .slider-number {
