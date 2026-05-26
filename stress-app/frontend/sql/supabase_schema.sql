@@ -27,7 +27,7 @@ $$;
 do $$
 begin
   if not exists (select 1 from pg_type where typname = 'user_plan') then
-    create type public.user_plan as enum ('basic', 'premium', 'bedrijfslicentie');
+    create type public.user_plan as enum ('basic', 'premium', 'bedrijfslicentie', 'admin');
   end if;
 end;
 $$;

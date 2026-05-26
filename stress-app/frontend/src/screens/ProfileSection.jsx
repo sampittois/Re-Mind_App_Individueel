@@ -42,6 +42,8 @@ export default function ProfileSection({ profile, initialName = "John Doe", onSa
   const fileRef = useRef(null);
   const [favoriteIds, setFavoriteIds] = useState(() => []);
   const isAdminCreated = Boolean(user?.user_metadata?.admin_created || profile?.admin_created);
+  const isAdminPlan = profile?.plan === "admin";
+  const canAccessAdminTools = Boolean(isAdminCreated || isAdminPlan);
 
   useEffect(() => {
     setAvatarSrc(profile?.avatar_url ?? null);
@@ -220,7 +222,7 @@ export default function ProfileSection({ profile, initialName = "John Doe", onSa
         </div>
 
         <div className="profile-actions">
-          {!isAdminCreated ? (
+          {!canAccessAdminTools ? (
             <button
               className="action-btn"
               type="button"
@@ -243,13 +245,23 @@ export default function ProfileSection({ profile, initialName = "John Doe", onSa
             </button>
           ) : null}
 
-          {profile?.plan === "bedrijfslicentie" ? (
+          {profile?.plan === "bedrijfslicentie" || isAdminPlan ? (
             <button
               className="action-btn"
               type="button"
               onClick={() => setCurrentPage?.("bedrijfsbeheer")}
             >
               Bedrijfsbeheer
+            </button>
+          ) : null}
+
+          {isAdminPlan ? (
+            <button
+              className="action-btn"
+              type="button"
+              onClick={() => setCurrentPage?.("admin")}
+            >
+              Admin dashboard
             </button>
           ) : null}
           <button className="action-btn logout-btn" type="button" onClick={() => onLogout?.()}>Log uit</button>

@@ -66,6 +66,64 @@ app.get('/supabase-health', async (req, res) => {
   }
 });
 
+app.get('/admin/overview', async (req, res) => {
+  try {
+    const supabase = getSupabaseAdminClient();
+
+    const [profilesCountResult, sessionsCountResult, paymentsCountResult, profilesResult, recentUsersResult, recentSessionsResult, recentPaymentsResult] = await Promise.all([
+      supabase.from('profiles').select('id', { count: 'exact', head: true }),
+      supabase.from('work_sessions').select('id', { count: 'exact', head: true }),
+      supabase.from('payment_details').select('id', { count: 'exact', head: true }),
+      supabase.from('profiles').select('plan'),
+      supabase
+        .from('profiles')
+        .select('id, full_name, email, plan, updated_at, created_at, company_management_enabled')
+        .order('updated_at', { ascending: false })
+        .limit(8),
+      supabase
+        .from('work_sessions')
+        .select('id, user_id, start_time, end_time, created_at')
+        .order('created_at', { ascending: false })
+        .limit(8),
+      supabase
+        .from('payment_details')
+        .select('id, user_id, plan, payment_status, billing_email, created_at')
+        .order('created_at', { ascending: false })
+        .limit(8),
+    ]);
+
+    const firstError = [profilesCountResult.error, sessionsCountResult.error, paymentsCountResult.error, profilesResult.error, recentUsersResult.error, recentSessionsResult.error, recentPaymentsResult.error].find(Boolean);
+    if (firstError) {
+      return res.status(500).json({ ok: false, error: firstError.message });
+    }
+
+    const profiles = profilesResult.data || [];
+    const planCounts = profiles.reduce((accumulator, profile) => {
+      const plan = profile?.plan || 'basic';
+      accumulator[plan] = (accumulator[plan] || 0) + 1;
+      return accumulator;
+    }, {});
+
+    res.json({
+      ok: true,
+      stats: {
+        totalUsers: profiles.length,
+        basicUsers: planCounts.basic || 0,
+        premiumUsers: planCounts.premium || 0,
+        companyUsers: planCounts.bedrijfslicentie || 0,
+        adminUsers: planCounts.admin || 0,
+        totalSessions: sessionsCountResult.count || 0,
+        totalPayments: paymentsCountResult.count || 0,
+      },
+      recentUsers: recentUsersResult.data || [],
+      recentSessions: recentSessionsResult.data || [],
+      recentPayments: recentPaymentsResult.data || [],
+    });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 // Server-side endpoint to set a user's plan. This can be used after payment
 // verification to ensure the plan is written using the backend (service key
 // if available). Expects { user_id, plan } in the body.

@@ -1,7 +1,7 @@
 import "../styles/navbar.css";
 import logo from "../assets/logo_primary.png";
 
-export default function Navbar({ currentPage, setCurrentPage, avatar, onOpenReflection }) {
+export default function Navbar({ currentPage, setCurrentPage, avatar, onOpenReflection, profile }) {
   return (
     <header className="nav">
       <div className="navInner">
@@ -55,6 +55,16 @@ export default function Navbar({ currentPage, setCurrentPage, avatar, onOpenRefl
               </svg>
             )}
           </button>
+
+          {profile?.plan === "admin" ? (
+            <button
+              className={`link ${currentPage === "admin" ? "active" : ""}`}
+              onClick={() => setCurrentPage("admin")}
+              type="button"
+            >
+              Admin
+            </button>
+          ) : null}
         </div>
       </div>
     </header>

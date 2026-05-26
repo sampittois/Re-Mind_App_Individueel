@@ -16,6 +16,7 @@ import StatsSection from "./components/StatsSection";
 import ProfileSection from "./screens/ProfileSection";
 import Reports from "./screens/Reports";
 import UpgradePage from "./screens/UpgradePage";
+import AdminPage from "./screens/AdminPage";
 import CompanyManagementPage, {
   DEFAULT_CUSTOM_THEME,
   DEFAULT_THEME_ID,
@@ -53,7 +54,7 @@ const THEME_VARIABLES = [
 ];
 
 const AUTH_PAGES = new Set(["login", "register", "onboarding"]);
-const RESTORABLE_PAGES = new Set(["home", "pause", "breathing", "exercise-detail", "reports", "profile", "upgrade", "bedrijfsbeheer"]);
+const RESTORABLE_PAGES = new Set(["home", "pause", "breathing", "exercise-detail", "reports", "profile", "upgrade", "bedrijfsbeheer", "admin"]);
 
 function isRestorablePage(page) {
   return RESTORABLE_PAGES.has(page);
@@ -410,6 +411,8 @@ export default function App() {
         onThemeChange={handleCompanyThemeChange}
       />
     );
+  } else if (currentPage === "admin") {
+    pageContent = <AdminPage profile={profile} setCurrentPage={setCurrentPage} />;
   } else if (currentPage === "login") {
     pageContent = (
       <main className="page login-root">
@@ -562,6 +565,10 @@ export default function App() {
       setProfile(data || null);
       setName(buildDisplayName(data, user));
       setAvatar(data?.avatar_url ?? null);
+
+      if (data?.plan === "admin" && currentPage === "home") {
+        setCurrentPage("admin");
+      }
     }
 
     loadProfile();
@@ -705,6 +712,7 @@ export default function App() {
           setCurrentPage={setCurrentPage}
           avatar={avatar}
           onOpenReflection={openWorkdayReflection}
+          profile={profile}
         />
       )}
       {pageContent}

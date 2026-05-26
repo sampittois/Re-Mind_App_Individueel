@@ -30,7 +30,7 @@ export default function SettingsToggles({ profile, onUpdateProfile }) {
         </button>
       </div>
 
-      {profile?.plan === "bedrijfslicentie" && (
+      {(profile?.plan === "bedrijfslicentie" || profile?.plan === "admin") && (
         <div className="toggle-row">
           <label className="toggle-label">Bedrijfskleuren</label>
           <button
