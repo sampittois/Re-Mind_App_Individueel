@@ -206,6 +206,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
   const hrRowRef = useRef(null);
   const timerTimeRef = useRef(null);
   const btnStackRef = useRef(null);
+  const timerCardRef = useRef(null);
 
   // When the storage key changes (user switched), reload timer state for the new user
   useEffect(() => {
@@ -416,6 +417,36 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
     };
   }, [workStarted, finished, onBreak]);
 
+  // Ensure timer-card height matches the stacked sliders' height
+  useEffect(() => {
+    const timerCard = timerCardRef.current;
+    const slidersContainer = document.querySelector(".rating-cards-container");
+
+    if (!timerCard || !slidersContainer) return undefined;
+
+    const applyHeight = () => {
+      const height = slidersContainer.offsetHeight;
+      // add a bit of padding to match visual spacing
+      timerCard.style.minHeight = `${Math.max(height, 220)}px`;
+    };
+
+    applyHeight();
+
+    if (typeof ResizeObserver !== "undefined") {
+      const ro = new ResizeObserver(applyHeight);
+      ro.observe(slidersContainer);
+      window.addEventListener("resize", applyHeight);
+
+      return () => {
+        ro.disconnect();
+        window.removeEventListener("resize", applyHeight);
+      };
+    }
+
+    window.addEventListener("resize", applyHeight);
+    return () => window.removeEventListener("resize", applyHeight);
+  }, []);
+
   const startDay = () => {
     const now = Date.now();
     setWorkStarted(true);
@@ -546,7 +577,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
   };
 
   return (
-    <div className="timer-card">
+    <div className="timer-card" ref={timerCardRef}>
       <div className="hrRow">
         <BreathingLogo progress={progress} active={logoActive} size={breathingLogoSize} />
 
