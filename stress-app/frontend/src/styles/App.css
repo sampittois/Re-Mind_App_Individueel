@@ -302,8 +302,7 @@ a {
 .workday-overlay__switch {
   display: inline-flex;
   gap: 0;
-  background: var(--button-fill);
-  border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
+  background: var(--highlight-light);
   padding: 4px;
   border-radius: var(--radius-md);
   width: 280px;
@@ -316,8 +315,8 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--button-fill);
-  border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
+  background: transparent;
+  border: none;
   padding: var(--space-2) var(--space-5);
   cursor: pointer;
   border-radius: var(--radius-sm);
@@ -325,14 +324,14 @@ a {
   font-size: var(--text-button-label-font-size);
   line-height: var(--text-button-label-line-height);
   font-weight: var(--font-weight-semibold);
-  color: var(--button-text-color);
+  color: var(--text);
 }
 
 .workday-overlay__switch-btn.active {
-  background: var(--button-active-fill);
-  color: var(--button-active-text-color);
-  border-color: var(--button-active-border-color);
+  background: var(--primary);
+  color: var(--background);
   height: 32px;
+  padding: 0 var(--space-5);
 }
 
 .workday-overlay__form {

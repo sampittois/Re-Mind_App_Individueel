@@ -224,30 +224,17 @@ option:hover {
   position: relative;
   width: 60px;
   height: 32px;
-  border: 2px solid var(--primary-dark);
   border-radius: 16px;
   background: var(--highlight-light);
   cursor: pointer;
   padding: 2px;
   display: flex;
   align-items: center;
-  transition: background-color 200ms ease, border-color 200ms ease;
-}
-
-.toggle-switch:hover:not(:disabled):not(.disabled) {
-  border-color: var(--primary-dark);
-}
-
-.toggle-switch:hover:not(:disabled):not(.disabled) .toggle-thumb {
-  background: var(--primary-dark);
+  transition: background-color 200ms ease;
 }
 
 .toggle-switch.active {
   background: var(--primary);
-}
-
-.toggle-switch.active:hover:not(:disabled):not(.disabled) {
-  background: var(--primary-dark);
 }
 
 .toggle-thumb {
@@ -257,7 +244,7 @@ option:hover {
   border-radius: 50%;
   background: var(--primary);
   left: 4px;
-  transition: left 200ms ease;
+  transition: left 200ms ease, background 150ms ease;
 }
 
 .toggle-switch.active .toggle-thumb {
@@ -265,18 +252,11 @@ option:hover {
   background: var(--highlight-light);
 }
 
-.toggle-switch.active:hover:not(:disabled):not(.disabled) .toggle-thumb {
-  background: var(--highlight-light);
-}
-
 .toggle-switch:disabled,
 .toggle-switch.disabled {
   background: var(--border);
-  border-color: var(--border);
-  cursor: not-allowed;
 }
 
-.toggle-switch:disabled .toggle-thumb,
 .toggle-switch.disabled .toggle-thumb {
   background: var(--background);
 }

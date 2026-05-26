@@ -32,7 +32,7 @@ export default function Reports({ setCurrentPage, profile }) {
               setView("week");
             }}
           >
-            <img src={premiumIcon} alt="premium" className="premium-icon" /> Week
+            {plan === "basic" ? <img src={premiumIcon} alt="premium" className="premium-icon" /> : null} Week
           </button>
         </div>
       </div>
