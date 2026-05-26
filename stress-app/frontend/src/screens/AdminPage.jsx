@@ -45,8 +45,8 @@ function planClass(plan) {
   return "admin-badge--basic";
 }
 
-function formatActiveStatus(isActive) {
-  return isActive ? "Actief" : "Inactief";
+function getUpgradeExamples(recentUsers) {
+  return (recentUsers || []).filter((userRow) => userRow.plan && userRow.plan !== "basic");
 }
 
 export default function AdminPage({ profile, setCurrentPage }) {
@@ -206,30 +206,31 @@ export default function AdminPage({ profile, setCurrentPage }) {
           <article className="admin-card admin-card--wide">
             <div className="admin-card__header">
               <div>
-                <span className="admin-card__label">Recente sessies</span>
-                <h2 className="admin-card__title">Tijd, gebruiker en status</h2>
+                <span className="admin-card__label">Voorbeeldbetalingen</span>
+                <h2 className="admin-card__title">Users die hun plan upgrade-ten</h2>
               </div>
             </div>
-            <p className="admin-card__copy">Hier zie je de laatste work sessions. De UUID is vervangen door een leesbare gebruikersnaam, met het startmoment en of de sessie nog actief is.</p>
+            <p className="admin-card__copy">Betalingen zijn nog niet gekoppeld, dus dit toont voorlopig de gebruikers die een upgrade hebben gedaan.</p>
             <div className="admin-table">
               <div className="admin-table__head">
                 <span>Tijd</span>
                 <span>Gebruiker</span>
-                <span>Actief</span>
+                <span>Plan</span>
               </div>
-              {(overview.recentSessions || []).map((session) => (
-                <div className="admin-table__row" key={session.id}>
+              {getUpgradeExamples(overview.recentUsers).map((userRow) => (
+                <div className="admin-table__row" key={userRow.id}>
                   <div>
-                    <strong>{formatDateTime(session.start_time || session.created_at)}</strong>
-                    <span>{session.end_time ? `Einde: ${formatDateTime(session.end_time)}` : "Nog geen einde geregistreerd"}</span>
+                    <strong>{formatDateTime(userRow.updated_at || userRow.created_at)}</strong>
+                    <span>{userRow.email || userRow.id}</span>
                   </div>
-                  <span>{session.user_display_name || session.user_id}</span>
-                  <span className={`admin-badge ${session.is_active ? "admin-badge--company" : "admin-badge--basic"}`}>
-                    {formatActiveStatus(session.is_active)}
-                  </span>
+                  <div className="admin-table__user">
+                    <strong>{userRow.full_name || userRow.email || userRow.id}</strong>
+                    <span className="admin-table__meta">ID: {userRow.id}</span>
+                  </div>
+                  <span className={`admin-badge ${planClass(userRow.plan)}`}>{formatPlan(userRow.plan)}</span>
                 </div>
               ))}
-              {!(overview.recentSessions || []).length && !loading ? <p className="admin-empty">Geen recente sessies gevonden.</p> : null}
+              {!getUpgradeExamples(overview.recentUsers).length && !loading ? <p className="admin-empty">Geen plan-upgrades gevonden.</p> : null}
             </div>
           </article>
         </section>
