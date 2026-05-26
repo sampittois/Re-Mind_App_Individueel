@@ -32,6 +32,29 @@ begin
 end;
 $$;
 
+-- Ensure existing databases also get the admin plan enum value.
+do $$
+begin
+  if exists (
+    select 1
+    from pg_type t
+    join pg_namespace n on n.oid = t.typnamespace
+    where t.typname = 'user_plan'
+      and n.nspname = 'public'
+  ) and not exists (
+    select 1
+    from pg_type t
+    join pg_namespace n on n.oid = t.typnamespace
+    join pg_enum e on e.enumtypid = t.oid
+    where t.typname = 'user_plan'
+      and n.nspname = 'public'
+      and e.enumlabel = 'admin'
+  ) then
+    alter type public.user_plan add value 'admin';
+  end if;
+end;
+$$;
+
 -- Profiles are linked 1:1 to auth.users.
 create table if not exists public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,

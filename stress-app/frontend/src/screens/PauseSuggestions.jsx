@@ -138,7 +138,6 @@ export default function PauseSuggestions({
   onExternalSuggestionConsumed = null,
 }) {
   const plan = profile?.plan || "basic";
-  const isAdminCreated = Boolean(user?.user_metadata?.admin_created || profile?.admin_created);
   const [activeTab, setActiveTab] = useState("short");
   const [favoriteIds, setFavoriteIds] = useState(() => new Set());
   const [selectedSuggestion, setSelectedSuggestion] = useState(null);
@@ -184,8 +183,6 @@ export default function PauseSuggestions({
 
     // Enforce basic plan favorite limit of 5
     if (!currentlyFavorite && plan === "basic" && favoriteIds.size >= 5) {
-      // Admin-created users should not see or be redirected to Upgrade
-      if (isAdminCreated) return;
       // Redirect to upgrade page
       setCurrentPage?.("upgrade");
       return;
@@ -333,7 +330,7 @@ export default function PauseSuggestions({
             <p className="pause-page-empty">Nog geen favorieten.</p>
           ) : null}
 
-        {activeTab === "favorites" && plan === "basic" && favoriteIds.size >= 5 && !isAdminCreated ? (
+        {activeTab === "favorites" && plan === "basic" && favoriteIds.size >= 5 ? (
           <PauseCard
             key="upgrade-card"
             icon={plusIcon}
