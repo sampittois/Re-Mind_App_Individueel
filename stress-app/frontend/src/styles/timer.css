@@ -451,6 +451,7 @@
 
   .btnStack .btn {
     width: min(240px, 100%);
+    font-size: clamp(0.86rem, 1.6vw, var(--text-button-label-font-size));
   }
 
   .btnStack .muted,

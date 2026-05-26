@@ -545,6 +545,18 @@ a {
 @media (max-width: 900px) {
   .statsRow { grid-template-columns: 1fr; }
 
+  .page {
+    padding: var(--space-5) var(--space-6) var(--space-8);
+  }
+
+  .greeting {
+    font-size: clamp(1.9rem, 4.2vw, var(--text-heading-1-font-size));
+  }
+
+  .sectionTitle {
+    font-size: clamp(1.2rem, 2.8vw, var(--text-heading-2-font-size));
+  }
+
   .home-layout {
     grid-template-columns: 1fr;
     grid-template-areas:
@@ -564,8 +576,6 @@ a {
 
   .rating-cards-container {
     grid-area: sliders;
-    transform: scale(0.92);
-    transform-origin: top left;
     width: 100%;
   }
 
