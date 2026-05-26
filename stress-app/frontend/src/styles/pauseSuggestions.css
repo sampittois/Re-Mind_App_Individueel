@@ -393,6 +393,14 @@
 .pause-overlay__close img {
 	width: 16px;
 	height: 16px;
+	transition: transform 150ms ease;
+	transform-origin: center;
+}
+
+.pause-overlay__close:hover img,
+.pause-overlay__close:focus img,
+.pause-overlay__close:focus-visible img {
+	transform: scale(0.88);
 }
 
 .pause-overlay__intro {

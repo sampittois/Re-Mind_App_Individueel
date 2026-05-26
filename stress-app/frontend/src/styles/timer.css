@@ -289,20 +289,30 @@
   justify-content: center;
   border-radius: 50%;
   border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
-  background: var(--button-fill);
+  background: var(--highlight-light);
   color: var(--button-text-color);
   cursor: pointer;
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-.timer-break-overlay__close:hover {
-  background: var(--button-hover-fill);
-  border-color: var(--button-hover-border-color);
-  color: var(--button-hover-text-color);
+.timer-break-overlay__close:hover,
+.timer-break-overlay__close:focus,
+.timer-break-overlay__close:focus-visible {
+  /* keep button background and border unchanged; use highlight background */
+  background: var(--highlight-light);
+  border-color: var(--button-border-color);
+  color: var(--button-text-color);
 }
 
-.timer-break-overlay__close:hover .timer-break-overlay__close-icon {
-  filter: none;
+.timer-break-overlay__close-icon {
+  transition: transform 150ms ease;
+  transform-origin: center;
+}
+
+.timer-break-overlay__close:hover .timer-break-overlay__close-icon,
+.timer-break-overlay__close:focus .timer-break-overlay__close-icon,
+.timer-break-overlay__close:focus-visible .timer-break-overlay__close-icon {
+  transform: scale(0.88);
 }
 
 .timer-break-overlay__close-icon {

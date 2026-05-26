@@ -66,7 +66,7 @@
   height: 36px;
   border-radius: 50%;
   border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
-  background: var(--button-fill);
+  background: var(--highlight-light);
   padding: 0;
   display: flex;
   align-items: center;
@@ -75,13 +75,23 @@
   transition: background-color 0.2s ease;
 }
 
-.avatar-remove-btn:hover {
-  background-color: var(--button-hover-fill);
-  border-color: var(--button-hover-border-color);
+.avatar-remove-btn:hover,
+.avatar-remove-btn:focus,
+.avatar-remove-btn:focus-visible {
+  /* keep button background and border unchanged; use highlight background */
+  background: var(--highlight-light);
+  border-color: var(--button-border-color);
 }
 
-.avatar-remove-btn:hover img {
-  filter: none;
+.avatar-remove-btn img {
+  transition: transform 150ms ease;
+  transform-origin: center;
+}
+
+.avatar-remove-btn:hover img,
+.avatar-remove-btn:focus img,
+.avatar-remove-btn:focus-visible img {
+  transform: scale(0.88);
 }
 
 .avatar-remove-btn img {

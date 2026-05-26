@@ -41,6 +41,24 @@
   display: block;
 }
 
+.company-modal__close,
+.company-modal__close:hover,
+.company-modal__close:focus,
+.company-modal__close:focus-visible {
+  background: var(--highlight-light);
+}
+
+.company-modal__close img {
+  transition: transform 150ms ease;
+  transform-origin: center;
+}
+
+.company-modal__close:hover img,
+.company-modal__close:focus img,
+.company-modal__close:focus-visible img {
+  transform: scale(0.88);
+}
+
 .company-management-eyebrow {
   margin: 0 0 var(--space-1);
   font-family: var(--text-body-small-font-family);

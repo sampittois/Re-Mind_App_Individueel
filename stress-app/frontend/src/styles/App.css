@@ -236,7 +236,7 @@ a {
   padding: 0;
   border-radius: 50%;
   border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
-  background: var(--button-fill);
+  background: var(--highlight-light);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -244,13 +244,23 @@ a {
   transition: background-color 0.2s ease;
 }
 
-.workday-overlay__close:hover {
-  background: var(--button-hover-fill);
-  border-color: var(--button-hover-border-color);
+.workday-overlay__close:hover,
+.workday-overlay__close:focus,
+.workday-overlay__close:focus-visible {
+  /* keep background and border unchanged; use highlight background */
+  background: var(--highlight-light);
+  border-color: var(--button-border-color);
 }
 
-.workday-overlay__close:hover .workday-overlay__close-icon {
-  filter: none;
+.workday-overlay__close-icon {
+  transition: transform 150ms ease;
+  transform-origin: center;
+}
+
+.workday-overlay__close:hover .workday-overlay__close-icon,
+.workday-overlay__close:focus .workday-overlay__close-icon,
+.workday-overlay__close:focus-visible .workday-overlay__close-icon {
+  transform: scale(0.88);
 }
 
 .workday-overlay__close-icon {

@@ -104,7 +104,7 @@
 }
 
 .remove-pause-btn {
-  background: var(--button-fill);
+  background: var(--highlight-light);
   border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
   color: var(--button-text-color);
   font-size: 18px;
@@ -115,6 +115,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.remove-pause-btn img {
+  transition: transform 150ms ease;
+  transform-origin: center;
+}
+
+.remove-pause-btn:hover img,
+.remove-pause-btn:focus img,
+.remove-pause-btn:focus-visible img {
+  transform: scale(0.88);
 }
 
 .add-pause-btn {
