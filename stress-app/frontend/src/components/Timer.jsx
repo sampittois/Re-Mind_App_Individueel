@@ -463,13 +463,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
   };
 
   const endDay = () => {
-    setFinished(true);
-    setOnBreak(false);
-    setActiveReminder(null);
-    setBreakSuggestionsRequest(null);
-    setActiveBreakType("walk");
-    setNextReminderAt(null);
-    setLastTickAt(Date.now());
+    resetTimerForReflection();
     onOpenReflection?.();
   };
 
@@ -622,17 +616,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
             </>
           )}
 
-          {finished && (
-            <>
-              <div className="finished-message">Je bent klaar voor vandaag!</div>
-              <button className="btn" onClick={openReflection}>
-                Vul nu de reflectie in
-              </button>
-              <button className="btn" onClick={startDay}>
-                Start nieuwe werkdag
-              </button>
-            </>
-          )}
+          {finished && <div className="finished-message">Je bent klaar voor vandaag!</div>}
         </div>
       </div>
 
