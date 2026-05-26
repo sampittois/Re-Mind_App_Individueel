@@ -47,9 +47,20 @@ function planClass(plan) {
 
 function formatActivityLabel(item) {
   if (!item) return "Onbekend";
-  if (item.payment_status) return `Payment ${item.payment_status}`;
-  if (item.start_time) return "Work session";
+  if (item.payment_status) return `Betaling ${item.payment_status}`;
+  if (item.start_time) return "Sessieregistratie";
   return "Update";
+}
+
+function formatSessionDetail(session) {
+  const startLabel = formatDateTime(session.start_time || session.created_at);
+  const endLabel = session.end_time ? formatDateTime(session.end_time) : "nog actief";
+
+  if (session.end_time) {
+    return `Start ${startLabel} · Einde ${endLabel}`;
+  }
+
+  return `Gestart ${startLabel} · ${endLabel}`;
 }
 
 export default function AdminPage({ profile, setCurrentPage }) {
@@ -102,15 +113,15 @@ export default function AdminPage({ profile, setCurrentPage }) {
   const recentActivity = useMemo(() => {
     const sessions = (overview.recentSessions || []).map((session) => ({
       id: `session-${session.id}`,
-      label: "Sessie",
-      detail: session.user_id,
+      label: "Werk­sessie",
+      detail: `${formatSessionDetail(session)} · Gebruiker ${session.user_id}`,
       value: formatDateTime(session.created_at),
     }));
 
     const payments = (overview.recentPayments || []).map((payment) => ({
       id: `payment-${payment.id}`,
-      label: formatActivityLabel(payment),
-      detail: `${formatPlan(payment.plan)} · ${payment.billing_email || payment.user_id}`,
+      label: `Betaling · ${formatPlan(payment.plan)}`,
+      detail: `${payment.payment_status || "onbekend"} · ${payment.billing_email || payment.user_id}`,
       value: formatDateTime(payment.created_at),
     }));
 
@@ -156,57 +167,47 @@ export default function AdminPage({ profile, setCurrentPage }) {
           </div>
         </header>
 
-        <section className="admin-metrics">
-          <article className="admin-card admin-card--metric">
-            <span className="admin-card__label">Gebruikers</span>
-            <strong className="admin-card__value">{overview.stats.totalUsers}</strong>
+        <div className="admin-summary-row">
+          <section className="admin-metrics">
+            <article className="admin-card admin-card--metric">
+              <span className="admin-card__label">Gebruikers</span>
+              <strong className="admin-card__value">{overview.stats.totalUsers}</strong>
+              <span className="admin-card__hint">Totaal aantal profielen in de database.</span>
+            </article>
+            <article className="admin-card admin-card--metric">
+              <span className="admin-card__label">Sessies</span>
+              <strong className="admin-card__value">{overview.stats.totalSessions}</strong>
+              <span className="admin-card__hint">Alle opgeslagen work sessions.</span>
+            </article>
+            <article className="admin-card admin-card--metric">
+              <span className="admin-card__label">Betalingen</span>
+              <strong className="admin-card__value">{overview.stats.totalPayments}</strong>
+              <span className="admin-card__hint">Geregistreerde payment details.</span>
+            </article>
+            <article className="admin-card admin-card--metric">
+              <span className="admin-card__label">Admin accounts</span>
+              <strong className="admin-card__value">{overview.stats.adminUsers}</strong>
+              <span className="admin-card__hint">Manueel aan admin toegewezen profielen.</span>
+            </article>
+          </section>
+
+          <article className="admin-card admin-card--status">
+            <div className="admin-card__header">
+              <div>
+                <span className="admin-card__label">Systeemstatus</span>
+                <h2 className="admin-card__title">Backend en database</h2>
+              </div>
+            </div>
+            <div className="admin-status-list">
+              <div className="admin-status-row"><span>Backend</span><strong className={backendHealthy ? "admin-status--ok" : "admin-status--bad"}>{backendHealthy ? "Online" : "Offline"}</strong></div>
+              <div className="admin-status-row"><span>Supabase</span><strong className={databaseHealthy ? "admin-status--ok" : "admin-status--bad"}>{databaseHealthy ? "Online" : "Offline"}</strong></div>
+              <div className="admin-status-row"><span>Plan</span><strong>Hidden admin</strong></div>
+            </div>
+            {error ? <p className="admin-error">{error}</p> : null}
           </article>
-          <article className="admin-card admin-card--metric">
-            <span className="admin-card__label">Sessies</span>
-            <strong className="admin-card__value">{overview.stats.totalSessions}</strong>
-          </article>
-          <article className="admin-card admin-card--metric">
-            <span className="admin-card__label">Betalingen</span>
-            <strong className="admin-card__value">{overview.stats.totalPayments}</strong>
-          </article>
-          <article className="admin-card admin-card--metric">
-            <span className="admin-card__label">Admin accounts</span>
-            <strong className="admin-card__value">{overview.stats.adminUsers}</strong>
-          </article>
-        </section>
+        </div>
 
         <section className="admin-grid">
-          <article className="admin-card">
-            <div className="admin-card__header">
-              <div>
-                <span className="admin-card__label">Snelle acties</span>
-                <h2 className="admin-card__title">Alles in één klik</h2>
-              </div>
-            </div>
-            <div className="admin-action-list">
-              <button className="admin-action" type="button" onClick={() => setCurrentPage?.("home")}>Home</button>
-              <button className="admin-action" type="button" onClick={() => setCurrentPage?.("reports")}>Rapporten</button>
-              <button className="admin-action" type="button" onClick={() => setCurrentPage?.("pause")}>Pauzesuggesties</button>
-              <button className="admin-action" type="button" onClick={() => setCurrentPage?.("profile")}>Profiel</button>
-              <button className="admin-action" type="button" onClick={() => setCurrentPage?.("bedrijfsbeheer")}>Bedrijfsbeheer</button>
-            </div>
-          </article>
-
-          <article className="admin-card">
-            <div className="admin-card__header">
-              <div>
-                <span className="admin-card__label">Planverdeling</span>
-                <h2 className="admin-card__title">Gebruikersrollen</h2>
-              </div>
-            </div>
-            <div className="admin-plan-list">
-              <div className="admin-plan-row"><span>Basic</span><strong>{overview.stats.basicUsers}</strong></div>
-              <div className="admin-plan-row"><span>Premium</span><strong>{overview.stats.premiumUsers}</strong></div>
-              <div className="admin-plan-row"><span>Bedrijfslicentie</span><strong>{overview.stats.companyUsers}</strong></div>
-              <div className="admin-plan-row"><span>Admin</span><strong>{overview.stats.adminUsers}</strong></div>
-            </div>
-          </article>
-
           <article className="admin-card admin-card--wide">
             <div className="admin-card__header">
               <div>
@@ -234,21 +235,6 @@ export default function AdminPage({ profile, setCurrentPage }) {
             </div>
           </article>
 
-          <article className="admin-card">
-            <div className="admin-card__header">
-              <div>
-                <span className="admin-card__label">Systeemstatus</span>
-                <h2 className="admin-card__title">Backend en database</h2>
-              </div>
-            </div>
-            <div className="admin-status-list">
-              <div className="admin-status-row"><span>Backend</span><strong className={backendHealthy ? "admin-status--ok" : "admin-status--bad"}>{backendHealthy ? "Online" : "Offline"}</strong></div>
-              <div className="admin-status-row"><span>Supabase</span><strong className={databaseHealthy ? "admin-status--ok" : "admin-status--bad"}>{databaseHealthy ? "Online" : "Offline"}</strong></div>
-              <div className="admin-status-row"><span>Plan</span><strong>Hidden admin</strong></div>
-            </div>
-            {error ? <p className="admin-error">{error}</p> : null}
-          </article>
-
           <article className="admin-card admin-card--wide">
             <div className="admin-card__header">
               <div>
@@ -256,6 +242,7 @@ export default function AdminPage({ profile, setCurrentPage }) {
                 <h2 className="admin-card__title">Betalingen en sessies</h2>
               </div>
             </div>
+            <p className="admin-card__copy">Hier zie je de laatste opgeslagen work sessions en betalingen. Voor sessies tonen we start, einde en welke gebruiker erbij hoorde; voor betalingen zie je status, plan en facturatie-e-mail.</p>
             <div className="admin-activity-list">
               {recentActivity.map((item) => (
                 <div className="admin-activity-row" key={item.id}>
