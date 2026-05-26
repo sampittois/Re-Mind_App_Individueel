@@ -238,6 +238,25 @@ function themeToPreview(theme) {
   return [theme.vars.background, theme.vars.primary, theme.vars.primaryDark, theme.vars.highlightLight];
 }
 
+const STALE_OFFLINE_THRESHOLD_MS = 30 * 24 * 60 * 60 * 1000;
+
+function getEmployeeStatusMeta(statusValue, referenceDate) {
+  const normalizedStatus = String(statusValue || "").trim().toLowerCase();
+  const isOnline = normalizedStatus === "actief" || normalizedStatus === "online";
+
+  if (isOnline) {
+    return { label: "Online", tone: "online" };
+  }
+
+  const referenceTime = referenceDate ? new Date(referenceDate).getTime() : Number.NaN;
+  const isStaleOffline = Number.isFinite(referenceTime) && Date.now() - referenceTime > STALE_OFFLINE_THRESHOLD_MS;
+
+  return {
+    label: "Offline",
+    tone: isStaleOffline ? "stale-offline" : "offline",
+  };
+}
+
 function createDefaultEmployees() {
   return [
     {
@@ -245,36 +264,40 @@ function createDefaultEmployees() {
       name: "Jane Smith",
       email: "jane@bedrijf.be",
       department: "Sales",
-      status: "Actief",
+      status: "Online",
       usesCompanyColors: true,
       createdAt: "2026-05-12T08:00:00.000Z",
+      lastSeenAt: "2026-05-12T08:00:00.000Z",
     },
     {
       id: "employee-2",
       name: "Bob Johnson",
       email: "bob@bedrijf.be",
       department: "IT",
-      status: "Inactief",
+      status: "Offline",
       usesCompanyColors: false,
       createdAt: "2026-05-10T08:00:00.000Z",
+      lastSeenAt: "2026-05-10T08:00:00.000Z",
     },
     {
       id: "employee-3",
       name: "Liesbeth Channing",
       email: "liesbeth@bedrijf.be",
       department: "Marketing",
-      status: "Actief",
+      status: "Online",
       usesCompanyColors: true,
       createdAt: "2026-05-08T08:00:00.000Z",
+      lastSeenAt: "2026-05-08T08:00:00.000Z",
     },
     {
       id: "employee-4",
       name: "Steven Green",
       email: "steven@bedrijf.be",
       department: "Design",
-      status: "Actief",
+      status: "Online",
       usesCompanyColors: true,
       createdAt: "2026-05-04T08:00:00.000Z",
+      lastSeenAt: "2026-05-04T08:00:00.000Z",
     },
   ];
 }
@@ -286,10 +309,6 @@ function createInitialForm() {
     department: "Sales",
     password: "",
   };
-}
-
-function paletteForEmployee(employee, selectedTheme) {
-  return employee.usesCompanyColors ? selectedTheme : COMPANY_THEME_OPTIONS[0];
 }
 
 export function buildThemeVariables(theme) {
@@ -345,13 +364,13 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
     try {
       const email = employee?.email;
       if (!email) {
-        setEmployeeStats({ hoursWorked: 0, breaksTaken: 0, status: "Inactief" });
+        setEmployeeStats({ hoursWorked: 0, breaksTaken: 0, status: "Offline" });
         return;
       }
 
       const { data: profileRow } = await supabase.from("profiles").select("id").eq("email", email).maybeSingle();
       if (!profileRow?.id) {
-        setEmployeeStats({ hoursWorked: 0, breaksTaken: 0, status: "Inactief" });
+        setEmployeeStats({ hoursWorked: 0, breaksTaken: 0, status: "Offline" });
         return;
       }
 
@@ -394,11 +413,11 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
         .is("end_time", null)
         .limit(1);
 
-      const status = openSessions && openSessions.length ? "Actief" : "Inactief";
+      const status = openSessions && openSessions.length ? "Online" : "Offline";
 
       setEmployeeStats({ hoursWorked, breaksTaken, status });
     } catch (e) {
-      setEmployeeStats({ hoursWorked: 0, breaksTaken: 0, status: "Inactief" });
+      setEmployeeStats({ hoursWorked: 0, breaksTaken: 0, status: "Offline" });
     } finally {
       setEmployeeStatsLoading(false);
     }
@@ -521,11 +540,12 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
         name,
         email,
         department: formValues.department.trim() || "Sales",
-        status: "Inactief",
+        status: "Offline",
         usesCompanyColors: Boolean(companyColorsEnabled),
         mustChangePassword: true,
         adminCreated: true,
         createdAt: new Date().toISOString(),
+        lastSeenAt: new Date().toISOString(),
         createdBy: adminLabel,
         themeId: companyColorsEnabled ? themeId : DEFAULT_THEME_ID,
       };
@@ -638,7 +658,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
 
             <div className="employee-table__body">
               {visibleEmployees.map((employee) => {
-                const employeeTheme = paletteForEmployee(employee, activeTheme);
+                const employeeStatusMeta = getEmployeeStatusMeta(employee.status, employee.lastSeenAt || employee.createdAt);
 
                 return (
                   <div
@@ -661,14 +681,9 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
                     <span>{employee.department}</span>
                     <span>
                       <span
-                        className={`employee-status employee-status--${employee.status === "Actief" ? "active" : "inactive"}`}
-                        style={{
-                          background: employeeTheme.vars.highlightLight,
-                          color: employeeTheme.vars.primaryDark,
-                          borderColor: employeeTheme.vars.border,
-                        }}
+                        className={`employee-status employee-status--${employeeStatusMeta.tone}`}
                       >
-                        {employee.status}
+                        {employeeStatusMeta.label}
                       </span>
                     </span>
                   </div>
@@ -852,21 +867,30 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
               <img src={closeIcon} alt="" aria-hidden="true" />
             </button>
 
-            <div className="company-stats__header">
-              <div>
-                <h2 id="company-stats-title" className="company-modal__title">{selectedEmployee.name}</h2>
-                <p className="company-modal__copy company-modal__copy--stats">
-                  <span>{selectedEmployee.email}</span>
-                  <span aria-hidden="true">·</span>
-                  <span>{selectedEmployee.department}</span>
-                  <span
-                    className={`company-stats__status company-stats__status--${(employeeStats?.status || selectedEmployee.status) === "Actief" ? "active" : "inactive"}`}
-                  >
-                    {employeeStats?.status || selectedEmployee.status}
-                  </span>
-                </p>
-              </div>
-            </div>
+            {(() => {
+              const selectedEmployeeStatusMeta = getEmployeeStatusMeta(
+                employeeStats?.status || selectedEmployee.status,
+                selectedEmployee.lastSeenAt || selectedEmployee.createdAt,
+              );
+
+              return (
+                <div className="company-stats__header">
+                  <div>
+                    <h2 id="company-stats-title" className="company-modal__title">{selectedEmployee.name}</h2>
+                    <p className="company-modal__copy company-modal__copy--stats">
+                      <span>{selectedEmployee.email}</span>
+                      <span aria-hidden="true">·</span>
+                      <span>{selectedEmployee.department}</span>
+                      <span
+                        className={`company-stats__status company-stats__status--${selectedEmployeeStatusMeta.tone}`}
+                      >
+                        {selectedEmployeeStatusMeta.label}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
             <div className="company-stats-controls">
               <label className="company-field company-field--inline">
                 <span>Dag</span>

@@ -355,6 +355,27 @@
   font-weight: var(--font-weight-bold);
 }
 
+.employee-status--online,
+.company-stats__status--online {
+  background: var(--highlight);
+  color: var(--background);
+  border-color: var(--highlight-dark);
+}
+
+.employee-status--offline,
+.company-stats__status--offline {
+  background: var(--background-dark);
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--border) 85%, transparent);
+}
+
+.employee-status--stale-offline,
+.company-stats__status--stale-offline {
+  background: var(--error);
+  color: var(--background);
+  border-color: var(--error-dark);
+}
+
 .company-modal {
   position: fixed;
   inset: 0;
@@ -579,16 +600,6 @@
   font-size: var(--text-body-small-font-size);
   font-weight: var(--font-weight-bold);
   min-width: 76px;
-}
-
-.company-stats__status--active {
-  background: color-mix(in srgb, var(--success) 20%, white 80%);
-  color: var(--primary-dark);
-}
-
-.company-stats__status--inactive {
-  background: color-mix(in srgb, var(--warning) 28%, white 72%);
-  color: var(--text);
 }
 
 .company-stats-grid {

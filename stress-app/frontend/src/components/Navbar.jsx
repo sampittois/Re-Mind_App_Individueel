@@ -11,6 +11,16 @@ export default function Navbar({ currentPage, setCurrentPage, avatar, onOpenRefl
 
         <div className="navRight">
           <nav className="links">
+            {profile?.plan === "admin" ? (
+              <button
+                className={`link ${currentPage === "admin" ? "active" : ""}`}
+                onClick={() => setCurrentPage("admin")}
+                type="button"
+              >
+                Admin
+              </button>
+            ) : null}
+
             <button
               className={`link ${currentPage === "home" ? "active" : ""}`}
               onClick={() => setCurrentPage("home")}
@@ -56,15 +66,6 @@ export default function Navbar({ currentPage, setCurrentPage, avatar, onOpenRefl
             )}
           </button>
 
-          {profile?.plan === "admin" ? (
-            <button
-              className={`link ${currentPage === "admin" ? "active" : ""}`}
-              onClick={() => setCurrentPage("admin")}
-              type="button"
-            >
-              Admin
-            </button>
-          ) : null}
         </div>
       </div>
     </header>
