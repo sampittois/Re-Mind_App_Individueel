@@ -31,11 +31,11 @@
   gap: var(--space-3);
   align-items: flex-start;
   flex: 1 1 200px;
-  min-width: 200px;
+  min-width: 0;
 }
 
 .btnStack .btn {
-  width: 220px;
+  width: min(220px, 100%);
   background: var(--button-fill);
   border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
   border-radius: var(--radius-md);
