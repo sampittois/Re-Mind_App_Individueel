@@ -98,11 +98,36 @@ app.get('/admin/overview', async (req, res) => {
     }
 
     const profiles = profilesResult.data || [];
+    const recentSessions = recentSessionsResult.data || [];
+    const sessionUserIds = [...new Set(recentSessions.map((session) => session.user_id).filter(Boolean))];
+    const sessionUsersResult = sessionUserIds.length
+      ? await supabase
+          .from('profiles')
+          .select('id, full_name, first_name, last_name, email')
+          .in('id', sessionUserIds)
+      : { data: [], error: null };
+
+    if (sessionUsersResult.error) {
+      return res.status(500).json({ ok: false, error: sessionUsersResult.error.message });
+    }
+
+    const sessionUserMap = new Map((sessionUsersResult.data || []).map((profile) => [profile.id, profile]));
     const planCounts = profiles.reduce((accumulator, profile) => {
       const plan = profile?.plan || 'basic';
       accumulator[plan] = (accumulator[plan] || 0) + 1;
       return accumulator;
     }, {});
+
+    const sessionsWithUsers = recentSessions.map((session) => {
+      const linkedProfile = sessionUserMap.get(session.user_id) || {};
+      const displayName = linkedProfile.full_name || [linkedProfile.first_name, linkedProfile.last_name].filter(Boolean).join(' ').trim() || linkedProfile.email || session.user_id;
+
+      return {
+        ...session,
+        user_display_name: displayName,
+        is_active: !session.end_time,
+      };
+    });
 
     res.json({
       ok: true,
@@ -116,7 +141,7 @@ app.get('/admin/overview', async (req, res) => {
         totalPayments: paymentsCountResult.count || 0,
       },
       recentUsers: recentUsersResult.data || [],
-      recentSessions: recentSessionsResult.data || [],
+      recentSessions: sessionsWithUsers,
       recentPayments: recentPaymentsResult.data || [],
     });
   } catch (err) {

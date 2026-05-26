@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import "../styles/admin.css";
 import backIcon from "../assets/back.svg";
 
@@ -45,22 +45,8 @@ function planClass(plan) {
   return "admin-badge--basic";
 }
 
-function formatActivityLabel(item) {
-  if (!item) return "Onbekend";
-  if (item.payment_status) return `Betaling ${item.payment_status}`;
-  if (item.start_time) return "Sessieregistratie";
-  return "Update";
-}
-
-function formatSessionDetail(session) {
-  const startLabel = formatDateTime(session.start_time || session.created_at);
-  const endLabel = session.end_time ? formatDateTime(session.end_time) : "nog actief";
-
-  if (session.end_time) {
-    return `Start ${startLabel} · Einde ${endLabel}`;
-  }
-
-  return `Gestart ${startLabel} · ${endLabel}`;
+function formatActiveStatus(isActive) {
+  return isActive ? "Actief" : "Inactief";
 }
 
 export default function AdminPage({ profile, setCurrentPage }) {
@@ -109,24 +95,6 @@ export default function AdminPage({ profile, setCurrentPage }) {
 
     loadDashboard();
   }, [isAdmin]);
-
-  const recentActivity = useMemo(() => {
-    const sessions = (overview.recentSessions || []).map((session) => ({
-      id: `session-${session.id}`,
-      label: "Werk­sessie",
-      detail: `${formatSessionDetail(session)} · Gebruiker ${session.user_id}`,
-      value: formatDateTime(session.created_at),
-    }));
-
-    const payments = (overview.recentPayments || []).map((payment) => ({
-      id: `payment-${payment.id}`,
-      label: `Betaling · ${formatPlan(payment.plan)}`,
-      detail: `${payment.payment_status || "onbekend"} · ${payment.billing_email || payment.user_id}`,
-      value: formatDateTime(payment.created_at),
-    }));
-
-    return [...payments, ...sessions].slice(0, 8);
-  }, [overview.recentPayments, overview.recentSessions]);
 
   if (!isAdmin) {
     return (
@@ -238,22 +206,30 @@ export default function AdminPage({ profile, setCurrentPage }) {
           <article className="admin-card admin-card--wide">
             <div className="admin-card__header">
               <div>
-                <span className="admin-card__label">Recente activiteit</span>
-                <h2 className="admin-card__title">Betalingen en sessies</h2>
+                <span className="admin-card__label">Recente sessies</span>
+                <h2 className="admin-card__title">Tijd, gebruiker en status</h2>
               </div>
             </div>
-            <p className="admin-card__copy">Hier zie je de laatste opgeslagen work sessions en betalingen. Voor sessies tonen we start, einde en welke gebruiker erbij hoorde; voor betalingen zie je status, plan en facturatie-e-mail.</p>
-            <div className="admin-activity-list">
-              {recentActivity.map((item) => (
-                <div className="admin-activity-row" key={item.id}>
+            <p className="admin-card__copy">Hier zie je de laatste work sessions. De UUID is vervangen door een leesbare gebruikersnaam, met het startmoment en of de sessie nog actief is.</p>
+            <div className="admin-table">
+              <div className="admin-table__head">
+                <span>Tijd</span>
+                <span>Gebruiker</span>
+                <span>Actief</span>
+              </div>
+              {(overview.recentSessions || []).map((session) => (
+                <div className="admin-table__row" key={session.id}>
                   <div>
-                    <strong>{item.label}</strong>
-                    <span>{item.detail}</span>
+                    <strong>{formatDateTime(session.start_time || session.created_at)}</strong>
+                    <span>{session.end_time ? `Einde: ${formatDateTime(session.end_time)}` : "Nog geen einde geregistreerd"}</span>
                   </div>
-                  <span>{item.value}</span>
+                  <span>{session.user_display_name || session.user_id}</span>
+                  <span className={`admin-badge ${session.is_active ? "admin-badge--company" : "admin-badge--basic"}`}>
+                    {formatActiveStatus(session.is_active)}
+                  </span>
                 </div>
               ))}
-              {!recentActivity.length && !loading ? <p className="admin-empty">Geen recente activiteit.</p> : null}
+              {!(overview.recentSessions || []).length && !loading ? <p className="admin-empty">Geen recente sessies gevonden.</p> : null}
             </div>
           </article>
         </section>
