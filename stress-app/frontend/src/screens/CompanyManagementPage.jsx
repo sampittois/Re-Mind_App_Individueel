@@ -496,6 +496,16 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
     setFormValues(createInitialForm());
   }
 
+  function removeEmployee(employeeId) {
+    if (!employeeId) return;
+
+    const confirmed = window.confirm("Ben je zeker dat je dit werknemersaccount wil verwijderen?");
+    if (!confirmed) return;
+
+    setEmployees((previous) => previous.filter((employee) => employee.id !== employeeId));
+    setSelectedEmployeeId((current) => (current === employeeId ? null : current));
+  }
+
   return (
     <main className="company-management-page page" style={themedVariables}>
       <div className="company-management-header">
@@ -776,6 +786,16 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
                 <strong className="company-stat-card__value">{employeeStatsLoading ? "--" : (employeeStats?.breaksTaken || 0)}</strong>
                 <span className="company-stat-card__meta">Op {new Date(selectedDay).toLocaleDateString("nl-NL")}</span>
               </article>
+            </div>
+
+            <div className="company-modal__actions company-modal__actions--stats">
+              <button
+                className="company-modal__danger"
+                type="button"
+                onClick={() => removeEmployee(selectedEmployee.id)}
+              >
+                Verwijder account
+              </button>
             </div>
 
           </div>
