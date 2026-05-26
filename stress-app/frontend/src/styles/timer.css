@@ -408,3 +408,18 @@
     width: 100%;
   }
 }
+
+@media (max-width: 900px) {
+  .timer-card {
+    padding: var(--space-4);
+  }
+
+  .breathingLogo {
+    transform: scale(0.9);
+    transform-origin: center;
+  }
+
+  .hrRow {
+    gap: var(--space-3);
+  }
+}

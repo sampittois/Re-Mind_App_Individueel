@@ -112,3 +112,36 @@
 	color: var(--text);
 }
 
+@media (max-width: 900px) {
+	.stats-section {
+		max-width: none;
+		padding: 0;
+	}
+
+	.stats-grid {
+		column-gap: var(--space-3);
+		row-gap: var(--space-3);
+	}
+
+	.stat-card {
+		width: 100%;
+		padding: var(--space-3);
+	}
+
+	.stat-card.small {
+		min-height: 108px;
+	}
+
+	.stat-card.large {
+		min-height: 136px;
+	}
+
+	.stat-number {
+		font-size: 38px;
+	}
+
+	.stat-number.split {
+		font-size: 42px;
+	}
+}
+

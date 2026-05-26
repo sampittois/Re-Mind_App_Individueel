@@ -165,6 +165,15 @@
   .slider-card {
     padding: var(--space-3);
     gap: var(--space-3);
+    width: 100%;
+    height: auto;
+    min-height: 150px;
+  }
+
+  .stress-slider-card,
+  .energy-slider-card {
+    width: 100%;
+    padding: var(--space-3);
   }
 
   .slider-dot {

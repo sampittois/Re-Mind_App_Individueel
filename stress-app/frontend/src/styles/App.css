@@ -545,12 +545,50 @@ a {
 
   .home-layout {
     grid-template-columns: 1fr;
-    gap: var(--space-6);
+    grid-template-areas:
+      "sliders"
+      "timer"
+      "suggestions"
+      "stats";
+    gap: var(--space-5);
+    max-width: 900px;
   }
 
   .home-left-column,
   .home-right-column {
+    display: contents;
+    width: auto;
+  }
+
+  .rating-cards-container {
+    grid-area: sliders;
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-3);
+    align-items: stretch;
     width: 100%;
+  }
+
+  .rating-cards-container > * {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .timer-section {
+    grid-area: timer;
+    width: 100%;
+  }
+
+  .home-right-column .pause-suggestions {
+    grid-area: suggestions;
+    width: 100%;
+  }
+
+  .stats-section {
+    grid-area: stats;
+    width: 100%;
+    max-width: none;
+    margin-top: 0;
   }
 }
 
