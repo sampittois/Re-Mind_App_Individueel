@@ -70,6 +70,97 @@ app.post('/set-plan', async (req, res) => {
   }
 });
 
+// Create an employee account from bedrijfsbeheer.
+// Requires SUPABASE_SERVICE_ROLE_KEY so auth admin APIs are available.
+app.post('/admin/create-employee', async (req, res) => {
+  try {
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      return res.status(500).json({
+        ok: false,
+        error: 'SUPABASE_SERVICE_ROLE_KEY ontbreekt op de backend.',
+      });
+    }
+
+    const {
+      name,
+      email,
+      password,
+      department,
+      use_company_colors,
+      created_by,
+    } = req.body || {};
+
+    const safeName = (name || '').trim();
+    const safeEmail = (email || '').trim().toLowerCase();
+    const safePassword = (password || '').trim();
+    const safeDepartment = (department || 'Sales').trim() || 'Sales';
+
+    if (!safeName || !safeEmail || !safePassword) {
+      return res.status(400).json({ ok: false, error: 'Naam, e-mail en wachtwoord zijn verplicht.' });
+    }
+
+    if (safePassword.length < 8) {
+      return res.status(400).json({ ok: false, error: 'Wachtwoord moet minstens 8 tekens bevatten.' });
+    }
+
+    const [firstName = safeName, ...rest] = safeName.split(/\s+/);
+    const lastName = rest.join(' ') || null;
+
+    const { data: createdUser, error: createUserError } = await supabase.auth.admin.createUser({
+      email: safeEmail,
+      password: safePassword,
+      email_confirm: true,
+      user_metadata: {
+        first_name: firstName,
+        last_name: lastName,
+        full_name: safeName,
+      },
+    });
+
+    if (createUserError) {
+      return res.status(400).json({ ok: false, error: createUserError.message });
+    }
+
+    const user = createdUser?.user;
+    if (!user?.id) {
+      return res.status(500).json({ ok: false, error: 'Kon gebruiker niet aanmaken.' });
+    }
+
+    const profilePayload = {
+      id: user.id,
+      full_name: safeName,
+      first_name: firstName,
+      last_name: lastName,
+      email: safeEmail,
+      plan: 'basic',
+      use_company_colors: Boolean(use_company_colors),
+      company_management_enabled: false,
+      work_type: safeDepartment,
+    };
+
+    const { error: upsertProfileError } = await supabase
+      .from('profiles')
+      .upsert(profilePayload, { onConflict: 'id' });
+
+    if (upsertProfileError) {
+      return res.status(500).json({ ok: false, error: upsertProfileError.message });
+    }
+
+    return res.json({
+      ok: true,
+      employee: {
+        id: user.id,
+        email: safeEmail,
+        name: safeName,
+        department: safeDepartment,
+        created_by: created_by || null,
+      },
+    });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 app.listen(3000, () => {
   console.log("Backend running on http://localhost:3000");
 });

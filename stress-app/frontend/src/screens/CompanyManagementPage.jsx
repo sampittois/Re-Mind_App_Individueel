@@ -321,7 +321,10 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
   const [companyColorsEnabled, setCompanyColorsEnabled] = useState(() => readStoredValue(STORAGE_KEYS.companyColorsEnabled, true));
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
+  const [deleteEmployeeId, setDeleteEmployeeId] = useState(null);
   const [formValues, setFormValues] = useState(createInitialForm());
+  const [isCreatingEmployee, setIsCreatingEmployee] = useState(false);
+  const [createEmployeeError, setCreateEmployeeError] = useState("");
 
   const activeTheme = themeId === "custom" ? customTheme : getThemeById(themeId);
   const selectedEmployee = employees.find((employee) => employee.id === selectedEmployeeId) || null;
@@ -449,6 +452,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
   }, [isCreateOpen, selectedEmployeeId]);
 
   function openCreateModal() {
+    setCreateEmployeeError("");
     setFormValues(createInitialForm());
     setIsCreateOpen(true);
   }
@@ -465,45 +469,91 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
     }));
   }
 
-  function submitEmployee(event) {
+  async function submitEmployee(event) {
     event.preventDefault();
+
+    if (isCreatingEmployee) return;
 
     const name = formValues.name.trim();
     const email = formValues.email.trim();
+    const password = formValues.password.trim();
 
     if (!name || !email) {
+      setCreateEmployeeError("Naam en e-mail zijn verplicht.");
       return;
     }
 
-    const nextEmployee = {
-      id: createEmployeeId(),
-      name,
-      email,
-      department: formValues.department.trim() || "Sales",
-      status: "Inactief",
-      usesCompanyColors: Boolean(companyColorsEnabled),
-      password: formValues.password || null,
-      mustChangePassword: true,
-      adminCreated: true,
-      createdAt: new Date().toISOString(),
-      createdBy: adminLabel,
-      themeId: companyColorsEnabled ? themeId : DEFAULT_THEME_ID,
-    };
+    if (!password || password.length < 8) {
+      setCreateEmployeeError("Geef een tijdelijk wachtwoord van minstens 8 tekens.");
+      return;
+    }
 
-    setEmployees((previous) => [nextEmployee, ...previous]);
-    setSelectedEmployeeId(nextEmployee.id);
-    setIsCreateOpen(false);
-    setFormValues(createInitialForm());
+    try {
+      setIsCreatingEmployee(true);
+      setCreateEmployeeError("");
+
+      const response = await fetch("http://localhost:3000/admin/create-employee", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          department: formValues.department.trim() || "Sales",
+          use_company_colors: Boolean(companyColorsEnabled),
+          created_by: adminLabel,
+        }),
+      });
+
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok || !payload?.ok) {
+        throw new Error(payload?.error || "Account kon niet worden aangemaakt.");
+      }
+
+      const nextEmployee = {
+        id: payload?.employee?.id || createEmployeeId(),
+        authUserId: payload?.employee?.id || null,
+        name,
+        email,
+        department: formValues.department.trim() || "Sales",
+        status: "Inactief",
+        usesCompanyColors: Boolean(companyColorsEnabled),
+        mustChangePassword: true,
+        adminCreated: true,
+        createdAt: new Date().toISOString(),
+        createdBy: adminLabel,
+        themeId: companyColorsEnabled ? themeId : DEFAULT_THEME_ID,
+      };
+
+      setEmployees((previous) => [nextEmployee, ...previous]);
+      setSelectedEmployeeId(nextEmployee.id);
+      setIsCreateOpen(false);
+      setFormValues(createInitialForm());
+    } catch (error) {
+      setCreateEmployeeError(error?.message || "Account kon niet worden aangemaakt.");
+    } finally {
+      setIsCreatingEmployee(false);
+    }
   }
 
-  function removeEmployee(employeeId) {
+  function requestRemoveEmployee(employeeId) {
     if (!employeeId) return;
+    setDeleteEmployeeId(employeeId);
+  }
 
-    const confirmed = window.confirm("Ben je zeker dat je dit werknemersaccount wil verwijderen?");
-    if (!confirmed) return;
+  function cancelRemoveEmployee() {
+    setDeleteEmployeeId(null);
+  }
 
-    setEmployees((previous) => previous.filter((employee) => employee.id !== employeeId));
-    setSelectedEmployeeId((current) => (current === employeeId ? null : current));
+  function confirmRemoveEmployee() {
+    if (!deleteEmployeeId) return;
+
+    setEmployees((previous) => previous.filter((employee) => employee.id !== deleteEmployeeId));
+    setSelectedEmployeeId((current) => (current === deleteEmployeeId ? null : current));
+    setDeleteEmployeeId(null);
   }
 
   return (
@@ -732,8 +782,12 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
                 />
               </label>
 
+              {createEmployeeError ? <p className="company-form__error">{createEmployeeError}</p> : null}
+
               <div className="company-modal__actions">
-                <button className="company-modal__primary" type="submit">Account aanmaken</button>
+                <button className="company-modal__primary" type="submit" disabled={isCreatingEmployee}>
+                  {isCreatingEmployee ? "Account aanmaken..." : "Account aanmaken"}
+                </button>
                 <button className="company-modal__secondary" type="button" onClick={() => setIsCreateOpen(false)}>
                   Annuleer
                 </button>
@@ -752,14 +806,18 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
 
             <div className="company-stats__header">
               <div>
-                <p className="company-management-eyebrow">Werknemerstatistieken</p>
                 <h2 id="company-stats-title" className="company-modal__title">{selectedEmployee.name}</h2>
-                <p className="company-modal__copy">{selectedEmployee.email} · {selectedEmployee.department}</p>
+                <p className="company-modal__copy company-modal__copy--stats">
+                  <span>{selectedEmployee.email}</span>
+                  <span aria-hidden="true">·</span>
+                  <span>{selectedEmployee.department}</span>
+                  <span
+                    className={`company-stats__status company-stats__status--${(employeeStats?.status || selectedEmployee.status) === "Actief" ? "active" : "inactive"}`}
+                  >
+                    {employeeStats?.status || selectedEmployee.status}
+                  </span>
+                </p>
               </div>
-
-              <span className={`company-stats__status company-stats__status--${(employeeStats?.status || selectedEmployee.status) === "Actief" ? "active" : "inactive"}`}>
-                {employeeStats?.status || selectedEmployee.status}
-              </span>
             </div>
             <div className="company-stats-controls">
               <label className="company-field company-field--inline">
@@ -792,12 +850,30 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
               <button
                 className="company-modal__danger"
                 type="button"
-                onClick={() => removeEmployee(selectedEmployee.id)}
+                onClick={() => requestRemoveEmployee(selectedEmployee.id)}
               >
                 Verwijder account
               </button>
             </div>
 
+          </div>
+        </div>
+      ) : null}
+
+      {deleteEmployeeId ? (
+        <div className="company-modal" role="dialog" aria-modal="true" aria-labelledby="company-delete-title" onMouseDown={cancelRemoveEmployee}>
+          <div className="company-modal__card company-modal__card--confirm" onMouseDown={(event) => event.stopPropagation()}>
+            <h2 id="company-delete-title" className="company-modal__title">Account verwijderen?</h2>
+            <p className="company-modal__copy">Deze actie kan niet ongedaan gemaakt worden. Wil je dit werknemersaccount echt verwijderen?</p>
+
+            <div className="company-modal__actions company-modal__actions--confirm">
+              <button className="company-modal__danger" type="button" onClick={confirmRemoveEmployee}>
+                Ja, verwijder
+              </button>
+              <button className="company-modal__secondary" type="button" onClick={cancelRemoveEmployee}>
+                Annuleer
+              </button>
+            </div>
           </div>
         </div>
       ) : null}
