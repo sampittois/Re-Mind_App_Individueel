@@ -130,7 +130,7 @@ a {
 
 .home-layout {
   display: grid;
-  grid-template-columns: 400px 800px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
   gap: var(--space-8);
   align-items: flex-start;
   width: 100%;
@@ -140,18 +140,20 @@ a {
 }
 
 .home-left-column {
-  width: 400px;
+  width: auto;
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
+  min-width: 0;
 }
 
 .home-right-column {
-  width: 800px;
+  width: auto;
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
   align-items: flex-start;
+  min-width: 0;
 }
 
 .home-right-column .timer-section {
@@ -562,16 +564,9 @@ a {
 
   .rating-cards-container {
     grid-area: sliders;
-    display: flex;
-    flex-direction: row;
-    gap: var(--space-3);
-    align-items: stretch;
+    transform: scale(0.92);
+    transform-origin: top left;
     width: 100%;
-  }
-
-  .rating-cards-container > * {
-    flex: 1 1 0;
-    min-width: 0;
   }
 
   .timer-section {

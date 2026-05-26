@@ -37,7 +37,8 @@
   border: var(--border-width-md) solid var(--highlight);
   border-radius: var(--radius-lg);
   padding: var(--space-5);
-  width: 400px;
+  width: 100%;
+  max-width: 400px;
   box-sizing: border-box;
 }
 
@@ -156,52 +157,8 @@
   border: var(--border-width-md) solid var(--highlight);
   border-radius: var(--radius-lg);
   padding: var(--space-5);
-  width: 400px;
+  width: 100%;
+  max-width: 400px;
   box-sizing: border-box;
 }
 
-/* Responsive */
-@media (max-width: 900px) {
-  .slider-card {
-    padding: var(--space-3);
-    gap: var(--space-3);
-    width: 100%;
-    height: auto;
-    min-height: 150px;
-  }
-
-  .stress-slider-card,
-  .energy-slider-card {
-    width: 100%;
-    padding: var(--space-3);
-  }
-
-  .slider-dot {
-    width: 18px;
-    height: 18px;
-    border-width: 2px;
-  }
-
-  .slider-dot.active {
-    border-width: 2px;
-    box-shadow: 0 0 0 2px var(--background-dark);
-  }
-
-  .slider-scale-container {
-    gap: var(--space-2);
-  }
-
-  .slider-dots-wrapper {
-    height: 36px;
-  }
-
-  .slider-line {
-    /* responsive: dots are 18px; half is 9px */
-    left: calc(8px + 9px);
-    right: calc(8px + 9px);
-  }
-
-  .slider-number {
-    font-size: 0.9em;
-  }
-}
