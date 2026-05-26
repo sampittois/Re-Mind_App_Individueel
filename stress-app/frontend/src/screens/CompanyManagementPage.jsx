@@ -325,6 +325,8 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
   const [formValues, setFormValues] = useState(createInitialForm());
   const [isCreatingEmployee, setIsCreatingEmployee] = useState(false);
   const [createEmployeeError, setCreateEmployeeError] = useState("");
+  const [isDeletingEmployee, setIsDeletingEmployee] = useState(false);
+  const [deleteEmployeeError, setDeleteEmployeeError] = useState("");
 
   const activeTheme = themeId === "custom" ? customTheme : getThemeById(themeId);
   const selectedEmployee = employees.find((employee) => employee.id === selectedEmployeeId) || null;
@@ -533,7 +535,11 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
       setIsCreateOpen(false);
       setFormValues(createInitialForm());
     } catch (error) {
-      setCreateEmployeeError(error?.message || "Account kon niet worden aangemaakt.");
+      if (error?.message === "Failed to fetch") {
+        setCreateEmployeeError("Backend niet bereikbaar. Start de backend en probeer opnieuw.");
+      } else {
+        setCreateEmployeeError(error?.message || "Account kon niet worden aangemaakt.");
+      }
     } finally {
       setIsCreatingEmployee(false);
     }
@@ -541,19 +547,61 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
 
   function requestRemoveEmployee(employeeId) {
     if (!employeeId) return;
+    setDeleteEmployeeError("");
     setDeleteEmployeeId(employeeId);
   }
 
   function cancelRemoveEmployee() {
+    if (isDeletingEmployee) return;
     setDeleteEmployeeId(null);
+    setDeleteEmployeeError("");
   }
 
-  function confirmRemoveEmployee() {
+  async function confirmRemoveEmployee() {
     if (!deleteEmployeeId) return;
 
-    setEmployees((previous) => previous.filter((employee) => employee.id !== deleteEmployeeId));
-    setSelectedEmployeeId((current) => (current === deleteEmployeeId ? null : current));
-    setDeleteEmployeeId(null);
+    const employeeToDelete = employees.find((employee) => employee.id === deleteEmployeeId);
+    if (!employeeToDelete) {
+      setDeleteEmployeeId(null);
+      return;
+    }
+
+    const userId = employeeToDelete.authUserId || employeeToDelete.id;
+
+    if (!userId || typeof userId !== "string" || userId.length < 16) {
+      setDeleteEmployeeError("Dit account heeft geen geldige database-ID en kan niet server-side verwijderd worden.");
+      return;
+    }
+
+    try {
+      setIsDeletingEmployee(true);
+      setDeleteEmployeeError("");
+
+      const response = await fetch("http://localhost:3000/admin/delete-employee", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_id: userId }),
+      });
+
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || !payload?.ok) {
+        throw new Error(payload?.error || "Account kon niet verwijderd worden.");
+      }
+
+      setEmployees((previous) => previous.filter((employee) => employee.id !== deleteEmployeeId));
+      setSelectedEmployeeId((current) => (current === deleteEmployeeId ? null : current));
+      setDeleteEmployeeId(null);
+    } catch (error) {
+      if (error?.message === "Failed to fetch") {
+        setDeleteEmployeeError("Backend niet bereikbaar. Start de backend en probeer opnieuw.");
+      } else {
+        setDeleteEmployeeError(error?.message || "Account kon niet verwijderd worden.");
+      }
+    } finally {
+      setIsDeletingEmployee(false);
+    }
   }
 
   return (
@@ -867,13 +915,15 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
             <p className="company-modal__copy">Deze actie kan niet ongedaan gemaakt worden. Wil je dit werknemersaccount echt verwijderen?</p>
 
             <div className="company-modal__actions company-modal__actions--confirm">
-              <button className="company-modal__danger" type="button" onClick={confirmRemoveEmployee}>
-                Ja, verwijder
+              <button className="company-modal__danger" type="button" onClick={confirmRemoveEmployee} disabled={isDeletingEmployee}>
+                {isDeletingEmployee ? "Verwijderen..." : "Ja, verwijder"}
               </button>
-              <button className="company-modal__secondary" type="button" onClick={cancelRemoveEmployee}>
+              <button className="company-modal__secondary" type="button" onClick={cancelRemoveEmployee} disabled={isDeletingEmployee}>
                 Annuleer
               </button>
             </div>
+
+            {deleteEmployeeError ? <p className="company-form__error">{deleteEmployeeError}</p> : null}
           </div>
         </div>
       ) : null}

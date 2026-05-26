@@ -105,6 +105,10 @@ function buildDisplayName(profile, user) {
   return DEFAULT_NAME;
 }
 
+function shouldForceOnboarding(user) {
+  return Boolean(user?.user_metadata?.force_onboarding);
+}
+
 function readCompanyThemeFromStorage() {
   const themeId = readStoredValue(STORAGE_KEYS.theme, DEFAULT_THEME_ID);
   const customTheme = normalizeCustomTheme(readStoredValue(STORAGE_KEYS.customTheme, DEFAULT_CUSTOM_THEME));
@@ -235,6 +239,21 @@ export default function App() {
 
       if (!didSave) {
         console.error("Failed to save onboarding profile");
+      }
+
+      const userMetadata = user?.user_metadata || {};
+      const { error: authUpdateError } = await supabase.auth.updateUser({
+        data: {
+          ...userMetadata,
+          force_onboarding: false,
+          first_name: (payload.firstName || firstName || "").trim() || null,
+          last_name: (payload.lastName || lastName || "").trim() || null,
+          full_name: fullName || null,
+        },
+      });
+
+      if (authUpdateError) {
+        console.error("Failed to clear onboarding flag:", authUpdateError);
       }
     }
 
@@ -414,7 +433,12 @@ export default function App() {
   } else if (currentPage === "onboarding") {
     pageContent = (
       <main className="page login-root">
-        <OnboardingPage onComplete={handleOnboardingComplete} onSkip={() => setCurrentPage("home")} />
+        <OnboardingPage
+          onComplete={handleOnboardingComplete}
+          onSkip={() => setCurrentPage("home")}
+          initialFirstName={profile?.first_name || user?.user_metadata?.first_name || ""}
+          initialLastName={profile?.last_name || user?.user_metadata?.last_name || ""}
+        />
       </main>
     );
   } else {
@@ -491,6 +515,11 @@ export default function App() {
       setUser(session?.user ?? null);
 
       if (event === "SIGNED_IN" && session?.user) {
+        if (shouldForceOnboarding(session.user)) {
+          setCurrentPage("onboarding");
+          return;
+        }
+
         setCurrentPage((previousPage) => {
           if (AUTH_PAGES.has(previousPage)) {
             return "home";
@@ -541,6 +570,13 @@ export default function App() {
       active = false;
     };
   }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    if (!shouldForceOnboarding(user)) return;
+    if (currentPage === "onboarding") return;
+    setCurrentPage("onboarding");
+  }, [user, currentPage]);
 
   useEffect(() => {
     const companyEnabled = readStoredValue(STORAGE_KEYS.companyColorsEnabled, true);

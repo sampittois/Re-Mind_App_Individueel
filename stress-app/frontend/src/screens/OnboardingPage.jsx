@@ -1,15 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../styles/login.css";
 import "../styles/settings.css";
 import Breathe from "../components/Breathe";
 import CustomDropdown from "../components/CustomDropdown";
 
-export default function OnboardingPage({ onComplete, onSkip }) {
+export default function OnboardingPage({ onComplete, onSkip, initialFirstName = "", initialLastName = "" }) {
   const [step, setStep] = useState(1);
 
   // Step 1: basic user info
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [firstName, setFirstName] = useState(initialFirstName || "");
+  const [lastName, setLastName] = useState(initialLastName || "");
+
+  useEffect(() => {
+    if (!firstName && initialFirstName) {
+      setFirstName(initialFirstName);
+    }
+    if (!lastName && initialLastName) {
+      setLastName(initialLastName);
+    }
+  }, [firstName, lastName, initialFirstName, initialLastName]);
 
   // Step 2: working hours / breaks (use same inputs as profile)
   const [workStart, setWorkStart] = useState("09:00");

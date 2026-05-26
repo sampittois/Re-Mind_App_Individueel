@@ -8,9 +8,42 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Initialize Supabase client. Prefer service role key on backend when present.
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
-const supabase = createClient(process.env.SUPABASE_URL, supabaseKey);
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+let supabaseClient = null;
+let supabaseAdminClient = null;
+
+function getSupabaseClient() {
+  if (supabaseClient) return supabaseClient;
+
+  if (!supabaseUrl) {
+    throw new Error("SUPABASE_URL ontbreekt (of VITE_SUPABASE_URL voor lokale fallback).");
+  }
+
+  if (!supabaseAnonKey && !supabaseServiceRoleKey) {
+    throw new Error("Geen Supabase key gevonden (SUPABASE_ANON_KEY of SUPABASE_SERVICE_ROLE_KEY).");
+  }
+
+  supabaseClient = createClient(supabaseUrl, supabaseServiceRoleKey || supabaseAnonKey);
+  return supabaseClient;
+}
+
+function getSupabaseAdminClient() {
+  if (supabaseAdminClient) return supabaseAdminClient;
+
+  if (!supabaseUrl) {
+    throw new Error("SUPABASE_URL ontbreekt (of VITE_SUPABASE_URL voor lokale fallback).");
+  }
+
+  if (!supabaseServiceRoleKey) {
+    throw new Error("SUPABASE_SERVICE_ROLE_KEY ontbreekt op de backend.");
+  }
+
+  supabaseAdminClient = createClient(supabaseUrl, supabaseServiceRoleKey);
+  return supabaseAdminClient;
+}
 
 app.post("/checkin", (req, res) => {
   const { stress, energy } = req.body;
@@ -24,6 +57,7 @@ app.post("/checkin", (req, res) => {
 // against a table the app already uses.
 app.get('/supabase-health', async (req, res) => {
   try {
+    const supabase = getSupabaseClient();
     const { data, error } = await supabase.from('work_sessions').select('id').limit(1);
     if (error) return res.status(500).json({ ok: false, error: error.message });
     res.json({ ok: true, data });
@@ -37,6 +71,7 @@ app.get('/supabase-health', async (req, res) => {
 // if available). Expects { user_id, plan } in the body.
 app.post('/set-plan', async (req, res) => {
   try {
+    const supabase = getSupabaseClient();
     const { user_id, plan, payment_details } = req.body || {};
     if (!user_id || !plan) return res.status(400).json({ ok: false, error: 'Missing user_id or plan' });
 
@@ -74,12 +109,7 @@ app.post('/set-plan', async (req, res) => {
 // Requires SUPABASE_SERVICE_ROLE_KEY so auth admin APIs are available.
 app.post('/admin/create-employee', async (req, res) => {
   try {
-    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      return res.status(500).json({
-        ok: false,
-        error: 'SUPABASE_SERVICE_ROLE_KEY ontbreekt op de backend.',
-      });
-    }
+    const supabase = getSupabaseAdminClient();
 
     const {
       name,
@@ -114,6 +144,8 @@ app.post('/admin/create-employee', async (req, res) => {
         first_name: firstName,
         last_name: lastName,
         full_name: safeName,
+        force_onboarding: true,
+        admin_created: true,
       },
     });
 
@@ -156,6 +188,26 @@ app.post('/admin/create-employee', async (req, res) => {
         created_by: created_by || null,
       },
     });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+app.post('/admin/delete-employee', async (req, res) => {
+  try {
+    const supabase = getSupabaseAdminClient();
+    const { user_id } = req.body || {};
+
+    if (!user_id) {
+      return res.status(400).json({ ok: false, error: 'Missing user_id' });
+    }
+
+    const { error } = await supabase.auth.admin.deleteUser(user_id);
+    if (error) {
+      return res.status(500).json({ ok: false, error: error.message });
+    }
+
+    return res.json({ ok: true });
   } catch (err) {
     return res.status(500).json({ ok: false, error: err.message });
   }
