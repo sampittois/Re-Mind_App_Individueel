@@ -300,6 +300,27 @@ a {
   filter: none !important;
 }
 
+/* Close-button specific: keep original fill on hover for close buttons only (do not affect back/remove actions) */
+.workday-overlay__close.icon-remove-btn:hover,
+.workday-overlay__close.icon-remove-btn:focus-visible,
+.pause-overlay__close.icon-remove-btn:hover,
+.pause-overlay__close.icon-remove-btn:focus-visible,
+.company-modal__close.icon-remove-btn:hover,
+.company-modal__close.icon-remove-btn:focus-visible {
+  background: var(--icon-action-fill) !important;
+  border-color: var(--icon-action-border) !important;
+  color: var(--icon-action-icon-color) !important;
+}
+
+.workday-overlay__close.icon-remove-btn:hover img,
+.workday-overlay__close.icon-remove-btn:focus-visible img,
+.pause-overlay__close.icon-remove-btn:hover img,
+.pause-overlay__close.icon-remove-btn:focus-visible img,
+.company-modal__close.icon-remove-btn:hover img,
+.company-modal__close.icon-remove-btn:focus-visible img {
+  filter: none !important;
+}
+
 .pause-overlay__close:active img,
 .company-modal__close:active img {
   filter: none;
