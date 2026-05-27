@@ -29,7 +29,7 @@
   --icon-action-icon-color: var(--primary-dark);
   --icon-action-hover-fill: var(--highlight);
   --icon-action-hover-border: var(--primary-dark);
-  --icon-action-hover-icon-color: var(--primary-dark);
+  --icon-action-hover-icon-color: var(--background);
   --icon-action-active-fill: var(--highlight-light);
   --icon-action-active-border: var(--primary-dark);
   --icon-action-active-icon-color: var(--primary-dark);
