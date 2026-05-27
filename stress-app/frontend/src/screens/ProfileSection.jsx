@@ -176,7 +176,7 @@ export default function ProfileSection({ profile, initialName = "John Doe", onSa
           </button>
           {avatarSrc && (
             <button
-              className="avatar-remove-btn"
+              className="avatar-remove-btn icon-action-btn"
               type="button"
               onClick={onRemoveAvatar}
               aria-label="Verwijder profielfoto"

@@ -627,7 +627,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
   return (
     <main className="company-management-page page" style={themedVariables}>
       <div className="company-management-header">
-        <button className="company-management-back" type="button" onClick={() => setCurrentPage?.("profile")} aria-label="Terug">
+        <button className="company-management-back icon-action-btn" type="button" onClick={() => setCurrentPage?.("profile")} aria-label="Terug">
           <img src={backIcon} alt="Terug" />
         </button>
 
@@ -642,7 +642,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
               <p className="company-management-panel__copy">Klik op een werknemer om hun prestaties en pauzes te bekijken.</p>
             </div>
 
-            <button className="company-management-add" type="button" onClick={openCreateModal}>
+            <button className="company-management-add icon-action-btn--inline" type="button" onClick={openCreateModal}>
               <img src={plusIcon} alt="" aria-hidden="true" />
               Werknemer toevoegen
             </button>

@@ -121,7 +121,7 @@ export default function WorkdayReflectionOverlay({ open, onClose, onSubmit, show
               autoFocus
             />
 
-            <button className="workday-overlay__add" type="button" onClick={handleAddItem} aria-label="Taak toevoegen">
+            <button className="workday-overlay__add icon-action-btn" type="button" onClick={handleAddItem} aria-label="Taak toevoegen">
               +
             </button>
           </div>
@@ -148,7 +148,7 @@ export default function WorkdayReflectionOverlay({ open, onClose, onSubmit, show
                 <span className={`workday-overlay__item-label ${item.done ? "done" : ""}`}>{item.text}</span>
 
                 <button
-                  className="remove-pause-btn workday-overlay__delete"
+                  className="remove-pause-btn workday-overlay__delete icon-action-btn"
                   type="button"
                   onClick={() => handleDeleteItem(item.id)}
                   aria-label={`Taak verwijderen: ${item.text}`}

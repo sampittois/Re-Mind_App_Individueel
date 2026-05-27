@@ -182,7 +182,7 @@ export default function OnboardingPage({ onComplete, onSkip, initialFirstName = 
                   {pauses.length > 1 && (
                     <button
                       type="button"
-                      className="remove-pause-btn"
+                      className="remove-pause-btn icon-action-btn"
                       onClick={() => removePause(pause.id)}
                       aria-label="Verwijder pauze"
                     >
@@ -192,7 +192,7 @@ export default function OnboardingPage({ onComplete, onSkip, initialFirstName = 
                 </div>
               ))}
 
-              <button type="button" className="add-pause-btn" onClick={addPause}>
+              <button type="button" className="add-pause-btn icon-action-btn" onClick={addPause}>
                 +
               </button>
             </div>
