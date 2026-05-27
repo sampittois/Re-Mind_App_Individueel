@@ -251,6 +251,14 @@ export default function ProfileSection({ profile, initialName = "John Doe", onSa
             </button>
           ) : null}
 
+          <button
+            className="action-btn"
+            type="button"
+            onClick={() => setCurrentPage?.("settings")}
+          >
+            Instellingen
+          </button>
+
           {isAdminPlan ? (
             <button
               className="action-btn"

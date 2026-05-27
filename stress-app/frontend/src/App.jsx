@@ -14,6 +14,7 @@ import StressSlider from "./components/StressSlider";
 import EnergySlider from "./components/EnergySlider";
 import StatsSection from "./components/StatsSection";
 import ProfileSection from "./screens/ProfileSection";
+import ProfileSettings from "./screens/profilesettings";
 import Reports from "./screens/Reports";
 import UpgradePage from "./screens/UpgradePage";
 import AdminPage from "./screens/AdminPage";
@@ -54,7 +55,7 @@ const THEME_VARIABLES = [
 ];
 
 const AUTH_PAGES = new Set(["login", "register", "onboarding"]);
-const RESTORABLE_PAGES = new Set(["home", "pause", "breathing", "exercise-detail", "reports", "profile", "upgrade", "bedrijfsbeheer", "admin"]);
+const RESTORABLE_PAGES = new Set(["home", "pause", "breathing", "exercise-detail", "reports", "profile", "settings", "upgrade", "bedrijfsbeheer", "admin"]);
 
 function isRestorablePage(page) {
   return RESTORABLE_PAGES.has(page);
@@ -108,6 +109,38 @@ function buildDisplayName(profile, user) {
 
 function shouldForceOnboarding(user) {
   return Boolean(user?.user_metadata?.force_onboarding);
+}
+
+async function handleBackendDeleteAccount() {
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError) {
+    return { error: sessionError };
+  }
+
+  const accessToken = sessionData?.session?.access_token;
+  if (!accessToken) {
+    return { error: new Error("No active session") };
+  }
+
+  const response = await fetch("http://localhost:3000/delete-account", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  let payload = {};
+  try {
+    payload = await response.json();
+  } catch {
+    payload = {};
+  }
+
+  if (!response.ok) {
+    return { error: new Error(payload.error || "Could not delete account") };
+  }
+
+  return { error: null };
 }
 
 async function updateAuthNameMetadata(fullName, firstName, lastName, userMetadata = {}) {
@@ -171,6 +204,15 @@ export default function App() {
   const handleCompanyThemeChange = useCallback(() => {
     setCompanyThemeRevision((previous) => previous + 1);
   }, []);
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    setUser(null);
+    setProfile(null);
+    setAvatar(null);
+    setName(DEFAULT_NAME);
+    setCurrentPage("login");
+  }
 
   async function saveProfilePatch(patch) {
     if (!user?.id) {
@@ -270,6 +312,16 @@ export default function App() {
 
     setName(fullName || DEFAULT_NAME);
     setCurrentPage("home");
+  }
+
+  async function handleDeleteAccount() {
+    const result = await handleBackendDeleteAccount();
+    if (result.error) {
+      return result;
+    }
+
+    await handleLogout();
+    return result;
   }
 
   function openBreathingExercise(exerciseId, returnPage = "home", autoStart = false) {
@@ -399,17 +451,25 @@ export default function App() {
             return didSave;
           }}
           onLogout={async () => {
-            await supabase.auth.signOut();
-            setUser(null);
-            setProfile(null);
-            setAvatar(null);
-            setName(DEFAULT_NAME);
-            setCurrentPage("login");
+            await handleLogout();
           }}
           user={user}
           onUpdateProfile={saveProfilePatch}
           hasStoredName={Boolean(profile?.full_name || profile?.first_name || profile?.last_name)}
           setCurrentPage={setCurrentPage}
+        />
+      </main>
+    );
+  } else if (currentPage === "settings") {
+    pageContent = (
+      <main className="page settings-page">
+        <ProfileSettings
+          profile={profile}
+          user={user}
+          initialName={name}
+          onGoBack={() => setCurrentPage("profile")}
+          onSaveName={saveProfileName}
+          onDeleteAccount={handleDeleteAccount}
         />
       </main>
     );

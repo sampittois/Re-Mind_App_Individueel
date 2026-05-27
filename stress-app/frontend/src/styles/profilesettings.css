@@ -1,0 +1,159 @@
+.profilesettings-page__layout {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.profilesettings-page__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.profilesettings-page__eyebrow {
+  margin: 0 0 6px;
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary-dark);
+}
+
+.profilesettings-page__title {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-3xl);
+  color: var(--primary);
+}
+
+.profilesettings-page__copy {
+  margin: 8px 0 0;
+  max-width: 720px;
+  color: var(--text-light);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-md);
+}
+
+.profilesettings-page__status {
+  margin: 0;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-sm);
+}
+
+.profilesettings-page__status--error {
+  color: var(--error-dark);
+}
+
+.profilesettings-page__status--success {
+  color: var(--success);
+}
+
+.profilesettings-page__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.profilesettings-page__card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 16px;
+  background: var(--highlight-light);
+}
+
+.profilesettings-page__card--danger {
+  grid-column: 1 / -1;
+  border: 1px solid var(--error-dark);
+  background: var(--warning-light);
+}
+
+.profilesettings-page__card-title {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-xl);
+  color: var(--text-primary);
+}
+
+.profilesettings-page__card-copy {
+  margin: 4px 0 0;
+  color: var(--text-light);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-sm);
+}
+
+.profilesettings-page__form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.profilesettings-page__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.profilesettings-page__label {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+}
+
+.profilesettings-page__value,
+.profilesettings-page__input {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-sm);
+  color: var(--text);
+}
+
+.profilesettings-page__value {
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--background);
+}
+
+.profilesettings-page__input {
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--background);
+}
+
+.profilesettings-page__input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.profilesettings-page__hint {
+  margin: 0;
+  color: var(--text-light);
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-sm);
+}
+
+.profilesettings-page__danger-button {
+  background: var(--error-dark);
+  border-color: var(--error-dark);
+  color: var(--background);
+}
+
+.profilesettings-page__danger-button:hover {
+  background: var(--error);
+  border-color: var(--error);
+  color: var(--background);
+}
+
+@media (max-width: 900px) {
+  .profilesettings-page__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profilesettings-page__card--danger {
+    grid-column: auto;
+  }
+}

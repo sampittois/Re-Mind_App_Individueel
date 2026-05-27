@@ -303,6 +303,40 @@ app.post('/admin/delete-employee', async (req, res) => {
   }
 });
 
+app.post('/delete-account', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization || '';
+    const accessToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
+
+    if (!accessToken) {
+      return res.status(401).json({ ok: false, error: 'Missing access token' });
+    }
+
+    const supabase = getSupabaseAdminClient();
+    const { data: userData, error: userError } = await supabase.auth.getUser(accessToken);
+
+    if (userError || !userData?.user?.id) {
+      return res.status(401).json({ ok: false, error: userError?.message || 'Invalid session' });
+    }
+
+    const userId = userData.user.id;
+
+    const { error: deleteError } = await supabase.auth.admin.deleteUser(userId);
+    if (deleteError) {
+      return res.status(500).json({ ok: false, error: deleteError.message });
+    }
+
+    const { error: profileDeleteError } = await supabase.from('profiles').delete().eq('id', userId);
+    if (profileDeleteError) {
+      console.error('Failed to delete profile for account', userId, profileDeleteError.message);
+    }
+
+    return res.json({ ok: true });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 app.listen(3000, () => {
   console.log("Backend running on http://localhost:3000");
 });
