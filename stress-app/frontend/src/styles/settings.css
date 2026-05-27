@@ -161,6 +161,44 @@
   color: var(--icon-action-active-icon-color);
 }
 
+/* Force exact overlay-like add button appearance for settings add-pause button */
+button.add-pause-btn.icon-add-btn {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  padding: 0 !important;
+  border-radius: var(--radius-sm) !important;
+  border: var(--button-border-width) var(--button-border-style) var(--icon-action-border) !important;
+  background: var(--icon-action-fill) !important;
+  color: var(--icon-action-icon-color) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  line-height: 0 !important;
+  box-sizing: border-box !important;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease !important;
+}
+
+button.add-pause-btn.icon-add-btn:hover,
+button.add-pause-btn.icon-add-btn:focus-visible {
+  background: var(--icon-action-hover-fill) !important;
+  border-color: var(--icon-action-hover-border) !important;
+  color: var(--icon-action-hover-icon-color) !important;
+}
+
+button.add-pause-btn.icon-add-btn svg {
+  width: 18px !important;
+  height: 18px !important;
+  display: block !important;
+  color: inherit !important;
+}
+
+button.add-pause-btn.icon-add-btn:hover svg,
+button.add-pause-btn.icon-add-btn:focus-visible svg {
+  color: var(--icon-action-hover-icon-color) !important;
+}
+
 /* Dropdowns Group */
 .dropdowns-group {
   display: flex;
