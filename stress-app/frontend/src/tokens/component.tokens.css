@@ -38,12 +38,16 @@
   --button-toggle-active-text-color: var(--text-light);
 
   /* Icon action button (back / add / remove) tokens */
-  /* Default: highlight fill, primary-dark stroke, primary-dark icon */
+  /* Default / active: highlight fill, primary-dark stroke, primary-dark icon */
   --icon-action-fill: var(--highlight);
   --icon-action-border: var(--primary-dark);
   --icon-action-icon-color: var(--primary-dark);
 
-  /* Hover: primary dark stroke, primary fill, background icon */
+  --icon-action-active-fill: var(--highlight);
+  --icon-action-active-border: var(--primary-dark);
+  --icon-action-active-icon-color: var(--primary-dark);
+
+  /* Hover: primary fill, primary-dark stroke, background icon */
   --icon-action-hover-fill: var(--primary);
   --icon-action-hover-border: var(--primary-dark);
   --icon-action-hover-icon-color: var(--background);
@@ -134,6 +138,13 @@
   background: var(--icon-action-hover-fill);
   border-color: var(--icon-action-hover-border);
   color: var(--icon-action-hover-icon-color);
+}
+
+.icon-action-btn:active,
+.icon-action-btn[aria-pressed="true"] {
+  background: var(--icon-action-active-fill);
+  border-color: var(--icon-action-active-border);
+  color: var(--icon-action-active-icon-color);
 }
 
 /* Ensure image icons also adapt on hover: convert them to a single-color light icon on hover */
