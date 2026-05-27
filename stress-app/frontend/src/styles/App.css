@@ -503,6 +503,19 @@ button.add-pause-btn.icon-add-btn[aria-pressed="true"] {
   color: var(--icon-action-active-icon-color) !important;
 }
 
+/* Ensure svg icon inherits color and matches the to-do overlay add button behaviour */
+button.add-pause-btn.icon-add-btn svg {
+  width: 18px !important;
+  height: 18px !important;
+  display: block !important;
+  color: inherit !important;
+}
+
+button.add-pause-btn.icon-add-btn:hover svg,
+button.add-pause-btn.icon-add-btn:focus-visible svg {
+  color: var(--icon-action-hover-icon-color) !important;
+}
+
 button.icon-add-btn svg {
   width: 18px;
   height: 18px;
