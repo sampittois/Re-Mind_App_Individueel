@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import "../styles/navbar.css";
 import logo from "../assets/logo_primary.png";
 import menuIcon from "../assets/menu.svg";
+import closeIcon from "../assets/x.svg";
 
 export default function Navbar({ currentPage, setCurrentPage, avatar, onOpenReflection, profile }) {
   const navInnerRef = useRef(null);
@@ -90,6 +91,8 @@ export default function Navbar({ currentPage, setCurrentPage, avatar, onOpenRefl
     setMenuOpen(false);
   };
 
+  const currentMenuIcon = menuOpen ? closeIcon : menuIcon;
+
   return (
     <header className="nav">
       <div className="navInner" ref={navInnerRef}>
@@ -161,18 +164,11 @@ export default function Navbar({ currentPage, setCurrentPage, avatar, onOpenRefl
               ref={menuToggleRef}
               className={`burger ${menuOpen ? "open" : ""}`}
               type="button"
-              aria-label="Navigatiemenu openen"
+              aria-label={menuOpen ? "Navigatiemenu sluiten" : "Navigatiemenu openen"}
               aria-expanded={menuOpen}
               onClick={() => setMenuOpen((open) => !open)}
             >
-              <span
-                className="burgerIcon"
-                aria-hidden="true"
-                style={{
-                  WebkitMaskImage: `url(${menuIcon})`,
-                  maskImage: `url(${menuIcon})`,
-                }}
-              ></span>
+              <img src={currentMenuIcon} alt="" aria-hidden="true" className="burgerIconImage" />
             </button>
           ) : null}
 
