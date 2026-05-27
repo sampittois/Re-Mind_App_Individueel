@@ -12,7 +12,7 @@ export default function Reports({ setCurrentPage, profile }) {
   return (
     <main className={`reports-page page${view === "week" ? " reports-week-page" : ""}`}>
       <div className="reports-top-row">
-        <button className="back-btn reports-back" onClick={() => setCurrentPage && setCurrentPage("home")} aria-label="Terug">
+        <button className="back-btn reports-back icon-action-btn" onClick={() => setCurrentPage && setCurrentPage("home")} aria-label="Terug">
           <img src={backIcon} alt="Terug" />
         </button>
 

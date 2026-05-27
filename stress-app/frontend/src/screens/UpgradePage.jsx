@@ -87,9 +87,9 @@ export default function UpgradePage({ profile, onUpdateProfile, setCurrentPage }
     <div className="upgrade-root">
       <div className="upgrade-inner">
         <div className="upgrade-top-row">
-          <button className="upgrade-back" type="button" onClick={() => setCurrentPage?.("profile")} aria-label="Terug">
-            <img src={backIcon} alt="Terug" />
-          </button>
+          <button className="upgrade-back icon-action-btn" type="button" onClick={() => setCurrentPage?.("profile")} aria-label="Terug">
+              <img src={backIcon} alt="Terug" />
+            </button>
         </div>
         {pendingPlan ? (
           <div className="payment-modal" role="dialog" aria-modal="true">

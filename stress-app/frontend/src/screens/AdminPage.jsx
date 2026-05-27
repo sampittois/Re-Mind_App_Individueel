@@ -115,7 +115,7 @@ export default function AdminPage({ profile, setCurrentPage }) {
     <main className="admin-page page">
       <div className="admin-shell">
         <header className="admin-hero">
-          <button className="admin-back" type="button" onClick={() => setCurrentPage?.("home")} aria-label="Terug">
+          <button className="admin-back icon-action-btn" type="button" onClick={() => setCurrentPage?.("home")} aria-label="Terug">
             <img src={backIcon} alt="Terug" />
           </button>
 

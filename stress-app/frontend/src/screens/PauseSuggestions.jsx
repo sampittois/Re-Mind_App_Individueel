@@ -271,7 +271,7 @@ export default function PauseSuggestions({
       <main className="pause-suggestions-page page">
         <div className="pause-page-top-row">
           <button
-            className="back-btn pause-page-back"
+            className="back-btn pause-page-back icon-action-btn"
             onClick={() => onBack?.()}
             aria-label="Terug"
             type="button"
