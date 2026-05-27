@@ -14,6 +14,10 @@ function loadTimerState(key = TIMER_STATE_STORAGE_KEY) {
     return null;
   }
 
+  if (!key) {
+    return null;
+  }
+
   try {
     const raw = window.localStorage.getItem(key);
     if (!raw) {
@@ -44,6 +48,10 @@ function loadTimerState(key = TIMER_STATE_STORAGE_KEY) {
 
 function saveTimerState(snapshot, key = TIMER_STATE_STORAGE_KEY) {
   if (typeof window === "undefined") {
+    return;
+  }
+
+  if (!key) {
     return;
   }
 
@@ -185,7 +193,7 @@ function BreathingLogo({ progress = 0, active = false, size = ORIGINAL_BREATHING
 
 export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecisionLogged, profile, onStartBreathingExercise, onOpenSuggestion }) {
   const storageKey = useMemo(() => {
-    return profile?.id ? `${TIMER_STATE_STORAGE_KEY}.${profile.id}` : TIMER_STATE_STORAGE_KEY;
+    return profile?.id ? `${TIMER_STATE_STORAGE_KEY}.${profile.id}` : null;
   }, [profile?.id]);
 
   const initialTimerState = useMemo(() => loadTimerState(storageKey), [storageKey]);
