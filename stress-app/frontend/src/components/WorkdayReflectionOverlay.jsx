@@ -75,7 +75,7 @@ export default function WorkdayReflectionOverlay({ open, onClose, onSubmit, show
       onMouseDown={() => onClose?.()}
     >
       <div className="workday-overlay__card" onMouseDown={(event) => event.stopPropagation()}>
-        <button className="workday-overlay__close icon-action-btn" type="button" onClick={() => onClose?.()} aria-label="Terug">
+        <button className="workday-overlay__close" type="button" onClick={() => onClose?.()} aria-label="Terug">
           <BackIcon />
         </button>
 
@@ -121,7 +121,7 @@ export default function WorkdayReflectionOverlay({ open, onClose, onSubmit, show
               autoFocus
             />
 
-            <button className="workday-overlay__add icon-action-btn" type="button" onClick={handleAddItem} aria-label="Taak toevoegen">
+            <button className="workday-overlay__add" type="button" onClick={handleAddItem} aria-label="Taak toevoegen">
               <PlusIcon />
             </button>
           </div>

@@ -225,14 +225,63 @@ a {
   --button-active-fill: var(--button-dark-active-fill);
   --button-active-border-color: var(--button-dark-active-border);
   --button-active-text-color: var(--button-dark-active-text);
+  --icon-action-fill: var(--highlight-light);
+  --icon-action-border: var(--primary-dark);
+  --icon-action-icon-color: var(--primary-dark);
+  --icon-action-hover-fill: var(--highlight);
+  --icon-action-hover-border: var(--primary-dark);
+  --icon-action-hover-icon-color: var(--background);
+  --icon-action-active-fill: var(--highlight-light);
+  --icon-action-active-border: var(--primary-dark);
+  --icon-action-active-icon-color: var(--primary-dark);
 }
 
 .workday-overlay__close {
   position: absolute;
   top: var(--space-4);
   right: var(--space-4);
+  left: auto;
+  transform: none;
   width: 40px;
   height: 40px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  line-height: 0;
+  border-radius: var(--radius-sm);
+  background: var(--icon-action-fill);
+  border: var(--button-border-width) var(--button-border-style) var(--icon-action-border);
+  color: var(--icon-action-icon-color);
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.workday-overlay__close svg,
+.workday-overlay__add svg {
+  width: 18px;
+  height: 18px;
+  color: inherit;
+  display: block;
+  margin: 0;
+}
+
+.workday-overlay__close:hover,
+.workday-overlay__close:focus-visible,
+.workday-overlay__add:hover,
+.workday-overlay__add:focus-visible {
+  background: var(--icon-action-hover-fill);
+  border-color: var(--icon-action-hover-border);
+  color: var(--icon-action-hover-icon-color);
+}
+
+.workday-overlay__close:active,
+.workday-overlay__close[aria-pressed="true"],
+.workday-overlay__add:active,
+.workday-overlay__add[aria-pressed="true"] {
+  background: var(--icon-action-active-fill);
+  border-color: var(--icon-action-active-border);
+  color: var(--icon-action-active-icon-color);
 }
 
 .workday-overlay__title {
@@ -351,12 +400,22 @@ a {
 }
 
 .workday-overlay__add {
+  align-self: center;
+  margin-top: 0;
   width: 40px;
   height: 40px;
   min-width: 40px;
   padding: 0;
-  align-self: center;
-  margin-top: 0;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  line-height: 0;
+  border-radius: var(--radius-sm);
+  background: var(--icon-action-fill);
+  border: var(--button-border-width) var(--button-border-style) var(--icon-action-border);
+  color: var(--icon-action-icon-color);
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .workday-overlay__delete {
