@@ -9,25 +9,25 @@ export const COMPANY_THEME_OPTIONS = [
     id: "sage",
     name: "Sage",
     description: "Rustig en vertrouwd",
-    preview: ["#fffcf5", "#769382", "#596e62", "#e4ebe6"],
+    preview: ["#f7f4ef", "#7c8f85", "#5f6f67", "#e6ece8"],
     vars: {
-      background: "#fffcf5",
-      backgroundDark: "#f4edd9",
-      text: "#1a1a1a",
-      textLight: "#414141",
-      border: "#c0c3b8",
-      primaryDark: "#596e62",
-      primary: "#769382",
-      highlightDark: "#7e8f83",
-      highlight: "#a8bfaf",
-      highlightLight: "#e4ebe6",
+      background: "#f7f4ef",
+      backgroundDark: "#ece5db",
+      text: "#202020",
+      textLight: "#4a4a4a",
+      border: "#c8c1b7",
+      primaryDark: "#5f6f67",
+      primary: "#7c8f85",
+      highlightDark: "#8da097",
+      highlight: "#b3c1ba",
+      highlightLight: "#e6ece8",
       highlightHover: "#f2f5f3",
-      success: "#6baf8e",
-      warning: "#e3cb91",
-      warningLight: "#f6efdd",
-      error: "#da8383",
-      errorDark: "#a46262",
-      info: "#8cb2c8",
+      success: "#7aa184",
+      warning: "#d8c07d",
+      warningLight: "#f5ead1",
+      error: "#d58d8d",
+      errorDark: "#9f5f5f",
+      info: "#8ab0c4",
     },
   },
   {
@@ -355,6 +355,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
   const [selectedDay, setSelectedDay] = useState(() => new Date().toISOString().slice(0, 10));
   const [employeeStats, setEmployeeStats] = useState(null);
   const [employeeStatsLoading, setEmployeeStatsLoading] = useState(false);
+  const remindTheme = normalizeCustomTheme(DEFAULT_CUSTOM_THEME);
 
   async function loadEmployeeStatsForDay(employee, isoDate) {
     setEmployeeStatsLoading(true);
@@ -487,6 +488,11 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
         [field]: value,
       },
     }));
+  }
+
+  function resetCustomThemeToRemind() {
+    setCustomTheme(remindTheme);
+    setThemeId("custom");
   }
 
   async function submitEmployee(event) {
@@ -742,6 +748,10 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
                   <h3 className="custom-theme-editor__title">Eigen kleuren instellen</h3>
                   <p className="company-management-panel__copy">Pas de belangrijkste kleuren aan en bekijk meteen het resultaat.</p>
                 </div>
+
+                <button className="company-management-add company-management-reset" type="button" onClick={resetCustomThemeToRemind}>
+                  Herstel Re-Mind kleuren
+                </button>
               </div>
 
               <div className="custom-theme-editor__grid">

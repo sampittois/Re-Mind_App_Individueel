@@ -161,6 +161,25 @@
   color: var(--icon-action-active-icon-color);
 }
 
+.company-management-reset {
+  line-height: var(--text-body-regular-line-height);
+  gap: 0;
+}
+
+.company-management-reset:hover,
+.company-management-reset:focus-visible {
+  background: var(--icon-action-hover-fill);
+  border-color: var(--icon-action-hover-border);
+  color: var(--icon-action-hover-icon-color);
+}
+
+.company-management-reset:active,
+.company-management-reset[aria-pressed="true"] {
+  background: var(--icon-action-active-fill);
+  border-color: var(--icon-action-active-border);
+  color: var(--icon-action-active-icon-color);
+}
+
 .company-management-stack {
   position: relative;
   z-index: 1;
