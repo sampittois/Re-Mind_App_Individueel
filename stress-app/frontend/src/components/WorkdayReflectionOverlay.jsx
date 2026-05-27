@@ -121,7 +121,7 @@ export default function WorkdayReflectionOverlay({ open, onClose, onSubmit, show
               autoFocus
             />
 
-            <button className="workday-overlay__add icon-action-btn" type="button" onClick={handleAddItem} aria-label="Taak toevoegen">
+            <button className="workday-overlay__add icon-action-btn icon-action-btn--inline" type="button" onClick={handleAddItem} aria-label="Taak toevoegen">
               +
             </button>
           </div>
