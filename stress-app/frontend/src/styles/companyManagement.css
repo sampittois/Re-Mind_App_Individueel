@@ -40,7 +40,6 @@
 }
 
 .company-management-back:hover,
-.company-management-back:focus,
 .company-management-back:focus-visible {
   background: var(--icon-action-hover-fill);
   border-color: var(--icon-action-hover-border);
@@ -58,9 +57,9 @@
 }
 
 .company-management-back:hover img,
-.company-management-back:focus img,
+.company-management-back:focus-visible img,
 .company-management-add:hover img,
-.company-management-add:focus img {
+.company-management-add:focus-visible img {
   filter: brightness(0) invert(1) saturate(100%);
   opacity: 0.95;
 }
@@ -133,7 +132,6 @@
 }
 
 .company-management-add:hover,
-.company-management-add:focus,
 .company-management-add:focus-visible {
   background: var(--icon-action-hover-fill);
   border-color: var(--icon-action-hover-border);

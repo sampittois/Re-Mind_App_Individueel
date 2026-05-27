@@ -76,7 +76,6 @@
 }
 
 .avatar-remove-btn:hover,
-.avatar-remove-btn:focus,
 .avatar-remove-btn:focus-visible {
   background: var(--icon-action-hover-fill);
   border-color: var(--icon-action-hover-border);
@@ -89,7 +88,6 @@
 }
 
 .avatar-remove-btn:hover img,
-.avatar-remove-btn:focus img,
 .avatar-remove-btn:focus-visible img {
   transform: scale(0.88);
   filter: brightness(0) invert(1) saturate(100%);

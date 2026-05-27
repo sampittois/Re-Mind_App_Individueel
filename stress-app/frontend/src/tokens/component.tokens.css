@@ -133,7 +133,6 @@
 }
 
 .icon-action-btn:hover,
-.icon-action-btn:focus,
 .icon-action-btn:focus-visible {
   background: var(--icon-action-hover-fill);
   border-color: var(--icon-action-hover-border);
@@ -159,7 +158,6 @@
 }
 
 .icon-action-btn:hover img,
-.icon-action-btn:focus img,
 .icon-action-btn:focus-visible img {
   /* make the icon appear as the background color (light) when hovered */
   filter: brightness(0) invert(1) saturate(100%);

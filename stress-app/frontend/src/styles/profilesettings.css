@@ -27,7 +27,6 @@
 }
 
 .profilesettings-back:hover,
-.profilesettings-back:focus,
 .profilesettings-back:focus-visible {
   background: var(--icon-action-hover-fill);
   border-color: var(--icon-action-hover-border);
