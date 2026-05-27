@@ -894,7 +894,7 @@ a {
   height: 40px;
   background: var(--icon-action-fill);
   border: var(--button-border-width) var(--button-border-style) var(--icon-action-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   padding: 0;
   color: var(--icon-action-icon-color);
   transition: background-color 0.2s ease, border-color 0.2s ease;

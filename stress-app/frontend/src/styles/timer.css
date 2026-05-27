@@ -379,21 +379,6 @@
 
 .timer-break-overlay__back {
   margin-top: var(--space-6);
-  --button-fill: var(--button-dark-default-fill);
-  --button-border-color: var(--button-dark-default-border);
-  --button-text-color: var(--button-dark-default-text);
-  --button-hover-fill: var(--button-dark-hover-fill);
-  --button-hover-border-color: var(--button-dark-hover-border);
-  --button-hover-text-color: var(--button-dark-hover-text);
-  --button-active-fill: var(--button-dark-active-fill);
-  --button-active-border-color: var(--button-dark-active-border);
-  --button-active-text-color: var(--button-dark-active-text);
-}
-
-.timer-break-overlay__back:hover {
-  background: var(--button-hover-fill);
-  border-color: var(--button-hover-border-color);
-  color: var(--button-hover-text-color);
 }
 
 @media (max-width: 720px) {

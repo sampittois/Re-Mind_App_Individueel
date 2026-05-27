@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import PauseCard from "./PauseCard";
+import { BackIcon } from "./IconActions";
 import xIcon from "../assets/x.svg";
 import breathing from "../assets/ademhaling.png";
 import stretching from "../assets/stretchen.png";
@@ -203,8 +204,8 @@ export default function BreakSuggestionsOverlay({ open, mode = "balanced", onClo
           ))}
         </div>
 
-        <button className="btn timer-break-overlay__back" type="button" onClick={() => onClose?.()}>
-          Terug
+        <button className="timer-break-overlay__back icon-action-btn" type="button" onClick={() => onClose?.()} aria-label="Terug">
+          <BackIcon />
         </button>
       </div>
     </div>
