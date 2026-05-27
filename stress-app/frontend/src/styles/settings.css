@@ -117,8 +117,47 @@
 .remove-pause-btn:hover img,
 .remove-pause-btn:focus-visible img {
   transform: scale(0.88);
-  filter: brightness(0) invert(1) saturate(100%);
+  filter: none !important;
   opacity: 0.95;
+}
+
+/* Force remove-pause buttons to use the round close-button style and hover behavior */
+button.remove-pause-btn {
+  width: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  border: var(--button-border-width) var(--button-border-style) var(--icon-action-border) !important;
+  background: var(--icon-action-fill) !important;
+  color: var(--icon-action-icon-color) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+  line-height: 0 !important;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease !important;
+}
+
+button.remove-pause-btn:hover,
+button.remove-pause-btn:focus-visible {
+  background: var(--icon-action-fill) !important;
+  border-color: var(--icon-action-border) !important;
+  color: var(--icon-action-icon-color) !important;
+}
+
+button.remove-pause-btn img {
+  width: 18px !important;
+  height: 18px !important;
+  object-fit: contain !important;
+  transition: transform 150ms ease !important;
+}
+
+button.remove-pause-btn:hover img,
+button.remove-pause-btn:focus-visible img {
+  transform: scale(0.88) !important;
+  filter: none !important;
+  opacity: 0.95 !important;
 }
 
 .add-pause-btn {
