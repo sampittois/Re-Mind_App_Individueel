@@ -15,14 +15,23 @@
 .profilesettings-back {
   width: var(--space-8, 40px);
   height: var(--space-8, 40px);
-  border-radius: var(--radius-sm, 8px);
+  border-radius: var(--radius-sm);
   padding: 0;
   display: grid;
   place-items: center;
-  background: var(--background);
-  border: 1px solid var(--border);
-  color: var(--text);
+  background: var(--icon-action-fill);
+  border: var(--button-border-width) var(--button-border-style) var(--icon-action-border);
+  color: var(--icon-action-icon-color);
   cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.profilesettings-back:hover,
+.profilesettings-back:focus,
+.profilesettings-back:focus-visible {
+  background: var(--icon-action-hover-fill);
+  border-color: var(--icon-action-hover-border);
+  color: var(--icon-action-hover-icon-color);
 }
 
 .profilesettings-back svg {

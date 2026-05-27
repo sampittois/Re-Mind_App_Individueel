@@ -104,9 +104,9 @@
 }
 
 .remove-pause-btn {
-  background: var(--highlight-light);
-  border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
-  color: var(--button-text-color);
+  background: var(--icon-action-fill);
+  border: var(--button-border-width) var(--button-border-style) var(--icon-action-border);
+  color: var(--icon-action-icon-color);
   font-size: 18px;
   cursor: pointer;
   padding: 6px;
@@ -126,6 +126,8 @@
 .remove-pause-btn:focus img,
 .remove-pause-btn:focus-visible img {
   transform: scale(0.88);
+  filter: brightness(0) invert(1) saturate(100%);
+  opacity: 0.95;
 }
 
 .add-pause-btn {
@@ -133,9 +135,9 @@
   height: 40px;
   padding: 0;
   border-radius: 8px;
-  background: var(--button-fill);
-  border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
-  color: var(--button-text-color);
+  background: var(--icon-action-fill);
+  border: var(--button-border-width) var(--button-border-style) var(--icon-action-border);
+  color: var(--icon-action-icon-color);
   font-size: 20px;
   cursor: pointer;
   display: flex;
@@ -146,9 +148,9 @@
 }
 
 .add-pause-btn:hover {
-  background: var(--button-hover-fill);
-  border-color: var(--button-hover-border-color);
-  color: var(--button-hover-text-color);
+  background: var(--icon-action-hover-fill);
+  border-color: var(--icon-action-hover-border);
+  color: var(--icon-action-hover-icon-color);
 }
 
 /* Dropdowns Group */

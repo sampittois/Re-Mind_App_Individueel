@@ -33,12 +33,36 @@
   margin-top: var(--space-1);
 }
 
+.company-management-back {
+  background: var(--icon-action-fill);
+  border: var(--button-border-width) var(--button-border-style) var(--icon-action-border);
+  color: var(--icon-action-icon-color);
+}
+
+.company-management-back:hover,
+.company-management-back:focus,
+.company-management-back:focus-visible {
+  background: var(--icon-action-hover-fill);
+  border-color: var(--icon-action-hover-border);
+  color: var(--icon-action-hover-icon-color);
+}
+
 .company-management-back img,
 .company-modal__close img,
 .company-management-add img {
   width: 18px;
   height: 18px;
   display: block;
+  transition: filter 150ms ease, opacity 150ms ease;
+  filter: none;
+}
+
+.company-management-back:hover img,
+.company-management-back:focus img,
+.company-management-add:hover img,
+.company-management-add:focus img {
+  filter: brightness(0) invert(1) saturate(100%);
+  opacity: 0.95;
 }
 
 .company-modal__close,
@@ -93,6 +117,27 @@
   align-items: center;
   gap: var(--space-2);
   white-space: nowrap;
+}
+
+.company-management-add {
+  background: var(--icon-action-fill);
+  border: var(--button-border-width) var(--button-border-style) var(--icon-action-border);
+  color: var(--icon-action-icon-color);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+}
+
+.company-management-add img {
+  width: 18px;
+  height: 18px;
+}
+
+.company-management-add:hover,
+.company-management-add:focus,
+.company-management-add:focus-visible {
+  background: var(--icon-action-hover-fill);
+  border-color: var(--icon-action-hover-border);
+  color: var(--icon-action-hover-icon-color);
 }
 
 .company-management-stack {

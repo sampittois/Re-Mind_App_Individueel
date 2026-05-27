@@ -37,6 +37,17 @@
   --button-toggle-active-border-color: var(--primary-dark);
   --button-toggle-active-text-color: var(--text-light);
 
+  /* Icon action button (back / add / remove) tokens */
+  /* Default: highlight fill, primary-dark stroke, primary-dark icon */
+  --icon-action-fill: var(--highlight);
+  --icon-action-border: var(--primary-dark);
+  --icon-action-icon-color: var(--primary-dark);
+
+  /* Hover: primary dark stroke, primary fill, background icon */
+  --icon-action-hover-fill: var(--primary);
+  --icon-action-hover-border: var(--primary-dark);
+  --icon-action-hover-icon-color: var(--background);
+
   --button-fill: var(--button-light-default-fill);
   --button-border-color: var(--button-light-default-border);
   --button-text-color: var(--button-light-default-text);
@@ -90,4 +101,61 @@
   --button-active-fill: var(--button-light-active-fill);
   --button-active-border-color: var(--button-light-active-border);
   --button-active-text-color: var(--button-light-active-text);
+}
+
+/* Reusable icon action button styles */
+.icon-action-btn {
+  width: var(--space-8, 40px);
+  height: var(--space-8, 40px);
+  border-radius: var(--radius-sm);
+  padding: 0;
+  display: grid;
+  place-items: center;
+  background: var(--icon-action-fill);
+  border: var(--button-border-width) var(--button-border-style) var(--icon-action-border);
+  color: var(--icon-action-icon-color);
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.icon-action-btn svg {
+  width: 18px;
+  height: 18px;
+  color: inherit;
+}
+
+.icon-action-btn:hover,
+.icon-action-btn:focus,
+.icon-action-btn:focus-visible {
+  background: var(--icon-action-hover-fill);
+  border-color: var(--icon-action-hover-border);
+  color: var(--icon-action-hover-icon-color);
+}
+
+/* Ensure image icons also adapt on hover: convert them to a single-color light icon on hover */
+.icon-action-btn img {
+  width: 18px;
+  height: 18px;
+  display: block;
+  transition: filter 150ms ease, opacity 150ms ease;
+  filter: none;
+  opacity: 1;
+}
+
+.icon-action-btn:hover img,
+.icon-action-btn:focus img,
+.icon-action-btn:focus-visible img {
+  /* make the icon appear as the background color (light) when hovered */
+  filter: brightness(0) invert(1) saturate(100%);
+  opacity: 0.95;
+}
+
+/* Inline variant for add buttons that include text */
+.icon-action-btn--inline {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  padding: 8px 12px;
+  height: auto;
+  width: auto;
 }
