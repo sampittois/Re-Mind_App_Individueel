@@ -729,16 +729,16 @@ a {
   width: 40px;
   height: 40px;
   padding: 0;
-  display: grid;
-  place-items: center;
-  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: var(--radius-sm);
   background: var(--icon-action-fill);
   border: var(--button-border-width) var(--button-border-style) var(--icon-action-border);
   color: var(--icon-action-icon-color);
   cursor: pointer;
   line-height: 0;
-  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .back-btn:hover {
@@ -897,7 +897,10 @@ a {
   border-radius: var(--radius-sm);
   padding: 0;
   color: var(--icon-action-icon-color);
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .back-btn.exercise-detail-back:hover {

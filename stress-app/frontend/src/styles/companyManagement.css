@@ -28,9 +28,12 @@
   height: var(--space-8);
   border-radius: var(--radius-sm);
   padding: 0;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-top: var(--space-1);
+  line-height: 0;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .company-management-back {
