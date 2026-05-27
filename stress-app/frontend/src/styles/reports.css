@@ -24,6 +24,15 @@
   transform: translateY(-50%);
   width: 40px;
   height: 40px;
+  --icon-action-fill: var(--highlight-light);
+  --icon-action-border: var(--primary-dark);
+  --icon-action-icon-color: var(--primary-dark);
+  --icon-action-hover-fill: var(--highlight);
+  --icon-action-hover-border: var(--primary-dark);
+  --icon-action-hover-icon-color: var(--primary-dark);
+  --icon-action-active-fill: var(--highlight-light);
+  --icon-action-active-border: var(--primary-dark);
+  --icon-action-active-icon-color: var(--primary-dark);
   background: var(--icon-action-fill);
   border: var(--button-border-width) var(--button-border-style) var(--icon-action-border);
   cursor: pointer;
