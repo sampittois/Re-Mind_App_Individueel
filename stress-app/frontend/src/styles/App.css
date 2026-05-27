@@ -940,6 +940,48 @@ button.back-btn svg {
   display: block;
 }
 
+/* Force the canonical back button appearance to override page-specific rules */
+button.back-btn,
+button.back-btn.icon-action-btn {
+  background: var(--icon-action-fill) !important;
+  border: var(--button-border-width) var(--button-border-style) var(--icon-action-border) !important;
+  color: var(--icon-action-icon-color) !important;
+}
+
+button.back-btn:hover,
+button.back-btn.icon-action-btn:hover {
+  background: var(--icon-action-hover-fill) !important;
+  border-color: var(--icon-action-hover-border) !important;
+  color: var(--icon-action-hover-icon-color) !important;
+}
+
+button.back-btn:active,
+button.back-btn[aria-pressed="true"],
+button.back-btn.icon-action-btn:active,
+button.back-btn.icon-action-btn[aria-pressed="true"] {
+  background: var(--icon-action-active-fill) !important;
+  border-color: var(--icon-action-active-border) !important;
+  color: var(--icon-action-active-icon-color) !important;
+}
+
+/* Force remove/close circular icon style */
+.icon-remove-btn {
+  background: var(--icon-action-fill) !important;
+  border: var(--button-border-width) var(--button-border-style) var(--icon-action-border) !important;
+  color: var(--icon-action-icon-color) !important;
+}
+
+.icon-remove-btn:hover,
+.icon-remove-btn:focus-visible {
+  background: var(--icon-action-hover-fill) !important;
+  border-color: var(--icon-action-hover-border) !important;
+  color: var(--icon-action-hover-icon-color) !important;
+}
+
+.icon-remove-btn img {
+  filter: none !important;
+}
+
 /* Filters */
 .breathing-filters {
   display: flex;
