@@ -142,15 +142,17 @@ export default function ProfileSettings({ profile, user, initialName = "", onGoB
   return (
     <div className="profilesettings-page__layout">
       <div className="profilesettings-page__header">
+        <button className="profilesettings-back" type="button" onClick={onGoBack} aria-label="Terug">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+
         <div>
           <p className="profilesettings-page__eyebrow">Accountinstellingen</p>
           <h1 className="profilesettings-page__title">Alles op een plek</h1>
           <p className="profilesettings-page__copy">Bekijk je e-mail, wijzig je naam of wachtwoord en verwijder je account wanneer nodig.</p>
         </div>
-
-        <button className="action-btn" type="button" onClick={onGoBack}>
-          Terug naar profiel
-        </button>
       </div>
 
       {error ? <p className="profilesettings-page__status profilesettings-page__status--error">{error}</p> : null}

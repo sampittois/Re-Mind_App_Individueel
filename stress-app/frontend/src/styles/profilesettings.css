@@ -5,11 +5,29 @@
 }
 
 .profilesettings-page__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-4, 16px);
+  align-items: start;
+  margin-bottom: var(--space-7, 28px);
+}
+
+.profilesettings-back {
+  width: var(--space-8, 40px);
+  height: var(--space-8, 40px);
+  border-radius: var(--radius-sm, 8px);
+  padding: 0;
+  display: grid;
+  place-items: center;
+  background: var(--background);
+  border: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.profilesettings-back svg {
+  width: 18px;
+  height: 18px;
 }
 
 .profilesettings-page__eyebrow {
