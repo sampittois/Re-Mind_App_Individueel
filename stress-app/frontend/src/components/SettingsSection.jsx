@@ -184,7 +184,7 @@ export default function SettingsSection({ profile, onUpdateProfile }) {
               )}
             </div>
           ))}
-          <button className="add-pause-btn" onClick={addPause} type="button" aria-label="Pauze toevoegen">
+          <button className="add-pause-btn icon-add-btn" onClick={addPause} type="button" aria-label="Pauze toevoegen">
             <PlusIcon />
           </button>
         </div>

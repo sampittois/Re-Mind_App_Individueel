@@ -470,6 +470,39 @@ button.icon-add-btn[aria-pressed="true"] {
   color: var(--icon-action-active-icon-color) !important;
 }
 
+/* Force profile settings 'add pause' button to use canonical add-button appearance */
+button.add-pause-btn.icon-add-btn {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  padding: 0 !important;
+  border-radius: var(--radius-sm) !important;
+  border: var(--button-border-width) var(--button-border-style) var(--icon-action-border) !important;
+  background: var(--icon-action-fill) !important;
+  color: var(--icon-action-icon-color) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  line-height: 0 !important;
+  box-sizing: border-box !important;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease !important;
+}
+
+button.add-pause-btn.icon-add-btn:hover,
+button.add-pause-btn.icon-add-btn:focus-visible {
+  background: var(--icon-action-hover-fill) !important;
+  border-color: var(--icon-action-hover-border) !important;
+  color: var(--icon-action-hover-icon-color) !important;
+}
+
+button.add-pause-btn.icon-add-btn:active,
+button.add-pause-btn.icon-add-btn[aria-pressed="true"] {
+  background: var(--icon-action-active-fill) !important;
+  border-color: var(--icon-action-active-border) !important;
+  color: var(--icon-action-active-icon-color) !important;
+}
+
 button.icon-add-btn svg {
   width: 18px;
   height: 18px;
