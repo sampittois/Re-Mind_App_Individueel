@@ -794,7 +794,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
       {isCreateOpen ? (
         <div className="company-modal" role="dialog" aria-modal="true" aria-labelledby="company-create-title" onMouseDown={() => setIsCreateOpen(false)}>
           <div className="company-modal__card" onMouseDown={(event) => event.stopPropagation()}>
-            <button className="company-modal__close" type="button" onClick={() => setIsCreateOpen(false)} aria-label="Sluiten">
+            <button className="company-modal__close icon-remove-btn" type="button" onClick={() => setIsCreateOpen(false)} aria-label="Sluiten">
               <img src={closeIcon} alt="" aria-hidden="true" />
             </button>
 
@@ -862,7 +862,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
       {selectedEmployee ? (
         <div className="company-modal" role="dialog" aria-modal="true" aria-labelledby="company-stats-title" onMouseDown={() => setSelectedEmployeeId(null)}>
           <div className="company-modal__card company-modal__card--stats" onMouseDown={(event) => event.stopPropagation()}>
-            <button className="company-modal__close" type="button" onClick={() => setSelectedEmployeeId(null)} aria-label="Sluiten">
+            <button className="company-modal__close icon-remove-btn" type="button" onClick={() => setSelectedEmployeeId(null)} aria-label="Sluiten">
               <img src={closeIcon} alt="" aria-hidden="true" />
             </button>
 

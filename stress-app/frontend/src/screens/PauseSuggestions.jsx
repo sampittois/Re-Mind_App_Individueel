@@ -428,7 +428,7 @@ function SuggestionOverlay({
   return (
     <div className="pause-overlay" role="dialog" aria-modal="true" aria-label={`${suggestion.title} details`}>
       <div className="pause-overlay__card">
-        <button className="pause-overlay__close" type="button" aria-label="Overlay sluiten" onClick={onClose}>
+        <button className="pause-overlay__close icon-remove-btn" type="button" aria-label="Overlay sluiten" onClick={onClose}>
           <img src={closeIcon} alt="" aria-hidden="true" />
         </button>
 

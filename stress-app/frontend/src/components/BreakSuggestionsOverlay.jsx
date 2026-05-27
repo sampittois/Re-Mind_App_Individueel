@@ -170,7 +170,7 @@ export default function BreakSuggestionsOverlay({ open, mode = "balanced", onClo
       onMouseDown={() => onClose?.()}
     >
       <div className="timer-break-overlay__card" onMouseDown={(event) => event.stopPropagation()}>
-        <button className="timer-break-overlay__close" type="button" onClick={() => onClose?.()} aria-label="Overlay sluiten">
+        <button className="timer-break-overlay__close icon-remove-btn" type="button" onClick={() => onClose?.()} aria-label="Overlay sluiten">
           <img src={xIcon} alt="" aria-hidden="true" className="timer-break-overlay__close-icon" />
         </button>
 
