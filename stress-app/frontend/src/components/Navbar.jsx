@@ -159,34 +159,36 @@ export default function Navbar({ currentPage, setCurrentPage, avatar, onOpenRefl
             </button>
           ) : null}
 
-          {isCompact ? (
-            <button
-              ref={menuToggleRef}
-              className={`burger ${menuOpen ? "open" : ""}`}
-              type="button"
-              aria-label={menuOpen ? "Navigatiemenu sluiten" : "Navigatiemenu openen"}
-              aria-expanded={menuOpen}
-              onClick={() => setMenuOpen((open) => !open)}
-            >
-              <img src={currentMenuIcon} alt="" aria-hidden="true" className="burgerIconImage" />
-            </button>
-          ) : null}
+          <div className="profileActions">
+            {isCompact ? (
+              <button
+                ref={menuToggleRef}
+                className={`burger ${menuOpen ? "open" : ""}`}
+                type="button"
+                aria-label={menuOpen ? "Navigatiemenu sluiten" : "Navigatiemenu openen"}
+                aria-expanded={menuOpen}
+                onClick={() => setMenuOpen((open) => !open)}
+              >
+                <img src={currentMenuIcon} alt="" aria-hidden="true" className="burgerIconImage" />
+              </button>
+            ) : null}
 
-          <button
-            className={`profile ${currentPage === "profile" ? "active" : ""}`}
-            aria-label="Profiel"
-            type="button"
-            onClick={() => handleNavClick("profile")}
-          >
-            {avatar ? (
-              <img src={avatar} alt="Profiel" className="profile-avatar" />
-            ) : (
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-            )}
-          </button>
+            <button
+              className={`profile ${currentPage === "profile" ? "active" : ""}`}
+              aria-label="Profiel"
+              type="button"
+              onClick={() => handleNavClick("profile")}
+            >
+              {avatar ? (
+                <img src={avatar} alt="Profiel" className="profile-avatar" />
+              ) : (
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </header>

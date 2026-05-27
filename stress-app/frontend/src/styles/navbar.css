@@ -76,6 +76,12 @@
   gap: 28px;
 }
 
+.profileActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .links {
   display: flex;
   gap: 32px;
@@ -106,8 +112,8 @@
 }
 
 .burgerIconImage {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   display: block;
 }
 
