@@ -809,7 +809,6 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
             </button>
 
             <h2 id="company-create-title" className="company-modal__title">Nieuw werknemersaccount</h2>
-            <p className="company-modal__copy">Maak een nieuw account aan. Als bedrijfskleuren actief zijn voor het bedrijf, krijgt dit account die kleuren; anders kan de gebruiker dit later in zijn instellingen kiezen.</p>
 
             <form className="company-form" onSubmit={submitEmployee}>
               <label className="company-field">
