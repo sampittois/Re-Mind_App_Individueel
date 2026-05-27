@@ -225,16 +225,11 @@ option:hover {
   width: 60px;
   height: 32px;
   border-radius: 16px;
-  background: var(--highlight-light);
   cursor: pointer;
   padding: 2px;
   display: flex;
   align-items: center;
-  transition: background-color 200ms ease;
-}
-
-.toggle-switch.active {
-  background: var(--primary);
+  transition: background-color 200ms ease, border-color 200ms ease;
 }
 
 .toggle-thumb {

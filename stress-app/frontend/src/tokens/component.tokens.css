@@ -27,6 +27,16 @@
   --button-dark-active-border: var(--primary);
   --button-dark-active-text: var(--text);
 
+  --button-toggle-fill: var(--highlight-light);
+  --button-toggle-border-color: var(--primary-dark);
+  --button-toggle-text-color: var(--text);
+  --button-toggle-hover-fill: var(--highlight-light);
+  --button-toggle-hover-border-color: var(--primary-dark);
+  --button-toggle-hover-text-color: var(--text);
+  --button-toggle-active-fill: var(--primary);
+  --button-toggle-active-border-color: var(--primary-dark);
+  --button-toggle-active-text-color: var(--text-light);
+
   --button-fill: var(--button-light-default-fill);
   --button-border-color: var(--button-light-default-border);
   --button-text-color: var(--button-light-default-text);
@@ -52,6 +62,20 @@
   --button-active-fill: var(--button-dark-active-fill);
   --button-active-border-color: var(--button-dark-active-border);
   --button-active-text-color: var(--button-dark-active-text);
+}
+
+.toggle-switch {
+  --button-fill: var(--button-toggle-fill);
+  --button-border-color: var(--button-toggle-border-color);
+  --button-text-color: var(--button-toggle-text-color);
+
+  --button-hover-fill: var(--button-toggle-hover-fill);
+  --button-hover-border-color: var(--button-toggle-hover-border-color);
+  --button-hover-text-color: var(--button-toggle-hover-text-color);
+
+  --button-active-fill: var(--button-toggle-active-fill);
+  --button-active-border-color: var(--button-toggle-active-border-color);
+  --button-active-text-color: var(--button-toggle-active-text-color);
 }
 
 [data-button-scheme="light"] {
