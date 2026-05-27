@@ -58,9 +58,11 @@
 
 .profilesettings-page__title {
   margin: 0;
-  font-family: var(--font-family-heading);
-  font-size: var(--font-size-3xl);
-  color: var(--primary);
+  font-family: var(--text-heading-1-font-family);
+  font-size: var(--text-heading-1-font-size);
+  line-height: var(--text-heading-1-line-height);
+  font-weight: var(--text-heading-1-font-weight);
+  color: var(--primary-dark);
 }
 
 .profilesettings-page__copy {

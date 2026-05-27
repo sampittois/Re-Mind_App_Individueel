@@ -148,9 +148,7 @@ export default function ProfileSettings({ profile, user, initialName = "", onGoB
         </button>
 
         <div>
-          <p className="profilesettings-page__eyebrow">Accountinstellingen</p>
-          <h1 className="profilesettings-page__title">Alles op een plek</h1>
-          <p className="profilesettings-page__copy">Bekijk je e-mail, wijzig je naam of wachtwoord en verwijder je account wanneer nodig.</p>
+          <h1 className="profilesettings-page__title">Accountinstellingen</h1>
         </div>
       </div>
 
