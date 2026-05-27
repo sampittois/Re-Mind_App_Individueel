@@ -201,6 +201,8 @@ export default function App() {
   const [workdayReflectionOpen, setWorkdayReflectionOpen] = useState(false);
   const [workdayReflectionShowFinishedTitle, setWorkdayReflectionShowFinishedTitle] = useState(false);
   const [companyThemeRevision, setCompanyThemeRevision] = useState(0);
+  const [passwordResetMode, setPasswordResetMode] = useState(false);
+  const accountEmail = profile?.email || user?.email || "";
   const handleCompanyThemeChange = useCallback(() => {
     setCompanyThemeRevision((previous) => previous + 1);
   }, []);
@@ -211,6 +213,7 @@ export default function App() {
     setProfile(null);
     setAvatar(null);
     setName(DEFAULT_NAME);
+    setPasswordResetMode(false);
     setCurrentPage("login");
   }
 
@@ -470,6 +473,17 @@ export default function App() {
           onGoBack={() => setCurrentPage("profile")}
           onSaveName={saveProfileName}
           onDeleteAccount={handleDeleteAccount}
+          passwordResetMode={passwordResetMode}
+          accountEmail={accountEmail}
+          onRequestPasswordReset={async () => {
+            if (!accountEmail) {
+              return { error: new Error("Geen e-mailadres beschikbaar") };
+            }
+
+            const redirectTo = typeof window !== "undefined" ? window.location.origin : undefined;
+            const { error } = await supabase.auth.resetPasswordForEmail(accountEmail, redirectTo ? { redirectTo } : undefined);
+            return { error };
+          }}
         />
       </main>
     );
@@ -588,6 +602,7 @@ export default function App() {
       setUser(session?.user ?? null);
 
       if (event === "SIGNED_IN" && session?.user) {
+        setPasswordResetMode(false);
         if (shouldForceOnboarding(session.user)) {
           setCurrentPage("onboarding");
           return;
@@ -599,6 +614,9 @@ export default function App() {
           }
           return previousPage;
         });
+      } else if (event === "PASSWORD_RECOVERY") {
+        setPasswordResetMode(true);
+        setCurrentPage("settings");
       }
     });
 

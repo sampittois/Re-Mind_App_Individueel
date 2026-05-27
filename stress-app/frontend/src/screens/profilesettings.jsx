@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import "../styles/profilesettings.css";
 
-export default function ProfileSettings({ profile, user, initialName = "", onGoBack, onSaveName, onDeleteAccount }) {
+export default function ProfileSettings({ profile, user, initialName = "", onGoBack, onSaveName, onDeleteAccount, passwordResetMode = false, onRequestPasswordReset }) {
   const [name, setName] = useState(initialName || "");
+  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSavingName, setIsSavingName] = useState(false);
   const [isSavingPassword, setIsSavingPassword] = useState(false);
+  const [isSendingReset, setIsSendingReset] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -61,17 +63,59 @@ export default function ProfileSettings({ profile, user, initialName = "", onGoB
 
     setIsSavingPassword(true);
     try {
+      if (!passwordResetMode) {
+        const cleanCurrentPassword = currentPassword.trim();
+        if (!cleanCurrentPassword) {
+          setError("Vul je huidige wachtwoord in.");
+          return;
+        }
+
+        const { error: loginError } = await supabase.auth.signInWithPassword({
+          email,
+          password: cleanCurrentPassword,
+        });
+
+        if (loginError) {
+          setError("Je huidige wachtwoord is onjuist.");
+          return;
+        }
+      }
+
       const { error: passwordError } = await supabase.auth.updateUser({ password: cleanPassword });
       if (passwordError) {
         setError(passwordError.message);
         return;
       }
 
+      setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
       setSuccess("Wachtwoord bijgewerkt.");
     } finally {
       setIsSavingPassword(false);
+    }
+  }
+
+  async function handlePasswordResetEmail() {
+    setError("");
+    setSuccess("");
+
+    if (!email) {
+      setError("Geen e-mailadres beschikbaar om een resetlink te sturen.");
+      return;
+    }
+
+    setIsSendingReset(true);
+    try {
+      const result = await onRequestPasswordReset?.();
+      if (result?.error) {
+        setError(result.error.message);
+        return;
+      }
+
+      setSuccess("We hebben een e-mail gestuurd met een link om je wachtwoord te herstellen.");
+    } finally {
+      setIsSendingReset(false);
     }
   }
 
@@ -149,10 +193,28 @@ export default function ProfileSettings({ profile, user, initialName = "", onGoB
         <section className="profilesettings-page__card">
           <div>
             <h2 className="profilesettings-page__card-title">Wachtwoord wijzigen</h2>
-            <p className="profilesettings-page__card-copy">Kies een nieuw wachtwoord voor je account.</p>
+            <p className="profilesettings-page__card-copy">
+              {passwordResetMode
+                ? "Stel hier een nieuw wachtwoord in via de herstel link uit je e-mail."
+                : "Kies een nieuw wachtwoord voor je account. Vul eerst je huidige wachtwoord in."}
+            </p>
           </div>
 
           <form className="profilesettings-page__form" onSubmit={handlePasswordSubmit}>
+            {!passwordResetMode ? (
+              <div className="profilesettings-page__field">
+                <label className="profilesettings-page__label" htmlFor="current-password">Huidig wachtwoord</label>
+                <input
+                  id="current-password"
+                  type="password"
+                  className="profilesettings-page__input"
+                  value={currentPassword}
+                  onChange={(event) => setCurrentPassword(event.target.value)}
+                  autoComplete="current-password"
+                />
+              </div>
+            ) : null}
+
             <div className="profilesettings-page__field">
               <label className="profilesettings-page__label" htmlFor="new-password">Nieuw wachtwoord</label>
               <input
@@ -178,7 +240,11 @@ export default function ProfileSettings({ profile, user, initialName = "", onGoB
             </div>
 
             <button className="action-btn" type="submit" disabled={isSavingPassword}>
-              {isSavingPassword ? "Wijzigen..." : "Wachtwoord wijzigen"}
+              {isSavingPassword ? "Wijzigen..." : passwordResetMode ? "Nieuw wachtwoord opslaan" : "Wachtwoord wijzigen"}
+            </button>
+
+            <button className="action-btn profilesettings-page__link-button" type="button" onClick={handlePasswordResetEmail} disabled={isSendingReset}>
+              {isSendingReset ? "Versturen..." : "Wachtwoord vergeten? Stuur een resetmail"}
             </button>
           </form>
         </section>

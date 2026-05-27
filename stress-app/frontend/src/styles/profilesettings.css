@@ -148,6 +148,18 @@
   color: var(--background);
 }
 
+.profilesettings-page__link-button {
+  background: var(--background);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.profilesettings-page__link-button:hover {
+  background: var(--highlight-light);
+  border-color: var(--primary-dark);
+  color: var(--text);
+}
+
 @media (max-width: 900px) {
   .profilesettings-page__grid {
     grid-template-columns: 1fr;
