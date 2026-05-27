@@ -63,6 +63,13 @@
   color: var(--icon-action-hover-icon-color);
 }
 
+.admin-back:active,
+.admin-back[aria-pressed="true"] {
+  background: var(--icon-action-active-fill);
+  border-color: var(--icon-action-active-border);
+  color: var(--icon-action-active-icon-color);
+}
+
 .admin-hero__copy {
   min-width: 0;
 }

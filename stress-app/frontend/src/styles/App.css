@@ -808,6 +808,13 @@ a {
   color: var(--icon-action-hover-icon-color);
 }
 
+.back-btn:active,
+.back-btn[aria-pressed="true"] {
+  background: var(--icon-action-active-fill);
+  border-color: var(--icon-action-active-border);
+  color: var(--icon-action-active-icon-color);
+}
+
 .back-btn svg {
   width: 18px;
   height: 18px;
@@ -958,6 +965,13 @@ a {
   background: var(--icon-action-hover-fill);
   border-color: var(--icon-action-hover-border);
   color: var(--icon-action-hover-icon-color);
+}
+
+.back-btn.exercise-detail-back:active,
+.back-btn.exercise-detail-back[aria-pressed="true"] {
+  background: var(--icon-action-active-fill);
+  border-color: var(--icon-action-active-border);
+  color: var(--icon-action-active-icon-color);
 }
 
 .exercise-detail-stage {

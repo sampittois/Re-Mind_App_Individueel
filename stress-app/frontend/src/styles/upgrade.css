@@ -41,6 +41,13 @@
   border-color: var(--icon-action-hover-border);
   color: var(--icon-action-hover-icon-color);
 }
+
+.upgrade-back:active,
+.upgrade-back[aria-pressed="true"] {
+  background: var(--icon-action-active-fill);
+  border-color: var(--icon-action-active-border);
+  color: var(--icon-action-active-icon-color);
+}
 .upgrade-back svg {
   width: 18px;
   height: 18px;
