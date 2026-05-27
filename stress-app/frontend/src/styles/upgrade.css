@@ -25,23 +25,24 @@
   transform: translateY(-50%);
   width: 40px;
   height: 40px;
-  background: var(--button-fill);
-  border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
+  background: var(--icon-action-fill);
+  border: var(--button-border-width) var(--button-border-style) var(--icon-action-border);
   padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  color: var(--icon-action-icon-color);
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 .upgrade-back:hover {
-  background: var(--button-hover-fill);
-  border-color: var(--button-hover-border-color);
-  color: var(--button-hover-text-color);
+  background: var(--icon-action-hover-fill);
+  border-color: var(--icon-action-hover-border);
+  color: var(--icon-action-hover-icon-color);
 }
-.upgrade-back img {
-  width: 20px;
+.upgrade-back svg {
+  width: 18px;
   height: 18px;
 }
 .upgrade-header {

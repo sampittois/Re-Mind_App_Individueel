@@ -45,11 +45,22 @@
   display: grid;
   place-items: center;
   padding: 0;
+  background: var(--icon-action-fill);
+  border: var(--button-border-width) var(--button-border-style) var(--icon-action-border);
+  color: var(--icon-action-icon-color);
+  border-radius: var(--radius-sm);
 }
 
-.admin-back img {
+.admin-back svg {
   width: 18px;
   height: 18px;
+}
+
+.admin-back:hover,
+.admin-back:focus-visible {
+  background: var(--icon-action-hover-fill);
+  border-color: var(--icon-action-hover-border);
+  color: var(--icon-action-hover-icon-color);
 }
 
 .admin-hero__copy {

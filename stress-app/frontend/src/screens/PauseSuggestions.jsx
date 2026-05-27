@@ -3,6 +3,7 @@ import "../styles/pauseSuggestions.css";
 import PauseCard from "../components/PauseCard";
 import { supabase } from "../lib/supabaseClient";
 import { addBreak } from "../lib/session";
+import { BackIcon } from "../components/IconActions";
 
 import breathing from "../assets/ademhaling.png";
 import stretching from "../assets/stretchen.png";
@@ -13,7 +14,6 @@ import nameOneWin from "../assets/nameOneWin.png";
 import handStretch from "../assets/handStretch.png";
 import handToChestReset from "../assets/handToChestReset.png";
 import drinkPause from "../assets/drinkPauze.png";
-import backIcon from "../assets/back.svg";
 import closeIcon from "../assets/x.svg";
 import plusIcon from "../assets/plus.svg";
 
@@ -276,7 +276,7 @@ export default function PauseSuggestions({
             aria-label="Terug"
             type="button"
           >
-            <img src={backIcon} alt="Terug" />
+            <BackIcon />
           </button>
 
           <div className="pause-page-tabs" role="tablist" aria-label="Pauzesuggesties filters">

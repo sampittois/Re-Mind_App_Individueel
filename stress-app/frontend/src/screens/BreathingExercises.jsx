@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { BackIcon } from "../components/IconActions";
 
 const BREATHING_EXERCISES = [
     { id: "box", title: "Box breathing" },
@@ -20,10 +21,8 @@ export default function BreathingExercises({ onBack, onSelectExercise }) {
     return (
         <main className="breathing-page">
             <div className="breathing-header">
-                <button className="back-btn" onClick={onBack} aria-label="Terug">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
+                <button className="back-btn icon-action-btn" onClick={onBack} aria-label="Terug" type="button">
+                    <BackIcon />
                 </button>
             </div>
 
