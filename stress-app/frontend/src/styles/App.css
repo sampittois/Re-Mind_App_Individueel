@@ -491,9 +491,9 @@ button.add-pause-btn.icon-add-btn {
 
 button.add-pause-btn.icon-add-btn:hover,
 button.add-pause-btn.icon-add-btn:focus-visible {
-  background: var(--icon-action-hover-fill) !important;
+  background: var(--highlight) !important;
   border-color: var(--icon-action-hover-border) !important;
-  color: var(--icon-action-hover-icon-color) !important;
+  color: var(--background) !important;
 }
 
 button.add-pause-btn.icon-add-btn:active,
@@ -513,7 +513,7 @@ button.add-pause-btn.icon-add-btn svg {
 
 button.add-pause-btn.icon-add-btn:hover svg,
 button.add-pause-btn.icon-add-btn:focus-visible svg {
-  color: var(--icon-action-hover-icon-color) !important;
+  color: var(--background) !important;
 }
 
 button.icon-add-btn svg {
