@@ -145,7 +145,7 @@ export default function App() {
   const [pausesTaken, setPausesTaken] = useState(0);
   const [pausesSkipped, setPausesSkipped] = useState(0);
 
-  const [currentPage, setCurrentPage] = useState("home");
+  const [currentPage, setCurrentPage] = useState("login");
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [selectedExerciseAutoStart, setSelectedExerciseAutoStart] = useState(false);
   const [breathingReturnPage, setBreathingReturnPage] = useState("home");
@@ -157,13 +157,6 @@ export default function App() {
   const [companyThemeRevision, setCompanyThemeRevision] = useState(0);
   const handleCompanyThemeChange = useCallback(() => {
     setCompanyThemeRevision((previous) => previous + 1);
-  }, []);
-
-  useEffect(() => {
-    const savedPage = readLastPage();
-    if (savedPage) {
-      setCurrentPage(savedPage);
-    }
   }, []);
 
   async function saveProfilePatch(patch) {
