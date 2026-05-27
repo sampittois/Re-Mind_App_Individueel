@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "../styles/settings.css";
 import { BackIcon, PlusIcon } from "./IconActions";
+import xIcon from "../assets/x.svg";
 
 const EMPTY_LISTS = { today: [], tomorrow: [] };
 
@@ -75,8 +76,8 @@ export default function WorkdayReflectionOverlay({ open, onClose, onSubmit, show
       onMouseDown={() => onClose?.()}
     >
       <div className="workday-overlay__card" onMouseDown={(event) => event.stopPropagation()}>
-        <button className="workday-overlay__close back-btn icon-action-btn" type="button" onClick={() => onClose?.()} aria-label="Terug">
-          <BackIcon />
+        <button className="workday-overlay__close icon-remove-btn" type="button" onClick={() => onClose?.()} aria-label="Sluiten">
+          <img src={xIcon} alt="" aria-hidden="true" />
         </button>
 
         {showFinishedTitle ? (
