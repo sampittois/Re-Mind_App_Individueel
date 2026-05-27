@@ -193,7 +193,7 @@ export default function OnboardingPage({ onComplete, onSkip, initialFirstName = 
                 </div>
               ))}
 
-              <button type="button" className="add-pause-btn icon-action-btn" onClick={addPause}>
+              <button type="button" className="add-pause-btn" onClick={addPause}>
                 <PlusIcon />
               </button>
             </div>

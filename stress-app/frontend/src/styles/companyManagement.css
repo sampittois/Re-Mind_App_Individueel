@@ -134,11 +134,17 @@
   color: var(--icon-action-icon-color);
   padding: 8px 12px;
   border-radius: var(--radius-sm);
+  cursor: pointer;
+  line-height: 0;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
+.company-management-add svg,
 .company-management-add img {
   width: 18px;
   height: 18px;
+  display: block;
+  margin: 0;
 }
 
 .company-management-add:hover,
@@ -146,6 +152,13 @@
   background: var(--icon-action-hover-fill);
   border-color: var(--icon-action-hover-border);
   color: var(--icon-action-hover-icon-color);
+}
+
+.company-management-add:active,
+.company-management-add[aria-pressed="true"] {
+  background: var(--icon-action-active-fill);
+  border-color: var(--icon-action-active-border);
+  color: var(--icon-action-active-icon-color);
 }
 
 .company-management-stack {

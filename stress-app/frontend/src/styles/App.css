@@ -418,6 +418,28 @@ a {
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
+.workday-overlay__add svg {
+  width: 18px;
+  height: 18px;
+  color: inherit;
+  display: block;
+  margin: 0;
+}
+
+.workday-overlay__add:hover,
+.workday-overlay__add:focus-visible {
+  background: var(--icon-action-hover-fill);
+  border-color: var(--icon-action-hover-border);
+  color: var(--icon-action-hover-icon-color);
+}
+
+.workday-overlay__add:active,
+.workday-overlay__add[aria-pressed="true"] {
+  background: var(--icon-action-active-fill);
+  border-color: var(--icon-action-active-border);
+  color: var(--icon-action-active-icon-color);
+}
+
 .workday-overlay__delete {
   width: 40px;
   height: 40px;

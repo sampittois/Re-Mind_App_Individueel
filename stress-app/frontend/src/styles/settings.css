@@ -126,8 +126,17 @@
   height: 40px;
   padding: 0;
   border-radius: 8px;
+  background: var(--icon-action-fill);
+  border: var(--button-border-width) var(--button-border-style) var(--icon-action-border);
+  color: var(--icon-action-icon-color);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  line-height: 0;
   align-self: center;
   margin-top: 8px;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .add-pause-btn:hover,
@@ -135,6 +144,21 @@
   background: var(--icon-action-hover-fill);
   border-color: var(--icon-action-hover-border);
   color: var(--icon-action-hover-icon-color);
+}
+
+.add-pause-btn svg {
+  width: 18px;
+  height: 18px;
+  color: inherit;
+  display: block;
+  margin: 0;
+}
+
+.add-pause-btn:active,
+.add-pause-btn[aria-pressed="true"] {
+  background: var(--icon-action-active-fill);
+  border-color: var(--icon-action-active-border);
+  color: var(--icon-action-active-icon-color);
 }
 
 /* Dropdowns Group */
