@@ -110,6 +110,19 @@ function shouldForceOnboarding(user) {
   return Boolean(user?.user_metadata?.force_onboarding);
 }
 
+async function updateAuthNameMetadata(fullName, firstName, lastName, userMetadata = {}) {
+  const { error } = await supabase.auth.updateUser({
+    data: {
+      ...userMetadata,
+      first_name: firstName || null,
+      last_name: lastName || null,
+      full_name: fullName || null,
+    },
+  });
+
+  return error || null;
+}
+
 function readCompanyThemeFromStorage() {
   const themeId = readStoredValue(STORAGE_KEYS.theme, DEFAULT_THEME_ID);
   const customTheme = normalizeCustomTheme(readStoredValue(STORAGE_KEYS.customTheme, DEFAULT_CUSTOM_THEME));
@@ -207,6 +220,11 @@ export default function App() {
       return false;
     }
 
+    const authUpdateError = await updateAuthNameMetadata(fullName, firstName, lastName, user?.user_metadata || {});
+    if (authUpdateError) {
+      console.error("Failed to sync profile name to auth metadata:", authUpdateError);
+    }
+
     return true;
   }
 
@@ -235,16 +253,15 @@ export default function App() {
         console.error("Failed to save onboarding profile");
       }
 
-      const userMetadata = user?.user_metadata || {};
-      const { error: authUpdateError } = await supabase.auth.updateUser({
-        data: {
-          ...userMetadata,
+      const authUpdateError = await updateAuthNameMetadata(
+        fullName,
+        (payload.firstName || firstName || "").trim(),
+        (payload.lastName || lastName || "").trim(),
+        {
+          ...(user?.user_metadata || {}),
           force_onboarding: false,
-          first_name: (payload.firstName || firstName || "").trim() || null,
-          last_name: (payload.lastName || lastName || "").trim() || null,
-          full_name: fullName || null,
         },
-      });
+      );
 
       if (authUpdateError) {
         console.error("Failed to clear onboarding flag:", authUpdateError);
