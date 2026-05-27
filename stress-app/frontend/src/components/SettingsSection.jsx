@@ -174,7 +174,7 @@ export default function SettingsSection({ profile, onUpdateProfile }) {
               </div>
               {pauses.length > 1 && (
                 <button
-                  className="remove-pause-btn"
+                  className="remove-pause-btn icon-action-btn"
                   onClick={() => removePause(pause.id)}
                   type="button"
                   aria-label="Verwijder pauze"

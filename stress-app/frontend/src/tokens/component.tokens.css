@@ -38,17 +38,17 @@
   --button-toggle-active-text-color: var(--text-light);
 
   /* Icon action button (back / add / remove) tokens */
-  /* Default / active: highlight fill, primary-dark stroke, primary-dark icon */
-  --icon-action-fill: var(--highlight);
+  /* Default / active: highlight-light fill, primary-dark stroke, primary-dark icon */
+  --icon-action-fill: var(--highlight-light);
   --icon-action-border: var(--primary-dark);
   --icon-action-icon-color: var(--primary-dark);
 
-  --icon-action-active-fill: var(--highlight);
+  --icon-action-active-fill: var(--highlight-light);
   --icon-action-active-border: var(--primary-dark);
   --icon-action-active-icon-color: var(--primary-dark);
 
-  /* Hover: primary fill, primary-dark stroke, background icon */
-  --icon-action-hover-fill: var(--primary);
+  /* Hover: highlight fill, primary-dark stroke, background icon */
+  --icon-action-hover-fill: var(--highlight);
   --icon-action-hover-border: var(--primary-dark);
   --icon-action-hover-icon-color: var(--background);
 

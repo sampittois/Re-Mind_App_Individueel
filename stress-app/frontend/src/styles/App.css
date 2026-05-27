@@ -231,43 +231,8 @@ a {
   position: absolute;
   top: var(--space-4);
   right: var(--space-4);
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  border-radius: 50%;
-  border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
-  background: var(--highlight-light);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.workday-overlay__close:hover,
-.workday-overlay__close:focus,
-.workday-overlay__close:focus-visible {
-  /* keep background and border unchanged; use highlight background */
-  background: var(--highlight-light);
-  border-color: var(--button-border-color);
-}
-
-.workday-overlay__close-icon {
-  transition: transform 150ms ease;
-  transform-origin: center;
-}
-
-.workday-overlay__close:hover .workday-overlay__close-icon,
-.workday-overlay__close:focus .workday-overlay__close-icon,
-.workday-overlay__close:focus-visible .workday-overlay__close-icon {
-  transform: scale(0.88);
-}
-
-.workday-overlay__close-icon {
-  width: 16px;
-  height: 16px;
-  object-fit: contain;
-  display: block;
+  width: 40px;
+  height: 40px;
 }
 
 .workday-overlay__title {
@@ -390,40 +355,14 @@ a {
   height: 40px;
   min-width: 40px;
   padding: 0;
-  box-sizing: border-box;
-  border-radius: var(--radius-md);
-  border: var(--border-width-sm) solid var(--primary-dark);
-  background: var(--highlight-light);
-  color: var(--primary-dark);
-  font-family: var(--text-button-label-font-family);
-  font-size: 20px;
-  font-weight: var(--font-weight-semibold);
-  cursor: pointer;
   align-self: center;
   margin-top: 0;
-  flex-shrink: 0;
-  line-height: 1;
-  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.12s ease;
-}
-
-.workday-overlay__add:hover,
-.workday-overlay__add:focus-visible {
-  background: var(--highlight-dark);
-  border-color: var(--primary-dark);
-  color: var(--background);
-}
-
-.workday-overlay__add:active {
-  transform: translateY(1px);
 }
 
 .workday-overlay__delete {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  border: var(--border-width-md) solid var(--primary-dark);
-  background: var(--highlight-light);
-  color: var(--primary-dark);
   align-self: center;
 }
 

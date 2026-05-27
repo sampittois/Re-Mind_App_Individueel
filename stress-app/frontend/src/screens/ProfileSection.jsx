@@ -6,6 +6,7 @@ import xIcon from "../assets/x.svg";
 import PauseCard from "../components/PauseCard";
 import SettingsSection from "../components/SettingsSection";
 import { supabase } from "../lib/supabaseClient";
+import { PlusIcon } from "../components/IconActions"
 import breathing from "../assets/ademhaling.png";
 import stretching from "../assets/stretchen.png";
 import shortWalk from "../assets/korteWandeling.png";
@@ -15,7 +16,6 @@ import nameOneWin from "../assets/nameOneWin.png";
 import handStretch from "../assets/handStretch.png";
 import handToChestReset from "../assets/handToChestReset.png";
 import drinkPause from "../assets/drinkPauze.png";
-import plusIcon from "../assets/plus.svg";
 
 const ALL_SUGGESTIONS = [
   { id: "houding-check", title: "Houding check", icon: postureCheck },
@@ -291,7 +291,7 @@ export default function ProfileSection({ profile, initialName = "John Doe", onSa
           {profile?.plan === "basic" && favorites.length >= 5 ? (
             <PauseCard
               key="upgrade-card"
-              icon={plusIcon}
+              icon={<PlusIcon />}
               title="Upgrade plan"
               onSelect={() => setCurrentPage?.("upgrade")}
             />

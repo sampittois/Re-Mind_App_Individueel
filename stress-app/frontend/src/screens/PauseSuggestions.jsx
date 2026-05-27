@@ -3,7 +3,7 @@ import "../styles/pauseSuggestions.css";
 import PauseCard from "../components/PauseCard";
 import { supabase } from "../lib/supabaseClient";
 import { addBreak } from "../lib/session";
-import { BackIcon } from "../components/IconActions";
+import { BackIcon, PlusIcon } from "../components/IconActions";
 
 import breathing from "../assets/ademhaling.png";
 import stretching from "../assets/stretchen.png";
@@ -15,7 +15,6 @@ import handStretch from "../assets/handStretch.png";
 import handToChestReset from "../assets/handToChestReset.png";
 import drinkPause from "../assets/drinkPauze.png";
 import closeIcon from "../assets/x.svg";
-import plusIcon from "../assets/plus.svg";
 
 const PREVIEW_DATA = [
   { id: "breath", title: "Ademhaling", icon: breathing },
@@ -333,7 +332,7 @@ export default function PauseSuggestions({
         {activeTab === "favorites" && plan === "basic" && favoriteIds.size >= 5 ? (
           <PauseCard
             key="upgrade-card"
-            icon={plusIcon}
+            icon={<PlusIcon />}
             title="Upgrade plan"
             onSelect={() => setCurrentPage?.("upgrade")}
           />

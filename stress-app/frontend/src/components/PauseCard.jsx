@@ -40,7 +40,7 @@ export default function PauseCard({
       aria-label={isSelectable ? `${title} details openen` : undefined}
     >
       <div className="pause-suggestion-card__media">
-        <img src={icon} alt="" aria-hidden="true" />
+        {typeof icon === "string" ? <img src={icon} alt="" aria-hidden="true" /> : icon}
       </div>
 
       <div className="pause-suggestion-card__body">

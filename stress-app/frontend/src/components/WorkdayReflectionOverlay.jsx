@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import "../styles/settings.css";
-import xIcon from "../assets/x.svg";
-import { PlusIcon } from "./IconActions";
+import { BackIcon, PlusIcon } from "./IconActions";
 
 const EMPTY_LISTS = { today: [], tomorrow: [] };
 
@@ -76,8 +75,8 @@ export default function WorkdayReflectionOverlay({ open, onClose, onSubmit, show
       onMouseDown={() => onClose?.()}
     >
       <div className="workday-overlay__card" onMouseDown={(event) => event.stopPropagation()}>
-        <button className="workday-overlay__close" type="button" onClick={() => onClose?.()} aria-label="Overlay sluiten">
-          <img src={xIcon} alt="" className="workday-overlay__close-icon" />
+        <button className="workday-overlay__close icon-action-btn" type="button" onClick={() => onClose?.()} aria-label="Terug">
+          <BackIcon />
         </button>
 
         {showFinishedTitle ? (
@@ -122,7 +121,7 @@ export default function WorkdayReflectionOverlay({ open, onClose, onSubmit, show
               autoFocus
             />
 
-            <button className="workday-overlay__add icon-action-btn icon-action-btn--inline" type="button" onClick={handleAddItem} aria-label="Taak toevoegen">
+            <button className="workday-overlay__add icon-action-btn" type="button" onClick={handleAddItem} aria-label="Taak toevoegen">
               <PlusIcon />
             </button>
           </div>
