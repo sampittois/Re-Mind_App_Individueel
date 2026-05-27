@@ -34,7 +34,19 @@ export default function LoginPage({ onLogin, onGoToRegister, onSkip }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [emailFocused, setEmailFocused] = useState(false);
   const [recentEmails, setRecentEmails] = useState(() => loadRecentEmails());
+
+  const visibleRecentEmails = recentEmails.filter((savedEmail) => {
+    const normalizedSavedEmail = savedEmail.toLowerCase();
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!normalizedEmail) {
+      return true;
+    }
+
+    return normalizedSavedEmail.includes(normalizedEmail);
+  });
 
   function rememberEmail(nextEmail) {
     const normalizedEmail = (nextEmail || "").trim();
@@ -76,27 +88,47 @@ export default function LoginPage({ onLogin, onGoToRegister, onSkip }) {
           <p className="login-body">Log in om je werkdag te verbeteren met effectieve pauzes.</p>
 
           <form className="login-form" onSubmit={handleSubmit}>
-            <label className="form-label" htmlFor="login-email">Email</label>
-            <input
-              id="login-email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              className="form-input"
-              placeholder="john.doe@voorbeeld.be"
-              list="recent-login-emails"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              spellCheck={false}
-              autoCapitalize="none"
-              autoCorrect="off"
-            />
+            <div className="login-form-field login-form-field--with-dropdown">
+              <label className="form-label" htmlFor="login-email">Email</label>
+              <input
+                id="login-email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                className="form-input"
+                placeholder="john.doe@voorbeeld.be"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onFocus={() => setEmailFocused(true)}
+                onBlur={() => setEmailFocused(false)}
+                spellCheck={false}
+                autoCapitalize="none"
+                autoCorrect="off"
+              />
 
-            <datalist id="recent-login-emails">
-              {recentEmails.map((savedEmail) => (
-                <option key={savedEmail} value={savedEmail} />
-              ))}
-            </datalist>
+              {emailFocused && visibleRecentEmails.length > 0 ? (
+                <div className="recent-email-dropdown" role="listbox" aria-label="Recente e-mails">
+                  <div className="recent-email-dropdown__header">Recente accounts</div>
+                  <div className="recent-email-dropdown__items">
+                    {visibleRecentEmails.map((savedEmail) => (
+                      <button
+                        key={savedEmail}
+                        type="button"
+                        className="recent-email-dropdown__item"
+                        onMouseDown={(event) => event.preventDefault()}
+                        onClick={() => {
+                          setEmail(savedEmail);
+                          setEmailFocused(false);
+                        }}
+                      >
+                        <span className="recent-email-dropdown__email">{savedEmail}</span>
+                        <span className="recent-email-dropdown__hint">Gebruik dit account</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </div>
 
             <label className="form-label" htmlFor="login-password">Wachtwoord</label>
             <input

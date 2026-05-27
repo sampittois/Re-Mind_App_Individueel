@@ -113,6 +113,16 @@
   max-width: 520px;
 }
 
+.login-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.login-form-field--with-dropdown {
+  position: relative;
+}
+
 .form-check {
   display: flex;
   align-items: center;
@@ -176,6 +186,68 @@
   outline: none;
   border-color: var(--primary);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 18%, transparent);
+}
+
+.recent-email-dropdown {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  padding: 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--background) 96%, var(--highlight-light));
+  box-shadow: var(--shadow-dropdown-glow);
+  backdrop-filter: blur(10px);
+}
+
+.recent-email-dropdown__header {
+  padding: 0.35rem 0.45rem 0.45rem;
+  color: var(--text-light);
+  font-family: var(--text-button-label-font-family);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.recent-email-dropdown__items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.recent-email-dropdown__item {
+  display: grid;
+  gap: 0.15rem;
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  text-align: left;
+  transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.recent-email-dropdown__item:hover,
+.recent-email-dropdown__item:focus-visible {
+  background: var(--highlight-light);
+  border-color: color-mix(in srgb, var(--primary) 18%, var(--border));
+  transform: translateY(-1px);
+}
+
+.recent-email-dropdown__email {
+  color: var(--text);
+  font-family: var(--text-input-value-font-family);
+  font-size: var(--text-input-value-font-size);
+  line-height: var(--text-input-value-line-height);
+}
+
+.recent-email-dropdown__hint {
+  color: var(--text-light);
+  font-family: var(--text-body-regular-font-family);
+  font-size: 0.78rem;
+  line-height: 1.2;
 }
 
 .login-submit {
