@@ -394,6 +394,56 @@ a {
   filter: brightness(0) invert(1) saturate(100%);
   opacity: 0.95;
 }
+
+/* Shared add-button styles */
+.icon-add-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: var(--button-border-width) var(--button-border-style) var(--icon-action-border) !important;
+  background: var(--icon-action-fill) !important;
+  color: var(--icon-action-icon-color) !important;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 0;
+  box-sizing: border-box;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.icon-add-btn:hover,
+.icon-add-btn:focus-visible {
+  background: var(--icon-action-hover-fill) !important;
+  border-color: var(--icon-action-hover-border) !important;
+  color: var(--icon-action-hover-icon-color) !important;
+}
+
+.icon-add-btn:active,
+.icon-add-btn[aria-pressed="true"] {
+  background: var(--icon-action-active-fill) !important;
+  border-color: var(--icon-action-active-border) !important;
+  color: var(--icon-action-active-icon-color) !important;
+}
+
+.icon-add-btn svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.icon-add-btn--large {
+  width: auto;
+  min-width: 40px;
+  border-radius: var(--radius-sm);
+  padding: 0 var(--space-4);
+  gap: var(--space-2);
+}
+
+.icon-add-btn--large svg {
+  flex-shrink: 0;
+}
   padding: var(--space-2) var(--space-5);
   cursor: pointer;
   border-radius: var(--radius-sm);

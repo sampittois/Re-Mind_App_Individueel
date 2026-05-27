@@ -335,6 +335,7 @@ export default function PauseSuggestions({
             icon={<PlusIcon />}
             title="Upgrade plan"
             onSelect={() => setCurrentPage?.("upgrade")}
+            className="icon-add-btn icon-add-btn--large"
           />
         ) : null}
         </section>
