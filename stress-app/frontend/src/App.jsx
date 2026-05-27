@@ -558,10 +558,6 @@ export default function App() {
       setProfile(data || null);
       setName(buildDisplayName(data, user));
       setAvatar(data?.avatar_url ?? null);
-
-      if (data?.plan === "admin" && currentPage === "home") {
-        setCurrentPage("admin");
-      }
     }
 
     loadProfile();
