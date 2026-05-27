@@ -234,12 +234,33 @@ option:hover {
   position: relative;
   width: 60px;
   height: 32px;
+  border: var(--border-width-sm) solid var(--primary-dark);
   border-radius: 16px;
+  background: var(--highlight-light);
   cursor: pointer;
   padding: 2px;
   display: flex;
   align-items: center;
+  box-sizing: border-box;
   transition: background-color 200ms ease, border-color 200ms ease;
+}
+
+.toggle-switch:hover:not(:disabled):not(.disabled) {
+  background: var(--highlight-light);
+  border-color: var(--primary-dark);
+}
+
+.toggle-switch:hover:not(:disabled):not(.disabled) .toggle-thumb {
+  background: var(--primary-dark);
+}
+
+.toggle-switch.active {
+  background: var(--primary);
+  border-color: var(--primary-dark);
+}
+
+.toggle-switch.active:hover:not(:disabled):not(.disabled) {
+  background: var(--primary-dark);
 }
 
 .toggle-thumb {
@@ -257,11 +278,17 @@ option:hover {
   background: var(--highlight-light);
 }
 
+.toggle-switch.active:hover:not(:disabled):not(.disabled) .toggle-thumb {
+  background: var(--highlight-light);
+}
+
 .toggle-switch:disabled,
 .toggle-switch.disabled {
   background: var(--border);
+  border-color: var(--border);
 }
 
+.toggle-switch:disabled .toggle-thumb,
 .toggle-switch.disabled .toggle-thumb {
   background: var(--background);
 }

@@ -93,6 +93,70 @@
   --button-active-text-color: var(--button-toggle-active-text-color);
 }
 
+.toggle-switch {
+  position: relative;
+  width: 60px;
+  height: 32px;
+  border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
+  border-radius: 16px;
+  background: var(--button-fill);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  transition: background-color 200ms ease, border-color 200ms ease;
+  box-sizing: border-box;
+}
+
+.toggle-switch:hover:not(:disabled):not(.disabled) {
+  background: var(--button-hover-fill);
+  border-color: var(--button-hover-border-color);
+}
+
+.toggle-thumb {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--button-text-color);
+  left: 4px;
+  transition: left 200ms ease, background 150ms ease;
+}
+
+.toggle-switch:hover:not(:disabled):not(.disabled) .toggle-thumb {
+  background: var(--primary-dark);
+}
+
+.toggle-switch.active {
+  background: var(--button-active-fill);
+  border-color: var(--button-active-border-color);
+}
+
+.toggle-switch.active:hover:not(:disabled):not(.disabled) {
+  background: var(--primary-dark);
+}
+
+.toggle-switch.active .toggle-thumb {
+  left: calc(100% - 28px);
+  background: var(--button-active-text-color);
+}
+
+.toggle-switch.active:hover:not(:disabled):not(.disabled) .toggle-thumb {
+  background: var(--button-active-text-color);
+}
+
+.toggle-switch:disabled,
+.toggle-switch.disabled {
+  background: var(--border);
+  border-color: var(--border);
+  cursor: not-allowed;
+}
+
+.toggle-switch:disabled .toggle-thumb,
+.toggle-switch.disabled .toggle-thumb {
+  background: var(--background);
+}
+
 [data-button-scheme="light"] {
   --button-fill: var(--button-light-default-fill);
   --button-border-color: var(--button-light-default-border);
