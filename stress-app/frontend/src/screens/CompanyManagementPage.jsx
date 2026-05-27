@@ -647,7 +647,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
               <p className="company-management-panel__copy">Klik op een werknemer om hun prestaties en pauzes te bekijken.</p>
             </div>
 
-            <button className="company-management-add icon-add-btn icon-add-btn--large" type="button" onClick={openCreateModal}>
+            <button className="company-management-add" type="button" onClick={openCreateModal}>
               <PlusIcon />
               Werknemer toevoegen
             </button>
