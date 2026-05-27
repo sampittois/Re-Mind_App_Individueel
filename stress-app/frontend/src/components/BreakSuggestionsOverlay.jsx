@@ -204,7 +204,7 @@ export default function BreakSuggestionsOverlay({ open, mode = "balanced", onClo
           ))}
         </div>
 
-        <button className="timer-break-overlay__back icon-action-btn" type="button" onClick={() => onClose?.()} aria-label="Terug">
+        <button className="timer-break-overlay__back icon-action-btn back-btn" type="button" onClick={() => onClose?.()} aria-label="Terug">
           <BackIcon />
         </button>
       </div>

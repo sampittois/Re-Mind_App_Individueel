@@ -87,7 +87,7 @@ export default function UpgradePage({ profile, onUpdateProfile, setCurrentPage }
     <div className="upgrade-root">
       <div className="upgrade-inner">
         <div className="upgrade-top-row">
-          <button className="upgrade-back icon-action-btn" type="button" onClick={() => setCurrentPage?.("profile")} aria-label="Terug">
+          <button className="upgrade-back icon-action-btn back-btn" type="button" onClick={() => setCurrentPage?.("profile")} aria-label="Terug">
             <BackIcon />
             </button>
         </div>

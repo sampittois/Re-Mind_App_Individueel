@@ -626,7 +626,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
   return (
     <main className="company-management-page page" style={themedVariables}>
       <div className="company-management-header">
-        <button className="company-management-back icon-action-btn" type="button" onClick={() => setCurrentPage?.("profile")} aria-label="Terug">
+        <button className="company-management-back icon-action-btn back-btn" type="button" onClick={() => setCurrentPage?.("profile")} aria-label="Terug">
           <BackIcon />
         </button>
 
