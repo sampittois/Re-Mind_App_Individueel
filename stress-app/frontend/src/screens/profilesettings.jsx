@@ -243,7 +243,7 @@ export default function ProfileSettings({ profile, user, initialName = "", onGoB
             </button>
 
             <button className="action-btn profilesettings-page__link-button" type="button" onClick={handlePasswordResetEmail} disabled={isSendingReset}>
-              {isSendingReset ? "Versturen..." : "Wachtwoord vergeten? Stuur een resetmail"}
+              {isSendingReset ? "Versturen..." : "Wachtwoord vergeten? Ontvang een resetmail"}
             </button>
           </form>
         </section>
