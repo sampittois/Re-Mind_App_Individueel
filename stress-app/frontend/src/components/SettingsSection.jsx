@@ -147,9 +147,6 @@ export default function SettingsSection({ profile, onUpdateProfile }) {
             />
           </div>
         </div>
-              {pauses.length > 1 && (
-                <button
-                  className="remove-pause-btn icon-action-btn"
 
         {/* Fixed pauses */}
         <div className="pauses-group">
