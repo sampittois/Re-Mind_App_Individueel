@@ -3,7 +3,7 @@ import "../styles/settings.css";
 import CustomDropdown from "./CustomDropdown";
 import SettingsDropdowns from "./SettingsDropdowns";
 import SettingsToggles from "./SettingsToggles";
-import plusIcon from "../assets/plus.svg";
+import { PlusIcon } from "./IconActions";
 
 function normalizeTime(value, fallback) {
   if (typeof value !== "string" || !value) return fallback;
@@ -184,8 +184,8 @@ export default function SettingsSection({ profile, onUpdateProfile }) {
               )}
             </div>
           ))}
-          <button className="add-pause-btn" onClick={addPause} type="button">
-            <img src={plusIcon} alt="" aria-hidden="true" />
+          <button className="add-pause-btn icon-action-btn icon-action-btn--inline" onClick={addPause} type="button" aria-label="Pauze toevoegen">
+            <PlusIcon />
           </button>
         </div>
       </div>

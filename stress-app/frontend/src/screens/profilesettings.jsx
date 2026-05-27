@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
-import backIcon from "../assets/back.svg";
+import { BackIcon } from "../components/IconActions";
 import "../styles/profilesettings.css";
 
 export default function ProfileSettings({ profile, user, initialName = "", onGoBack, onSaveName, onDeleteAccount, passwordResetMode = false, onRequestPasswordReset }) {
@@ -144,7 +144,7 @@ export default function ProfileSettings({ profile, user, initialName = "", onGoB
     <div className="profilesettings-page__layout">
       <div className="profilesettings-page__header">
         <button className="profilesettings-back icon-action-btn" type="button" onClick={onGoBack} aria-label="Terug">
-          <img src={backIcon} alt="Terug" />
+          <BackIcon />
         </button>
 
         <div>

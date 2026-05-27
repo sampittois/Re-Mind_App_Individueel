@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import backIcon from "../assets/back.svg";
-import plusIcon from "../assets/plus.svg";
+import { BackIcon, PlusIcon } from "../components/IconActions";
 import closeIcon from "../assets/x.svg";
 import "../styles/companyManagement.css";
 import { supabase } from "../lib/supabaseClient";
@@ -628,7 +627,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
     <main className="company-management-page page" style={themedVariables}>
       <div className="company-management-header">
         <button className="company-management-back icon-action-btn" type="button" onClick={() => setCurrentPage?.("profile")} aria-label="Terug">
-          <img src={backIcon} alt="Terug" />
+          <BackIcon />
         </button>
 
         <h1 className="company-management-title">Bedrijfsbeheer</h1>
@@ -642,8 +641,8 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
               <p className="company-management-panel__copy">Klik op een werknemer om hun prestaties en pauzes te bekijken.</p>
             </div>
 
-            <button className="company-management-add icon-action-btn--inline" type="button" onClick={openCreateModal}>
-              <img src={plusIcon} alt="" aria-hidden="true" />
+            <button className="company-management-add icon-action-btn icon-action-btn--inline" type="button" onClick={openCreateModal}>
+              <PlusIcon />
               Werknemer toevoegen
             </button>
           </div>

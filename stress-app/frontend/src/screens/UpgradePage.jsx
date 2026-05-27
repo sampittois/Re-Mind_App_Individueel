@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "../styles/upgrade.css";
 import CheckIcon from "../components/CheckIcon";
-import backIcon from "../assets/back.svg";
+import { BackIcon } from "../components/IconActions";
 
 export default function UpgradePage({ profile, onUpdateProfile, setCurrentPage }) {
   const [billingPeriod, setBillingPeriod] = useState("yearly");
@@ -88,7 +88,7 @@ export default function UpgradePage({ profile, onUpdateProfile, setCurrentPage }
       <div className="upgrade-inner">
         <div className="upgrade-top-row">
           <button className="upgrade-back icon-action-btn" type="button" onClick={() => setCurrentPage?.("profile")} aria-label="Terug">
-              <img src={backIcon} alt="Terug" />
+            <BackIcon />
             </button>
         </div>
         {pendingPlan ? (

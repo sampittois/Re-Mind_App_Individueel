@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "../styles/settings.css";
 import xIcon from "../assets/x.svg";
-import plusIcon from "../assets/plus.svg";
+import { PlusIcon } from "./IconActions";
 
 const EMPTY_LISTS = { today: [], tomorrow: [] };
 
@@ -123,7 +123,7 @@ export default function WorkdayReflectionOverlay({ open, onClose, onSubmit, show
             />
 
             <button className="workday-overlay__add icon-action-btn icon-action-btn--inline" type="button" onClick={handleAddItem} aria-label="Taak toevoegen">
-              <img src={plusIcon} alt="" aria-hidden="true" />
+              <PlusIcon />
             </button>
           </div>
         </form>

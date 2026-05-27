@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import "../styles/admin.css";
-import backIcon from "../assets/back.svg";
+import { BackIcon } from "../components/IconActions";
 
 const API_BASE = "http://localhost:3000";
 
@@ -116,7 +116,7 @@ export default function AdminPage({ profile, setCurrentPage }) {
       <div className="admin-shell">
         <header className="admin-hero">
           <button className="admin-back icon-action-btn" type="button" onClick={() => setCurrentPage?.("home")} aria-label="Terug">
-            <img src={backIcon} alt="Terug" />
+              <BackIcon />
           </button>
 
           <div className="admin-hero__copy">

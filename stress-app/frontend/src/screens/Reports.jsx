@@ -2,7 +2,7 @@ import { useState } from "react";
 import ReportsDay from "./ReportsDay";
 import ReportsWeek from "./ReportsWeek";
 import premiumIcon from "../assets/premium.svg";
-import backIcon from "../assets/back.svg";
+import { BackIcon } from "../components/IconActions";
 import "../styles/reports.css";
 
 export default function Reports({ setCurrentPage, profile }) {
@@ -13,7 +13,7 @@ export default function Reports({ setCurrentPage, profile }) {
     <main className={`reports-page page${view === "week" ? " reports-week-page" : ""}`}>
       <div className="reports-top-row">
         <button className="back-btn reports-back icon-action-btn" onClick={() => setCurrentPage && setCurrentPage("home")} aria-label="Terug">
-          <img src={backIcon} alt="Terug" />
+          <BackIcon />
         </button>
 
         <div className="reports-toggle">

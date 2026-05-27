@@ -3,7 +3,7 @@ import "../styles/login.css";
 import "../styles/settings.css";
 import Breathe from "../components/Breathe";
 import CustomDropdown from "../components/CustomDropdown";
-import plusIcon from "../assets/plus.svg";
+import { PlusIcon } from "../components/IconActions";
 
 export default function OnboardingPage({ onComplete, onSkip, initialFirstName = "", initialLastName = "" }) {
   const [step, setStep] = useState(1);
@@ -194,7 +194,7 @@ export default function OnboardingPage({ onComplete, onSkip, initialFirstName = 
               ))}
 
               <button type="button" className="add-pause-btn icon-action-btn" onClick={addPause}>
-                <img src={plusIcon} alt="" aria-hidden="true" />
+                <PlusIcon />
               </button>
             </div>
           </>
