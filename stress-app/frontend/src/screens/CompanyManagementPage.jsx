@@ -643,7 +643,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
 
             <button className="company-management-add" type="button" onClick={openCreateModal}>
               <PlusIcon />
-              <span className="company-management-add__label">Werknemer toevoegen</span>
+              Werknemer toevoegen
             </button>
           </div>
 

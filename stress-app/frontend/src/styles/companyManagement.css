@@ -147,20 +147,11 @@
   margin: 0;
 }
 
-.company-management-add__label {
-  color: var(--primary-dark);
-}
-
 .company-management-add:hover,
 .company-management-add:focus-visible {
   background: var(--icon-action-hover-fill);
   border-color: var(--icon-action-hover-border);
   color: var(--icon-action-hover-icon-color);
-}
-
-.company-management-add:hover .company-management-add__label,
-.company-management-add:focus-visible .company-management-add__label {
-  color: var(--primary-dark);
 }
 
 .company-management-add:active,
