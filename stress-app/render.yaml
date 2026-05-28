@@ -2,7 +2,7 @@ services:
   - type: web
     name: stress-app-backend
     env: node
-    rootDir: backend
+    rootDir: stress-app/backend
     buildCommand: npm install
     startCommand: npm start
     plan: free
