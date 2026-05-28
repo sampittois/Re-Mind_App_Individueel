@@ -248,7 +248,7 @@ app.post('/admin/create-employee', async (req, res) => {
       first_name: firstName,
       last_name: lastName,
       email: safeEmail,
-      plan: 'basic',
+      plan: 'premium',
       use_company_colors: Boolean(use_company_colors),
       company_management_enabled: false,
       work_type: safeDepartment,

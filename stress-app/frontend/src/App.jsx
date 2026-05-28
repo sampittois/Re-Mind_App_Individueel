@@ -205,6 +205,12 @@ export default function App() {
   const accountEmail = profile?.email || user?.email || "";
   const managerScopeCandidate = profile?.id || user?.id || null;
   const managerScopedStorageKeys = getScopedStorageKeys(managerScopeCandidate);
+  const canManageCompanyColors = Boolean(
+    profile?.company_management_enabled
+      || profile?.plan === "premium"
+      || profile?.plan === "bedrijfslicentie"
+      // || profile?.plan === "admin",
+  );
   const hasManagerScopedTheme = managerScopeCandidate
     ? readStoredValue(managerScopedStorageKeys.theme, null) !== null
       || readStoredValue(managerScopedStorageKeys.customTheme, null) !== null
@@ -212,7 +218,7 @@ export default function App() {
     : false;
   const companyThemeScopeId =
     user?.user_metadata?.created_by
-    || ((profile?.company_management_enabled || hasManagerScopedTheme) ? managerScopeCandidate : null)
+    || ((canManageCompanyColors || hasManagerScopedTheme) ? managerScopeCandidate : null)
     || null;
   const companyStorageKeys = getScopedStorageKeys(companyThemeScopeId);
   const handleCompanyThemeChange = useCallback(() => {
@@ -473,6 +479,7 @@ export default function App() {
           onUpdateProfile={saveProfilePatch}
           hasStoredName={Boolean(profile?.full_name || profile?.first_name || profile?.last_name)}
           setCurrentPage={setCurrentPage}
+          companyColorsForced={Boolean(user?.user_metadata?.created_by) && readStoredValue(companyStorageKeys.companyColorsEnabled, true)}
         />
       </main>
     );
@@ -506,6 +513,14 @@ export default function App() {
         profile={profile}
         setCurrentPage={setCurrentPage}
         onThemeChange={handleCompanyThemeChange}
+        onApplyColors={async () => {
+          const didSave = await saveProfilePatch({ use_company_colors: true });
+          if (!didSave) {
+            return false;
+          }
+          handleCompanyThemeChange();
+          return true;
+        }}
         themeScopeId={profile?.id || user?.id || null}
       />
     );
@@ -682,6 +697,17 @@ export default function App() {
     if (currentPage === "onboarding") return;
     setCurrentPage("onboarding");
   }, [user, currentPage]);
+
+  useEffect(() => {
+    const isManagedEmployee = Boolean(user?.user_metadata?.created_by);
+    const isCompanyColorsForced = isManagedEmployee && readStoredValue(companyStorageKeys.companyColorsEnabled, true);
+
+    if (!isManagedEmployee || !isCompanyColorsForced || profile?.use_company_colors === true || !user?.id) {
+      return;
+    }
+
+    saveProfilePatch({ use_company_colors: true });
+  }, [companyStorageKeys.companyColorsEnabled, profile?.use_company_colors, user?.id, user?.user_metadata?.created_by]);
 
   useEffect(() => {
     const hasCompanyScope = Boolean(companyThemeScopeId);

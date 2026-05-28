@@ -273,7 +273,7 @@ export function buildThemeVariables(theme) {
   };
 }
 
-export default function CompanyManagementPage({ profile, setCurrentPage, onThemeChange, themeScopeId = null }) {
+export default function CompanyManagementPage({ profile, setCurrentPage, onThemeChange, onApplyColors, themeScopeId = null }) {
   const storageKeys = getScopedStorageKeys(themeScopeId);
   const [employees, setEmployees] = useState(() => readStoredValueWithLegacy(themeScopeId, storageKeys.employees, STORAGE_KEYS.employees, createDefaultEmployees()));
   const [themeId, setThemeId] = useState(() => readStoredValueWithLegacy(themeScopeId, storageKeys.theme, STORAGE_KEYS.theme, DEFAULT_THEME_ID));
@@ -287,6 +287,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
   const [createEmployeeError, setCreateEmployeeError] = useState("");
   const [isDeletingEmployee, setIsDeletingEmployee] = useState(false);
   const [deleteEmployeeError, setDeleteEmployeeError] = useState("");
+  const [colorApplyMessage, setColorApplyMessage] = useState("");
 
   const activeTheme = customTheme;
   const selectedEmployee = employees.find((employee) => employee.id === selectedEmployeeId) || null;
@@ -377,10 +378,6 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
   const visibleEmployees = employees.filter((e) => e.createdBy === adminOwnerKey);
 
   useEffect(() => {
-    onThemeChange?.(activeTheme);
-  }, [activeTheme, onThemeChange]);
-
-  useEffect(() => {
     writeStoredValue(storageKeys.employees, employees);
   }, [employees, storageKeys.employees]);
 
@@ -395,10 +392,6 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
   }, [themeId]);
 
   
-
-  useEffect(() => {
-    writeStoredValue(storageKeys.customTheme, customTheme);
-  }, [customTheme, storageKeys.customTheme]);
 
   useEffect(() => {
     writeStoredValue(storageKeys.companyColorsEnabled, companyColorsEnabled);
@@ -430,6 +423,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
   // per-employee preference remains in data, but admin toggles are handled globally
 
   function updateCustomThemeField(field, value) {
+    setColorApplyMessage("");
     setCustomTheme((previous) => ({
       ...previous,
       vars: {
@@ -442,6 +436,27 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
   function resetCustomThemeToRemind() {
     setCustomTheme(remindTheme);
     setThemeId("custom");
+    setColorApplyMessage("");
+  }
+
+  async function applyColorsToApp() {
+    const nextTheme = normalizeCustomTheme(customTheme);
+    setCustomTheme(nextTheme);
+    setThemeId("custom");
+    writeStoredValue(storageKeys.theme, "custom");
+    writeStoredValue(storageKeys.customTheme, nextTheme);
+    writeStoredValue(storageKeys.companyColorsEnabled, true);
+    setCompanyColorsEnabled(true);
+
+    const didPersistProfileToggle = await onApplyColors?.();
+    if (didPersistProfileToggle === false) {
+      setColorApplyMessage("Kleuren lokaal toegepast, maar niet opgeslagen in profiel. Probeer opnieuw.");
+      onThemeChange?.(nextTheme);
+      return;
+    }
+
+    onThemeChange?.(nextTheme);
+    setColorApplyMessage("Kleuren toegepast op de app.");
   }
 
   async function submitEmployee(event) {
@@ -662,10 +677,17 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
                 <p className="company-management-panel__copy">Alle Re-Mind kleuren zijn hier aanpasbaar voor jouw organisatie.</p>
               </div>
 
-              <button className="company-management-add company-management-reset" type="button" onClick={resetCustomThemeToRemind}>
-                Herstel Re-Mind kleuren
-              </button>
+              <div className="custom-theme-editor__actions">
+                <button className="company-management-add company-management-reset" type="button" onClick={resetCustomThemeToRemind}>
+                  Herstel Re-Mind kleuren
+                </button>
+                <button className="company-management-add" type="button" onClick={applyColorsToApp}>
+                  Apply colors
+                </button>
+              </div>
             </div>
+
+            {colorApplyMessage ? <p className="company-management-panel__copy">{colorApplyMessage}</p> : null}
 
             <div className="theme-color-grid" role="list" aria-label="Re-Mind kleuren">
               {CUSTOM_THEME_FIELDS.map((field) => (

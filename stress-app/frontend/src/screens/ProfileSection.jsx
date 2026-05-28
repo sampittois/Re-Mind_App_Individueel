@@ -31,7 +31,7 @@ const ALL_SUGGESTIONS = [
 
 const SUGGESTION_BY_ID = new Map(ALL_SUGGESTIONS.map((item) => [item.id, item]));
 
-export default function ProfileSection({ profile, initialName = "John Doe", onSaveName, onSaveAvatar, onLogout, user, onUpdateProfile, hasStoredName = true, setCurrentPage }) {
+export default function ProfileSection({ profile, initialName = "John Doe", onSaveName, onSaveAvatar, onLogout, user, onUpdateProfile, hasStoredName = true, setCurrentPage, companyColorsForced = false }) {
   const [name, setName] = useState(hasStoredName ? initialName : "");
   useEffect(() => {
     setName(hasStoredName ? initialName : "");
@@ -299,7 +299,7 @@ export default function ProfileSection({ profile, initialName = "John Doe", onSa
         </div>
       </section>
 
-      <SettingsSection profile={profile} onUpdateProfile={onUpdateProfile} />
+      <SettingsSection profile={profile} onUpdateProfile={onUpdateProfile} companyColorsForced={companyColorsForced} />
     </div>
   );
 }

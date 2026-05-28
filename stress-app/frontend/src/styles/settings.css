@@ -363,6 +363,7 @@ option:hover {
 .toggle-switch.disabled {
   background: var(--border);
   border-color: var(--border);
+  cursor: not-allowed;
 }
 
 .toggle-switch:disabled .toggle-thumb,
