@@ -60,7 +60,7 @@
   top: -9999px;
   font-family: var(--font-family-body);
   font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
 }
 
 .linksMeasure {
@@ -148,7 +148,7 @@
   border: none;
   font-family: var(--font-family-body);
   font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   color: var(--text);
   cursor: pointer;
   opacity: 1;
