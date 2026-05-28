@@ -229,6 +229,7 @@ app.post('/admin/create-employee', async (req, res) => {
         full_name: safeName,
         force_onboarding: true,
         admin_created: true,
+        created_by: created_by || null,
       },
     });
 

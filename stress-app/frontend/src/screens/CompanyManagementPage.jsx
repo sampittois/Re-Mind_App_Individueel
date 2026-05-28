@@ -7,127 +7,27 @@ import { supabase } from "../lib/supabaseClient";
 export const COMPANY_THEME_OPTIONS = [
   {
     id: "sage",
-    name: "Sage",
-    description: "Rustig en vertrouwd",
-    preview: ["#f7f4ef", "#7c8f85", "#5f6f67", "#e6ece8"],
+    name: "Re-Mind",
+    description: "Standaard Re-Mind stijl",
+    preview: ["#fffcf5", "#769382", "#596e62", "#e4ebe6"],
     vars: {
-      background: "#f7f4ef",
-      backgroundDark: "#ece5db",
-      text: "#202020",
-      textLight: "#4a4a4a",
-      border: "#c8c1b7",
-      primaryDark: "#5f6f67",
-      primary: "#7c8f85",
-      highlightDark: "#8da097",
-      highlight: "#b3c1ba",
-      highlightLight: "#e6ece8",
+      background: "#fffcf5",
+      backgroundDark: "#f4edd9",
+      text: "#1a1a1a",
+      textLight: "#414141",
+      border: "#c0c3b8",
+      primaryDark: "#596e62",
+      primary: "#769382",
+      highlightDark: "#7e8f83",
+      highlight: "#a8bfaf",
+      highlightLight: "#e4ebe6",
       highlightHover: "#f2f5f3",
-      success: "#7aa184",
-      warning: "#d8c07d",
-      warningLight: "#f5ead1",
-      error: "#d58d8d",
-      errorDark: "#9f5f5f",
-      info: "#8ab0c4",
-    },
-  },
-  {
-    id: "clay",
-    name: "Clay",
-    description: "Warmer met zachte accenten",
-    preview: ["#fff8f1", "#c98274", "#8e5d53", "#f1ddd6"],
-    vars: {
-      background: "#fff8f1",
-      backgroundDark: "#f5e9df",
-      text: "#2c1f1b",
-      textLight: "#604940",
-      border: "#cfb8ae",
-      primaryDark: "#8e5d53",
-      primary: "#c98274",
-      highlightDark: "#c4988f",
-      highlight: "#e0b1a6",
-      highlightLight: "#f1ddd6",
-      highlightHover: "#faefea",
-      success: "#89a58f",
-      warning: "#e1bc88",
-      warningLight: "#f7ebd8",
-      error: "#cf7d7d",
-      errorDark: "#9e5959",
-      info: "#8aaec1",
-    },
-  },
-  {
-    id: "ocean",
-    name: "Ocean",
-    description: "Koel en helder",
-    preview: ["#f6fbfb", "#6a97a8", "#4f6f7c", "#dcecf0"],
-    vars: {
-      background: "#f6fbfb",
-      backgroundDark: "#e8f1f2",
-      text: "#172428",
-      textLight: "#43606a",
-      border: "#bfd0d4",
-      primaryDark: "#4f6f7c",
-      primary: "#6a97a8",
-      highlightDark: "#7fb0bb",
-      highlight: "#9cc3cc",
-      highlightLight: "#dcecf0",
-      highlightHover: "#eef7f8",
-      success: "#6ea68c",
-      warning: "#dcbc77",
-      warningLight: "#f5ead3",
-      error: "#cf8b83",
-      errorDark: "#9f625b",
-      info: "#7fadc2",
-    },
-  },
-  {
-    id: "forest",
-    name: "Forest",
-    description: "Dieper en zakelijker",
-    preview: ["#f4f6ef", "#68806f", "#40544a", "#dde5da"],
-    vars: {
-      background: "#f4f6ef",
-      backgroundDark: "#e4eadc",
-      text: "#1d241f",
-      textLight: "#49564d",
-      border: "#bac5b9",
-      primaryDark: "#40544a",
-      primary: "#68806f",
-      highlightDark: "#7f9683",
-      highlight: "#a4b7a8",
-      highlightLight: "#dde5da",
-      highlightHover: "#eff3ee",
-      success: "#6d9b7c",
-      warning: "#d9be86",
-      warningLight: "#f4ead3",
-      error: "#d38a8a",
-      errorDark: "#9e5b5b",
-      info: "#8eb0c4",
-    },
-  },
-  {
-    id: "sunlit",
-    name: "Sunlit",
-    description: "Licht en uitnodigend",
-    preview: ["#fffdf4", "#d8ba74", "#a78b49", "#f3e7be"],
-    vars: {
-      background: "#fffdf4",
-      backgroundDark: "#f4ecd2",
-      text: "#27211a",
-      textLight: "#5a5344",
-      border: "#d5c7a1",
-      primaryDark: "#a78b49",
-      primary: "#d8ba74",
-      highlightDark: "#d9c68c",
-      highlight: "#ead79d",
-      highlightLight: "#f3e7be",
-      highlightHover: "#fbf4de",
-      success: "#7fa981",
-      warning: "#d8b76b",
-      warningLight: "#f8edd2",
-      error: "#db8d8d",
-      errorDark: "#a45e5e",
-      info: "#8faec4",
+      success: "#6baf8e",
+      warning: "#e3cb91",
+      warningLight: "#f6efdd",
+      error: "#da8383",
+      errorDark: "#a46262",
+      info: "#8cb2c8",
     },
   },
 ];
@@ -139,37 +39,78 @@ export const STORAGE_KEYS = {
   companyColorsEnabled: "remind:company-colors-enabled",
 };
 
-export const DEFAULT_THEME_ID = "sage";
+export function getScopedStorageKeys(scopeId) {
+  if (!scopeId) {
+    return STORAGE_KEYS;
+  }
+
+  return {
+    employees: `${STORAGE_KEYS.employees}:${scopeId}`,
+    theme: `${STORAGE_KEYS.theme}:${scopeId}`,
+    customTheme: `${STORAGE_KEYS.customTheme}:${scopeId}`,
+    companyColorsEnabled: `${STORAGE_KEYS.companyColorsEnabled}:${scopeId}`,
+  };
+}
+
+export const DEFAULT_THEME_ID = "custom";
 
 export const DEFAULT_CUSTOM_THEME = {
   vars: {
-    background: "#f7f4ef",
-    backgroundDark: "#ece5db",
-    text: "#202020",
-    textLight: "#4a4a4a",
-    border: "#c8c1b7",
-    primaryDark: "#5f6f67",
-    primary: "#7c8f85",
-    highlightDark: "#8da097",
-    highlight: "#b3c1ba",
-    highlightLight: "#e6ece8",
+    background: "#fffcf5",
+    backgroundDark: "#f4edd9",
+    text: "#1a1a1a",
+    textLight: "#414141",
+    border: "#c0c3b8",
+    primaryDark: "#596e62",
+    primary: "#769382",
+    highlightDark: "#7e8f83",
+    highlight: "#a8bfaf",
+    highlightLight: "#e4ebe6",
     highlightHover: "#f2f5f3",
-    success: "#7aa184",
-    warning: "#d8c07d",
-    warningLight: "#f5ead1",
-    error: "#d58d8d",
-    errorDark: "#9f5f5f",
-    info: "#8ab0c4",
+    success: "#6baf8e",
+    warning: "#e3cb91",
+    warningLight: "#f6efdd",
+    error: "#da8383",
+    errorDark: "#a46262",
+    info: "#8cb2c8",
   },
 };
 
+const MISSING_STORAGE_VALUE = Symbol("missing-storage-value");
+
+function readStoredValueWithLegacy(scopeId, scopedKey, legacyKey, fallback) {
+  const scopedValue = readStoredValue(scopedKey, MISSING_STORAGE_VALUE);
+  if (scopedValue !== MISSING_STORAGE_VALUE) {
+    return scopedValue;
+  }
+
+  // For scoped manager/employee accounts, do not fall back to legacy global keys.
+  // This prevents another account's saved palette from leaking into this account.
+  if (scopeId) {
+    return fallback;
+  }
+
+  return readStoredValue(legacyKey, fallback);
+}
+
 const CUSTOM_THEME_FIELDS = [
   { key: "background", label: "Achtergrond" },
+  { key: "backgroundDark", label: "Achtergrond (donker)" },
+  { key: "text", label: "Tekst" },
+  { key: "textLight", label: "Tekst (licht)" },
+  { key: "border", label: "Rand" },
   { key: "primary", label: "Hoofdkleur" },
   { key: "primaryDark", label: "Donkere accentkleur" },
-  { key: "highlightLight", label: "Zachte achtergrond" },
-  { key: "text", label: "Tekstkleur" },
-  { key: "border", label: "Randkleur" },
+  { key: "highlight", label: "Highlight" },
+  { key: "highlightDark", label: "Highlight (donker)" },
+  { key: "highlightLight", label: "Highlight (licht)" },
+  { key: "highlightHover", label: "Highlight (hover)" },
+  { key: "success", label: "Succes" },
+  { key: "warning", label: "Waarschuwing" },
+  { key: "warningLight", label: "Waarschuwing (licht)" },
+  { key: "error", label: "Fout" },
+  { key: "errorDark", label: "Fout (donker)" },
+  { key: "info", label: "Info" },
 ];
 
 export function readStoredValue(key, fallback) {
@@ -332,11 +273,12 @@ export function buildThemeVariables(theme) {
   };
 }
 
-export default function CompanyManagementPage({ profile, setCurrentPage, onThemeChange }) {
-  const [employees, setEmployees] = useState(() => readStoredValue(STORAGE_KEYS.employees, createDefaultEmployees()));
-  const [themeId, setThemeId] = useState(() => readStoredValue(STORAGE_KEYS.theme, DEFAULT_THEME_ID));
-  const [customTheme, setCustomTheme] = useState(() => normalizeCustomTheme(readStoredValue(STORAGE_KEYS.customTheme, DEFAULT_CUSTOM_THEME)));
-  const [companyColorsEnabled, setCompanyColorsEnabled] = useState(() => readStoredValue(STORAGE_KEYS.companyColorsEnabled, true));
+export default function CompanyManagementPage({ profile, setCurrentPage, onThemeChange, themeScopeId = null }) {
+  const storageKeys = getScopedStorageKeys(themeScopeId);
+  const [employees, setEmployees] = useState(() => readStoredValueWithLegacy(themeScopeId, storageKeys.employees, STORAGE_KEYS.employees, createDefaultEmployees()));
+  const [themeId, setThemeId] = useState(() => readStoredValueWithLegacy(themeScopeId, storageKeys.theme, STORAGE_KEYS.theme, DEFAULT_THEME_ID));
+  const [customTheme, setCustomTheme] = useState(() => normalizeCustomTheme(readStoredValueWithLegacy(themeScopeId, storageKeys.customTheme, STORAGE_KEYS.customTheme, DEFAULT_CUSTOM_THEME)));
+  const [companyColorsEnabled, setCompanyColorsEnabled] = useState(() => readStoredValueWithLegacy(themeScopeId, storageKeys.companyColorsEnabled, STORAGE_KEYS.companyColorsEnabled, true));
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
   const [deleteEmployeeId, setDeleteEmployeeId] = useState(null);
@@ -346,11 +288,12 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
   const [isDeletingEmployee, setIsDeletingEmployee] = useState(false);
   const [deleteEmployeeError, setDeleteEmployeeError] = useState("");
 
-  const activeTheme = themeId === "custom" ? customTheme : getThemeById(themeId);
+  const activeTheme = customTheme;
   const selectedEmployee = employees.find((employee) => employee.id === selectedEmployeeId) || null;
   const adminLabel = profile?.full_name || profile?.first_name || profile?.email || "Bedrijfsbeheerder";
+  const adminOwnerKey = profile?.id || adminLabel;
   const themedVariables = buildThemeVariables(activeTheme);
-  const selectedThemePreview = themeId === "custom" ? themeToPreview(activeTheme) : activeTheme.preview;
+  const selectedThemePreview = themeToPreview(activeTheme);
 
   const [selectedDay, setSelectedDay] = useState(() => new Date().toISOString().slice(0, 10));
   const [employeeStats, setEmployeeStats] = useState(null);
@@ -431,30 +374,36 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
     }
   }, [selectedEmployee, selectedDay]);
 
-  const visibleEmployees = employees.filter((e) => e.createdBy === adminLabel);
+  const visibleEmployees = employees.filter((e) => e.createdBy === adminOwnerKey);
 
   useEffect(() => {
     onThemeChange?.(activeTheme);
   }, [activeTheme, onThemeChange]);
 
   useEffect(() => {
-    writeStoredValue(STORAGE_KEYS.employees, employees);
-  }, [employees]);
+    writeStoredValue(storageKeys.employees, employees);
+  }, [employees, storageKeys.employees]);
 
   useEffect(() => {
-    writeStoredValue(STORAGE_KEYS.theme, themeId);
+    writeStoredValue(storageKeys.theme, themeId);
+  }, [themeId, storageKeys.theme]);
+
+  useEffect(() => {
+    if (themeId !== "custom") {
+      setThemeId("custom");
+    }
   }, [themeId]);
 
   
 
   useEffect(() => {
-    writeStoredValue(STORAGE_KEYS.customTheme, customTheme);
-  }, [customTheme]);
+    writeStoredValue(storageKeys.customTheme, customTheme);
+  }, [customTheme, storageKeys.customTheme]);
 
   useEffect(() => {
-    writeStoredValue(STORAGE_KEYS.companyColorsEnabled, companyColorsEnabled);
+    writeStoredValue(storageKeys.companyColorsEnabled, companyColorsEnabled);
     onThemeChange?.();
-  }, [companyColorsEnabled, onThemeChange]);
+  }, [companyColorsEnabled, onThemeChange, storageKeys.companyColorsEnabled]);
 
   useEffect(() => {
     if (!isCreateOpen && !selectedEmployeeId) {
@@ -529,7 +478,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
           password,
           department: formValues.department.trim() || "Sales",
           use_company_colors: Boolean(companyColorsEnabled),
-          created_by: adminLabel,
+          created_by: adminOwnerKey,
         }),
       });
 
@@ -551,7 +500,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
         adminCreated: true,
         createdAt: new Date().toISOString(),
         lastSeenAt: new Date().toISOString(),
-        createdBy: adminLabel,
+        createdBy: adminOwnerKey,
         themeId: companyColorsEnabled ? themeId : DEFAULT_THEME_ID,
       };
 
@@ -702,90 +651,54 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
           <div className="company-management-panel__header">
             <div>
               <h2 className="company-management-panel__title">Bedrijfskleuren</h2>
-              <p className="company-management-panel__copy">Kies een voorgesteld palet of stel je eigen kleuren in.</p>
+              <p className="company-management-panel__copy">Klik om de kleuren aan te passen.</p>
             </div>
           </div>
 
-          <div className="theme-swatches" role="list" aria-label="Bedrijfskleuren">
-            {COMPANY_THEME_OPTIONS.map((option) => (
-              <button
-                key={option.id}
-                type="button"
-                className={`theme-swatch${option.id === themeId ? " theme-swatch--active" : ""}`}
-                onClick={() => setThemeId(option.id)}
-                aria-pressed={option.id === themeId}
-              >
-                <span className="theme-swatch__swatches" aria-hidden="true">
-                  {option.preview.map((color) => (
-                    <span key={color} className="theme-swatch__chip" style={{ background: color }} />
-                  ))}
-                </span>
-                <span className="theme-swatch__label">{option.name}</span>
-                <span className="theme-swatch__description">{option.description}</span>
+          <div className="custom-theme-editor">
+            <div className="custom-theme-editor__header">
+              <div>
+                <h3 className="custom-theme-editor__title">Re-Mind kleuren</h3>
+                <p className="company-management-panel__copy">Alle Re-Mind kleuren zijn hier aanpasbaar voor jouw organisatie.</p>
+              </div>
+
+              <button className="company-management-add company-management-reset" type="button" onClick={resetCustomThemeToRemind}>
+                Herstel Re-Mind kleuren
               </button>
-            ))}
+            </div>
 
-            <button
-              type="button"
-              className={`theme-swatch theme-swatch--custom${themeId === "custom" ? " theme-swatch--active" : ""}`}
-              onClick={() => setThemeId("custom")}
-              aria-pressed={themeId === "custom"}
-            >
-              <span className="theme-swatch__swatches" aria-hidden="true">
+            <div className="theme-color-grid" role="list" aria-label="Re-Mind kleuren">
+              {CUSTOM_THEME_FIELDS.map((field) => (
+                <label className="theme-color-tile" key={field.key} title={field.label}>
+                  <input
+                    type="color"
+                    value={customTheme.vars[field.key]}
+                    onChange={(event) => updateCustomThemeField(field.key, event.target.value)}
+                    aria-label={field.label}
+                  />
+                  <span className="theme-color-tile__label">{field.label}</span>
+                </label>
+              ))}
+            </div>
+
+            <div className="theme-preview theme-preview--compact">
+              <div className="theme-preview__badge">Voorbeeld</div>
+              <h3 className="theme-preview__title">Huidige bedrijfskleuren</h3>
+              <p className="theme-preview__copy">Dit palet wordt gebruikt wanneer bedrijfskleuren actief zijn.</p>
+              <div className="theme-preview__bars" aria-hidden="true">
                 {selectedThemePreview.map((color) => (
-                  <span key={color} className="theme-swatch__chip" style={{ background: color }} />
+                  <span key={color} style={{ background: color }} />
                 ))}
-              </span>
-              <span className="theme-swatch__label">Eigen kleuren</span>
-              <span className="theme-swatch__description">Stel je eigen bedrijfsstijl samen</span>
-            </button>
-          </div>
-
-          {themeId === "custom" ? (
-            <div className="custom-theme-editor">
-              <div className="custom-theme-editor__header">
-                <div>
-                  <h3 className="custom-theme-editor__title">Eigen kleuren instellen</h3>
-                  <p className="company-management-panel__copy">Pas de belangrijkste kleuren aan en bekijk meteen het resultaat.</p>
-                </div>
-
-                <button className="company-management-add company-management-reset" type="button" onClick={resetCustomThemeToRemind}>
-                  Herstel Re-Mind kleuren
-                </button>
-              </div>
-
-              <div className="custom-theme-editor__grid">
-                {CUSTOM_THEME_FIELDS.map((field) => (
-                  <label className="company-field company-field--color" key={field.key}>
-                    <span>{field.label}</span>
-                    <input
-                      type="color"
-                      value={customTheme.vars[field.key]}
-                      onChange={(event) => updateCustomThemeField(field.key, event.target.value)}
-                    />
-                  </label>
-                ))}
-              </div>
-
-              <div className="theme-preview theme-preview--compact">
-                <div className="theme-preview__badge">Eigen palet</div>
-                <h3 className="theme-preview__title">Eigen kleuren</h3>
-                <p className="theme-preview__copy">Deze kleuren vormen het bedrijfspalet en kunnen voor alle gebruikers worden afgedwongen.</p>
-                <div className="theme-preview__bars" aria-hidden="true">
-                  {selectedThemePreview.map((color) => (
-                    <span key={color} style={{ background: color }} />
-                  ))}
-                </div>
               </div>
             </div>
-          ) : null}
+          </div>
 
           {/* new-user color default toggle removed; new accounts inherit global company setting */}
 
           <div className="company-toggle-row">
             <div>
-              <h3 className="company-toggle-row__title">Bedrijfskleuren actief voor alle gebruikers</h3>
-              <p className="company-management-panel__copy">Wanneer deze toggle aan staat, worden de bedrijfskleuren voor alle gebruikers afgedwongen. Wanneer uit, kunnen werknemers zelf kiezen in hun instellingen.</p>
+              <h3 className="company-toggle-row__title">Bedrijfskleuren voor accounts die jij maakte</h3>
+              <p className="company-management-panel__copy">Wanneer deze toggle aan staat, worden jouw bedrijfskleuren afgedwongen voor alle accounts die je hebt aangemaakt. Jouw eigen account gebruikt de toggle in je profielinstellingen.</p>
             </div>
 
             <button

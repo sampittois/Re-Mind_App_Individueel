@@ -288,6 +288,60 @@
   gap: var(--space-3);
 }
 
+.theme-color-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.theme-color-tile {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+  background: color-mix(in srgb, var(--background) 70%, white 30%);
+  cursor: pointer;
+}
+
+.theme-color-tile input[type="color"] {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  flex: 1 1 auto;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.theme-color-tile__label {
+  display: block;
+  padding: 0.45rem 0.5rem;
+  text-align: center;
+  color: var(--text);
+  background: color-mix(in srgb, var(--background) 75%, white 25%);
+  border-top: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+  font-family: var(--text-body-small-font-family);
+  font-size: var(--text-body-small-font-size);
+  line-height: var(--text-body-small-line-height);
+}
+
+.theme-color-tile input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.theme-color-tile input[type="color"]::-webkit-color-swatch {
+  border: 0;
+  border-radius: 0;
+}
+
+.theme-color-tile:has(input[type="color"]:focus-visible) {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
 .company-field--color input {
   min-height: 54px;
   padding: var(--space-1);
@@ -738,6 +792,10 @@
   .custom-theme-editor__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .theme-color-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 760px) {
@@ -747,6 +805,7 @@
 
   .theme-swatches,
   .custom-theme-editor__grid,
+  .theme-color-grid,
   .company-form__grid,
   .company-stats-grid,
   .employee-table__header,

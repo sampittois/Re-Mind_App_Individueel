@@ -21,8 +21,8 @@ import AdminPage from "./screens/AdminPage";
 import CompanyManagementPage, {
   DEFAULT_CUSTOM_THEME,
   DEFAULT_THEME_ID,
-  STORAGE_KEYS,
   buildThemeVariables,
+  getScopedStorageKeys,
   getThemeById,
   normalizeCustomTheme,
   readStoredValue,
@@ -156,9 +156,9 @@ async function updateAuthNameMetadata(fullName, firstName, lastName, userMetadat
   return error || null;
 }
 
-function readCompanyThemeFromStorage() {
-  const themeId = readStoredValue(STORAGE_KEYS.theme, DEFAULT_THEME_ID);
-  const customTheme = normalizeCustomTheme(readStoredValue(STORAGE_KEYS.customTheme, DEFAULT_CUSTOM_THEME));
+function readCompanyThemeFromStorage(storageKeys) {
+  const themeId = readStoredValue(storageKeys.theme, DEFAULT_THEME_ID);
+  const customTheme = normalizeCustomTheme(readStoredValue(storageKeys.customTheme, DEFAULT_CUSTOM_THEME));
 
   return themeId === "custom" ? customTheme : getThemeById(themeId);
 }
@@ -203,6 +203,18 @@ export default function App() {
   const [companyThemeRevision, setCompanyThemeRevision] = useState(0);
   const [passwordResetMode, setPasswordResetMode] = useState(false);
   const accountEmail = profile?.email || user?.email || "";
+  const managerScopeCandidate = profile?.id || user?.id || null;
+  const managerScopedStorageKeys = getScopedStorageKeys(managerScopeCandidate);
+  const hasManagerScopedTheme = managerScopeCandidate
+    ? readStoredValue(managerScopedStorageKeys.theme, null) !== null
+      || readStoredValue(managerScopedStorageKeys.customTheme, null) !== null
+      || readStoredValue(managerScopedStorageKeys.companyColorsEnabled, null) !== null
+    : false;
+  const companyThemeScopeId =
+    user?.user_metadata?.created_by
+    || ((profile?.company_management_enabled || hasManagerScopedTheme) ? managerScopeCandidate : null)
+    || null;
+  const companyStorageKeys = getScopedStorageKeys(companyThemeScopeId);
   const handleCompanyThemeChange = useCallback(() => {
     setCompanyThemeRevision((previous) => previous + 1);
   }, []);
@@ -494,6 +506,7 @@ export default function App() {
         profile={profile}
         setCurrentPage={setCurrentPage}
         onThemeChange={handleCompanyThemeChange}
+        themeScopeId={profile?.id || user?.id || null}
       />
     );
   } else if (currentPage === "admin") {
@@ -671,11 +684,14 @@ export default function App() {
   }, [user, currentPage]);
 
   useEffect(() => {
-    const companyEnabled = readStoredValue(STORAGE_KEYS.companyColorsEnabled, true);
-    const theme = readCompanyThemeFromStorage();
-    const shouldApply = companyEnabled ? true : Boolean(profile?.use_company_colors);
+    const hasCompanyScope = Boolean(companyThemeScopeId);
+    const isManagedEmployee = Boolean(user?.user_metadata?.created_by);
+    const companyEnabled = hasCompanyScope ? readStoredValue(companyStorageKeys.companyColorsEnabled, true) : false;
+    const theme = readCompanyThemeFromStorage(companyStorageKeys);
+    const shouldApply = hasCompanyScope
+      && (isManagedEmployee ? (companyEnabled || Boolean(profile?.use_company_colors)) : Boolean(profile?.use_company_colors));
     applyCompanyThemeToRoot(theme, shouldApply);
-  }, [profile?.use_company_colors, profile?.id, companyThemeRevision]);
+  }, [companyThemeScopeId, companyStorageKeys, profile?.id, profile?.use_company_colors, user?.user_metadata?.created_by, companyThemeRevision]);
 
   useEffect(() => {
     let active = true;
