@@ -67,6 +67,15 @@
 	gap: 14px;
 	width: 100%;
 	max-width: 640px;
+	--button-fill: var(--button-light-active-fill);
+	--button-border-color: var(--button-light-active-border);
+	--button-text-color: var(--button-light-active-text);
+	--button-hover-fill: var(--button-light-hover-fill);
+	--button-hover-border-color: var(--button-light-hover-border);
+	--button-hover-text-color: var(--button-light-hover-text);
+	--button-active-fill: var(--button-light-default-fill);
+	--button-active-border-color: var(--button-light-default-border);
+	--button-active-text-color: var(--button-light-default-text);
 }
 
 .pause-page-tab {

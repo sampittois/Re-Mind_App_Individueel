@@ -123,6 +123,15 @@
   border-radius: var(--radius-lg);
   width: 100%;
   max-width: 520px;
+  --button-fill: var(--button-dark-default-fill);
+  --button-border-color: var(--button-dark-default-border);
+  --button-text-color: var(--button-dark-default-text);
+  --button-hover-fill: var(--button-dark-hover-fill);
+  --button-hover-border-color: var(--button-dark-hover-border);
+  --button-hover-text-color: var(--button-dark-hover-text);
+  --button-active-fill: var(--button-dark-active-fill);
+  --button-active-border-color: var(--button-dark-active-border);
+  --button-active-text-color: var(--button-dark-active-text);
 }
 
 .login-form-field {
@@ -294,25 +303,39 @@
 }
 
 .auth-link-button {
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--primary);
-  font: inherit;
-  font-weight: var(--font-weight-regular);
-  text-decoration: underline;
-  text-underline-offset: 0.15em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
+  border-radius: var(--radius-md);
+  background: var(--button-fill);
+  color: var(--button-text-color);
+  font-family: var(--text-button-label-font-family);
+  font-size: var(--text-button-label-font-size);
+  font-weight: var(--text-button-label-font-weight);
+  line-height: var(--text-button-label-line-height);
+  text-decoration: none;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
 }
 
 .auth-link-button:hover {
-  border-color: transparent;
-  box-shadow: none;
-  color: var(--primary-dark);
+  background: var(--button-hover-fill);
+  border-color: var(--button-hover-border-color);
+  color: var(--button-hover-text-color);
+}
+
+.auth-link-button:active {
+  background: var(--button-active-fill);
+  border-color: var(--button-active-border-color);
+  color: var(--button-active-text-color);
+  transform: translateY(1px);
 }
 
 .auth-link-button:focus,
 .auth-link-button:focus-visible {
-  outline: 2px solid var(--primary);
+  outline: 2px solid var(--button-active-border-color);
   outline-offset: 2px;
 }
 
