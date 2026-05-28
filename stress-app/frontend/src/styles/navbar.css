@@ -9,18 +9,9 @@
   right: 0;
   width: 100%;
   z-index: 1000;
-  --button-fill: var(--button-dark-default-fill);
-  --button-border-color: var(--button-dark-default-border);
-  --button-text-color: var(--button-dark-default-text);
-  --button-hover-fill: var(--button-dark-hover-fill);
-  --button-hover-border-color: var(--button-dark-hover-border);
-  --button-hover-text-color: var(--button-dark-hover-text);
-  --button-active-fill: var(--button-dark-active-fill);
-  --button-active-border-color: var(--button-dark-active-border);
-  --button-active-text-color: var(--button-dark-active-text);
 }
 
-.nav .burger {
+.nav button:not(.profile) {
   font-family: inherit;
   border: none;
   border-radius: 0;
@@ -29,10 +20,10 @@
   box-shadow: none;
 }
 
-.nav .burger:hover,
-.nav .burger:focus,
-.nav .burger:focus-visible,
-.nav .burger:active {
+.nav button:hover,
+.nav button:focus,
+.nav button:focus-visible,
+.nav button:active {
   border: none;
   box-shadow: none;
 }
@@ -145,61 +136,42 @@
   background: var(--background);
   box-shadow: var(--shadow-md);
   z-index: 1100;
-  --button-fill: var(--button-light-default-fill);
-  --button-border-color: var(--button-light-default-border);
-  --button-text-color: var(--button-light-default-text);
-  --button-hover-fill: var(--button-light-hover-fill);
-  --button-hover-border-color: var(--button-light-hover-border);
-  --button-hover-text-color: var(--button-light-hover-text);
-  --button-active-fill: var(--button-light-active-fill);
-  --button-active-border-color: var(--button-light-active-border);
-  --button-active-text-color: var(--button-light-active-text);
 }
 
 .links.compact .link {
   text-align: left;
-  justify-content: flex-start;
-  width: 100%;
-  padding: 8px 12px;
+  padding: 8px 4px;
 }
 
 .link { 
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 40px;
-  padding: 0 14px;
-  border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
-  border-radius: var(--radius-md);
-  background: var(--button-fill);
-  color: var(--button-text-color);
-  font-family: var(--text-button-label-font-family);
-  font-size: var(--text-button-label-font-size);
-  font-weight: var(--text-button-label-font-weight);
+  background: none;
+  border: none;
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-xs);
+  color: var(--text);
   cursor: pointer;
   opacity: 1;
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
-  text-decoration: none;
-  box-sizing: border-box;
+  transition: color 0.2s ease;
+  padding: 0;
 }
 
 .link:hover {
-  background: var(--button-hover-fill);
-  border-color: var(--button-hover-border-color);
-  color: var(--button-hover-text-color);
+  font-weight: var(--font-weight-extrabold);
+  border: none;
+  box-shadow: none;
 }
 
 .link.active { 
-  background: var(--button-active-fill);
-  border-color: var(--button-active-border-color);
-  color: var(--button-active-text-color);
   font-weight: var(--font-weight-bold);
+  border: none;
+  box-shadow: none;
 }
 
 .link.active:hover {
-  background: var(--button-active-fill);
-  border-color: var(--button-active-border-color);
-  color: var(--button-active-text-color);
+  font-weight: var(--font-weight-extrabold);
+  border: none;
+  box-shadow: none;
 }
 
 .profile {
