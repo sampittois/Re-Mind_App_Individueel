@@ -56,7 +56,11 @@ function createWindow() {
     },
   });
 
-  win.loadURL("http://localhost:5173");
+  if (app.isPackaged) {
+    win.loadFile(path.join(process.resourcesPath, "renderer", "index.html"));
+  } else {
+    win.loadURL("http://localhost:5173");
+  }
 
   win.webContents.on("destroyed", () => {
     clearReminderForContents(win.webContents.id);
@@ -64,3 +68,9 @@ function createWindow() {
 }
 
 app.whenReady().then(createWindow);
+
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
+    app.quit();
+  }
+});

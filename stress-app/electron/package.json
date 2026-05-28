@@ -4,12 +4,37 @@
   "description": "Electron app for stress-app",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "build:frontend": "npm --prefix ../frontend run build",
+    "dist": "npm run build:frontend && electron-builder",
+    "pack": "npm run build:frontend && electron-builder --dir"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "electron": "latest"
+  "devDependencies": {
+    "electron": "latest",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.remind.stressapp",
+    "productName": "Re-Mind",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../frontend/dist",
+        "to": "renderer"
+      }
+    ],
+    "win": {
+      "target": "nsis"
+    }
   }
 }

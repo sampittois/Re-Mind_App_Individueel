@@ -19,3 +19,12 @@ Electron
 1. cd stress-app
 2. cd electron
 3. npx electron main.js
+
+Installer maken voor je laptop
+1. cd stress-app
+2. cd electron
+3. npm install
+4. npm run dist
+5. Open de map `release/` en start het `.exe`-bestand om te installeren
+
+De installer gebruikt `electron-builder` en pakt automatisch de Vite build van `frontend/` mee.
