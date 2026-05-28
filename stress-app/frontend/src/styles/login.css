@@ -51,6 +51,10 @@
   gap: 0.8rem;
 }
 
+.login-mobile-hero {
+  display: none;
+}
+
 .login-left .breathe {
   width: min(14rem, 45vw);
   height: min(14rem, 45vw);
@@ -353,10 +357,13 @@
     overflow: visible;
   }
 
-  .login-left,
   .login-right {
-    min-height: 50vh;
-    padding: 2rem 1.5rem;
+    min-height: auto;
+    padding: 1.75rem 1.25rem;
+  }
+
+  .login-left {
+    display: none;
   }
 
   .login-left-inner,
@@ -364,6 +371,91 @@
   .login-form {
     width: 100%;
     max-width: 520px;
+  }
+
+  .login-right {
+    align-items: flex-start;
+  }
+
+  .login-mobile-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    text-align: center;
+    padding: 0 0 0.25rem;
+  }
+
+  .login-mobile-hero .breathe {
+    width: min(10rem, 32vw);
+    height: min(10rem, 32vw);
+  }
+}
+
+@media (max-width: 640px) {
+  .login-page {
+    min-height: 100dvh;
+  }
+
+  .login-right {
+    padding: 1.1rem 0.9rem 1.35rem;
+    align-items: flex-start;
+  }
+
+  .login-right-inner {
+    width: 100%;
+    gap: 0.7rem;
+  }
+
+  .login-mobile-hero {
+    gap: 0.2rem;
+    padding-bottom: 0.1rem;
+  }
+
+  .login-mobile-hero .breathe {
+    width: min(8.8rem, 36vw);
+    height: min(8.8rem, 36vw);
+  }
+
+  .login-hero {
+    font-size: clamp(1.8rem, 8vw, 2.4rem);
+    line-height: 1.15;
+  }
+
+  .login-body,
+  .login-footer,
+  .login-left-sub {
+    font-size: 0.95rem;
+  }
+
+  .login-form {
+    padding: 0.85rem;
+    gap: 0.42rem;
+  }
+
+  .form-input,
+  .login-submit {
+    padding: 0.72rem 0.88rem;
+  }
+
+  .recent-email-dropdown {
+    left: 0;
+    right: 0;
+  }
+
+  .onboarding-row {
+    grid-template-columns: 1fr;
+  }
+
+  .onboarding-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .login-secondary,
+  .login-submit--small {
+    flex: none;
+    width: 100%;
   }
 }
 

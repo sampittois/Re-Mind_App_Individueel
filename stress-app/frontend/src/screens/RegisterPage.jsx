@@ -52,6 +52,14 @@ export default function RegisterPage({ onRegister, onGoToLogin, onSkip }) {
 
       <section className="login-right">
         <div className="login-right-inner">
+          <div className="login-mobile-hero">
+            <h2 className="login-left-title">
+              <span className="text">Slim pauzeren,</span> <span className="primary">sterk presteren</span>
+            </h2>
+            <p className="login-left-sub">Re:Mind helpt je de balans te behouden</p>
+            <Breathe size={160} />
+          </div>
+
           <h1 className="login-hero">
             Begin je reis naar <br />
             <span className="primary">balans</span>

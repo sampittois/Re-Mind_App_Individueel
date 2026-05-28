@@ -84,6 +84,14 @@ export default function LoginPage({ onLogin, onGoToRegister, onSkip }) {
 
       <section className="login-right">
         <div className="login-right-inner">
+          <div className="login-mobile-hero">
+            <h2 className="login-left-title">
+              <span className="text">Slim pauzeren,</span> <span className="primary">sterk presteren</span>
+            </h2>
+            <p className="login-left-sub">Re:Mind helpt je de balans te behouden</p>
+            <Breathe size={160} />
+          </div>
+
           <h1 className="login-hero">Welkom terug bij <br /><span className="primary">Re:Mind</span></h1>
           <p className="login-body">Log in om je werkdag te verbeteren met effectieve pauzes.</p>
 
