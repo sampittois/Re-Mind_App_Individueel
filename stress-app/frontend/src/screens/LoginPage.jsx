@@ -84,18 +84,23 @@ export default function LoginPage({ onLogin, onGoToRegister, onSkip }) {
 
       <section className="login-right">
         <div className="login-right-inner">
+          <div className="hero-row">
+            <Breathe size={160} />
+            <div>
+              <h1 className="login-hero">Welkom terug bij <br /><span className="primary">Re:Mind</span></h1>
+              <p className="login-body">Log in om je werkdag te verbeteren met effectieve pauzes.</p>
+            </div>
+          </div>
+
           <div className="login-mobile-hero">
             <h2 className="login-left-title">
               <span className="text">Slim pauzeren,</span> <span className="primary">sterk presteren</span>
             </h2>
             <p className="login-left-sub">Re:Mind helpt je de balans te behouden</p>
-            <Breathe size={160} />
           </div>
 
-          <h1 className="login-hero">Welkom terug bij <br /><span className="primary">Re:Mind</span></h1>
-          <p className="login-body">Log in om je werkdag te verbeteren met effectieve pauzes.</p>
-
-          <form className="login-form" onSubmit={handleSubmit}>
+          <div className="login-form-container">
+            <form className="login-form" onSubmit={handleSubmit}>
             <div className="login-form-field login-form-field--with-dropdown">
               <label className="form-label" htmlFor="login-email">Email</label>
               <input
@@ -152,7 +157,8 @@ export default function LoginPage({ onLogin, onGoToRegister, onSkip }) {
 
             {error && <p className="form-error">{error}</p>}
             <button type="submit" className="login-submit">Log in</button>
-          </form>
+            </form>
+          </div>
 
           <div className="login-footer">
             Heb je nog geen account? <button type="button" className="auth-link-button" onClick={onGoToRegister}>Registreer je</button>

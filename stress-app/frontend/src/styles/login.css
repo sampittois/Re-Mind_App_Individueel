@@ -78,6 +78,14 @@
   color: var(--primary);
 }
 
+.hero-row .breathe {
+  display: none;
+}
+
+.login-mobile-hero {
+  display: none;
+}
+
 .login-left-sub,
 .login-body,
 .login-footer {
@@ -380,8 +388,8 @@
   .login-mobile-hero {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 0.35rem;
+    align-items: stretch;
+    gap: 0.25rem;
     text-align: center;
     padding: 0 0 0.25rem;
   }
@@ -389,6 +397,51 @@
   .login-mobile-hero .breathe {
     width: min(10rem, 32vw);
     height: min(10rem, 32vw);
+  }
+
+  .hero-row {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+  }
+
+  /* show the breathing graphic in the hero-row when layout stacks */
+  .hero-row .breathe {
+    display: block;
+    width: clamp(56px, 16vw, 88px);
+    aspect-ratio: 1 / 1;
+    height: auto;
+    flex: 0 0 auto;
+  }
+
+  /* hide the descriptive body text when the breathing graphic is shown beside the heading */
+  .hero-row .login-body {
+    display: none;
+  }
+
+  /* the mobile caption (slogan + supporting line) should appear under the heading when stacked */
+  .login-mobile-hero {
+    display: block;
+    text-align: left;
+    margin-top: 0.6rem;
+  }
+
+  .hero-row h1.login-hero {
+    margin: 0;
+    font-size: clamp(1.6rem, 6.6vw, 2.2rem);
+    line-height: 1.12;
+  }
+
+  .hero-row .login-body {
+    display: none;
+  }
+
+  .login-form-container {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
   }
 }
 
@@ -408,8 +461,9 @@
   }
 
   .login-mobile-hero {
-    gap: 0.2rem;
-    padding-bottom: 0.1rem;
+    display: block;
+    text-align: left;
+    margin-top: 0;
   }
 
   .login-mobile-hero .breathe {

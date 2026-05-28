@@ -52,21 +52,26 @@ export default function RegisterPage({ onRegister, onGoToLogin, onSkip }) {
 
       <section className="login-right">
         <div className="login-right-inner">
+          <div className="hero-row">
+            <Breathe size={160} />
+            <div>
+              <h1 className="login-hero">
+                Begin je reis naar <br />
+                <span className="primary">balans</span>
+              </h1>
+              <p className="login-body">Registreer je om toegang te krijgen tot persoonlijke pauzes en inzichten.</p>
+            </div>
+          </div>
+
           <div className="login-mobile-hero">
             <h2 className="login-left-title">
               <span className="text">Slim pauzeren,</span> <span className="primary">sterk presteren</span>
             </h2>
             <p className="login-left-sub">Re:Mind helpt je de balans te behouden</p>
-            <Breathe size={160} />
           </div>
 
-          <h1 className="login-hero">
-            Begin je reis naar <br />
-            <span className="primary">balans</span>
-          </h1>
-          <p className="login-body">Registreer je om toegang te krijgen tot persoonlijke pauzes en inzichten.</p>
-
-          <form className="login-form" onSubmit={handleSubmit}>
+          <div className="login-form-container">
+            <form className="login-form" onSubmit={handleSubmit}>
             <label className="form-label">Email</label>
             <input className="form-input" placeholder="john.doe@voorbeeld.be" value={email} onChange={(e) => setEmail(e.target.value)} />
 
@@ -84,7 +89,8 @@ export default function RegisterPage({ onRegister, onGoToLogin, onSkip }) {
             {error && <p className="form-error">{error}</p>}
 
             <button type="submit" className="login-submit">Account aanmaken</button>
-          </form>
+            </form>
+          </div>
 
           <div className="login-footer">
             Heb je al een account? <button type="button" className="auth-link-button" onClick={onGoToLogin}>Log in</button>

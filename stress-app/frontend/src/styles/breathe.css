@@ -28,10 +28,13 @@
 }
 
 .breathe__icon {
-  position: relative;
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  display: block;
   z-index: 1;
-  width: 36%;
-  height: 36%;
+  width: 34%;
+  height: 34%;
   object-fit: contain;
   animation: breatheIcon 8s ease-in-out infinite;
 }
