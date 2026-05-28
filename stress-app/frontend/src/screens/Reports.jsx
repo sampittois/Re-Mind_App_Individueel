@@ -5,9 +5,10 @@ import premiumIcon from "../assets/premium.svg";
 import { BackIcon } from "../components/IconActions";
 import "../styles/reports.css";
 
-export default function Reports({ setCurrentPage, profile }) {
+export default function Reports({ setCurrentPage, profile, user }) {
   const [view, setView] = useState("day");
   const plan = profile?.plan || "basic";
+  const reportUserId = profile?.id || user?.id || null;
 
   return (
     <main className={`reports-page page${view === "week" ? " reports-week-page" : ""}`}>
@@ -37,7 +38,7 @@ export default function Reports({ setCurrentPage, profile }) {
         </div>
       </div>
 
-      {view === "day" ? <ReportsDay /> : <ReportsWeek />}
+      {view === "day" ? <ReportsDay profile={profile} user={user} reportUserId={reportUserId} /> : <ReportsWeek profile={profile} user={user} reportUserId={reportUserId} />}
     </main>
   );
 }

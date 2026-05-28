@@ -227,7 +227,7 @@ function StressEnergyChart({ data }) {
   );
 }
 
-export default function ReportsWeek() {
+export default function ReportsWeek({ profile, user, reportUserId = null }) {
   const [reportData, setReportData] = useState({
     weekTimeline: [],
     pauseBehaviorData: [],
@@ -240,7 +240,7 @@ export default function ReportsWeek() {
   const [loading, setLoading] = useState(true);
 
   async function refreshReport() {
-    const { data, error } = await loadWeeklyWellbeingReport();
+    const { data, error } = await loadWeeklyWellbeingReport(reportUserId || profile?.id || user?.id || null);
 
     if (error) {
       console.error("Failed to load weekly report data:", error);
@@ -254,7 +254,7 @@ export default function ReportsWeek() {
 
   async function handleStressChange(value) {
     setReportData((previous) => ({ ...previous, stressLevel: value }));
-    const { error } = await addStressCheck(value);
+    const { error } = await addStressCheck(value, null, reportUserId || profile?.id || user?.id || null);
     if (error) {
       console.error("Failed to save stress check-in:", error);
       return;
@@ -265,7 +265,7 @@ export default function ReportsWeek() {
 
   async function handleEnergyChange(value) {
     setReportData((previous) => ({ ...previous, energyLevel: value }));
-    const { error } = await addEnergyCheck(value);
+    const { error } = await addEnergyCheck(value, null, reportUserId || profile?.id || user?.id || null);
     if (error) {
       console.error("Failed to save energy check-in:", error);
       return;
@@ -278,7 +278,7 @@ export default function ReportsWeek() {
     let active = true;
 
     async function loadReport() {
-      const { data, error } = await loadWeeklyWellbeingReport();
+      const { data, error } = await loadWeeklyWellbeingReport(reportUserId || profile?.id || user?.id || null);
 
       if (!active) return;
 

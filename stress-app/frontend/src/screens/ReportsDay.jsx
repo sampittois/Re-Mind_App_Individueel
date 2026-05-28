@@ -6,10 +6,25 @@ import breakIcon from "../assets/break.svg";
 import highEnergyIcon from "../assets/highEnergy.svg";
 import highStressIcon from "../assets/highStress.svg";
 import warningIcon from "../assets/warning.svg";
-import { addEnergyCheck, addStressCheck, loadLatestSessionTimeline } from "../lib/session";
+import { addEnergyCheck, addStressCheck, loadCurrentDayTimeline } from "../lib/session";
 import "../styles/reportsDay.css";
 
-export default function ReportsDay() {
+function formatReportDate(dateValue) {
+  if (!dateValue) return "";
+
+  return new Intl.DateTimeFormat("nl-NL", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(dateValue));
+}
+
+function formatTodayDate() {
+  return formatReportDate(new Date());
+}
+
+export default function ReportsDay({ profile, user, reportUserId = null }) {
   const [reportData, setReportData] = useState({
     timeline: [],
     stressLevel: 3,
@@ -20,7 +35,7 @@ export default function ReportsDay() {
   const [loading, setLoading] = useState(true);
 
   async function refreshReport() {
-    const { data, error } = await loadLatestSessionTimeline();
+    const { data, error } = await loadCurrentDayTimeline(reportUserId || profile?.id || user?.id || null);
 
     if (error) {
       console.error("Failed to load daily report data:", error);
@@ -34,7 +49,7 @@ export default function ReportsDay() {
 
   async function handleStressChange(value) {
     setReportData((previous) => ({ ...previous, stressLevel: value }));
-    const { error } = await addStressCheck(value);
+    const { error } = await addStressCheck(value, null, reportUserId || profile?.id || user?.id || null);
     if (error) {
       console.error("Failed to save stress check-in:", error);
       return;
@@ -45,7 +60,7 @@ export default function ReportsDay() {
 
   async function handleEnergyChange(value) {
     setReportData((previous) => ({ ...previous, energyLevel: value }));
-    const { error } = await addEnergyCheck(value);
+    const { error } = await addEnergyCheck(value, null, reportUserId || profile?.id || user?.id || null);
     if (error) {
       console.error("Failed to save energy check-in:", error);
       return;
@@ -58,7 +73,7 @@ export default function ReportsDay() {
     let active = true;
 
     async function loadReport() {
-      const { data, error } = await loadLatestSessionTimeline();
+      const { data, error } = await loadCurrentDayTimeline(reportUserId || profile?.id || user?.id || null);
 
       if (!active) return;
 
@@ -111,6 +126,7 @@ export default function ReportsDay() {
 
       <section className="reports-right">
         <h1>Vandaag in momenten</h1>
+        <p className="reports-date">{formatTodayDate()}</p>
         <p className="reports-desc">Je dagelijkse tijdlijn met check-ins, pauzes en belangrijke momenten</p>
 
         {loading && reportData.timeline.length === 0 ? <p>Daggegevens laden...</p> : null}

@@ -423,6 +423,7 @@ export default function App() {
     );
   } else if (currentPage === "reports") {
     pageContent = <Reports setCurrentPage={setCurrentPage} profile={profile} />;
+    pageContent = <Reports setCurrentPage={setCurrentPage} profile={profile} user={user} />;
   } else if (currentPage === "pause") {
     pageContent = (
       <PauseSuggestions

@@ -18,6 +18,14 @@
   letter-spacing: var(--text-heading-1-letter-spacing);
 }
 
+.reports-date {
+  margin: 0 0 var(--space-2);
+  color: var(--primary-dark);
+  font-family: var(--text-body-regular-font-family);
+  font-size: var(--text-body-small-font-size);
+  line-height: var(--text-body-small-line-height);
+}
+
 .reports-desc {
   margin: 0 0 var(--space-6);
   color: var(--text-light);

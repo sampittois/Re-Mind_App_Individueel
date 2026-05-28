@@ -1,14 +1,18 @@
 import { useState, useEffect } from "react";
 import { supabase } from "./supabaseClient";
 
-async function getCurrentUser() {
+async function getCurrentUser(explicitUserId = null) {
+  if (explicitUserId) {
+    return { id: explicitUserId };
+  }
+
   const { data: { user } = {} } = await supabase.auth.getUser();
   return user || null;
 }
 
 // Start a new work session for the current user and return the created session
-export async function startSession() {
-  const user = await getCurrentUser();
+export async function startSession(explicitUserId = null) {
+  const user = await getCurrentUser(explicitUserId);
   if (!user) return { data: null, error: new Error("No user logged in") };
 
   const payload = {
@@ -26,8 +30,8 @@ export async function startSession() {
 }
 
 // Get the latest session for the current user
-export async function getLatestSessionForUser() {
-  const user = await getCurrentUser();
+export async function getLatestSessionForUser(explicitUserId = null) {
+  const user = await getCurrentUser(explicitUserId);
   if (!user) return { data: null, error: new Error("No user logged in") };
 
   const { data, error } = await supabase
@@ -41,25 +45,25 @@ export async function getLatestSessionForUser() {
   return { data, error };
 }
 
-export async function ensureCurrentSessionForUser() {
-  const latest = await getLatestSessionForUser();
+export async function ensureCurrentSessionForUser(explicitUserId = null) {
+  const latest = await getLatestSessionForUser(explicitUserId);
   if (latest.error) return { data: null, error: latest.error };
 
   if (latest.data) {
     return latest;
   }
 
-  return startSession();
+  return startSession(explicitUserId);
 }
 
 // Insert a stress check for the given session (or the latest session if sessionId omitted)
-export async function addStressCheck(level, sessionId = null) {
-  const user = await getCurrentUser();
+export async function addStressCheck(level, sessionId = null, explicitUserId = null) {
+  const user = await getCurrentUser(explicitUserId);
   if (!user) return { data: null, error: new Error("No user logged in") };
 
   let session_id = sessionId;
   if (!session_id) {
-    const latest = await ensureCurrentSessionForUser();
+    const latest = await ensureCurrentSessionForUser(explicitUserId);
     if (latest.error) return { data: null, error: latest.error };
     session_id = latest.data?.id;
   }
@@ -78,13 +82,13 @@ export async function addStressCheck(level, sessionId = null) {
 }
 
 // Insert an energy check for the given session (or the latest session if sessionId omitted)
-export async function addEnergyCheck(level, sessionId = null) {
-  const user = await getCurrentUser();
+export async function addEnergyCheck(level, sessionId = null, explicitUserId = null) {
+  const user = await getCurrentUser(explicitUserId);
   if (!user) return { data: null, error: new Error("No user logged in") };
 
   let session_id = sessionId;
   if (!session_id) {
-    const latest = await ensureCurrentSessionForUser();
+    const latest = await ensureCurrentSessionForUser(explicitUserId);
     if (latest.error) return { data: null, error: latest.error };
     session_id = latest.data?.id;
   }
@@ -103,13 +107,13 @@ export async function addEnergyCheck(level, sessionId = null) {
 }
 
 // Insert a break for the given session (or the latest session if sessionId omitted)
-export async function addBreak({ type = "walk", duration_minutes = 5 } = {}, sessionId = null) {
-  const user = await getCurrentUser();
+export async function addBreak({ type = "walk", duration_minutes = 5 } = {}, sessionId = null, explicitUserId = null) {
+  const user = await getCurrentUser(explicitUserId);
   if (!user) return { data: null, error: new Error("No user logged in") };
 
   let session_id = sessionId;
   if (!session_id) {
-    const latest = await ensureCurrentSessionForUser();
+    const latest = await ensureCurrentSessionForUser(explicitUserId);
     if (latest.error) return { data: null, error: latest.error };
     session_id = latest.data?.id;
   }
@@ -126,8 +130,8 @@ export async function addBreak({ type = "walk", duration_minutes = 5 } = {}, ses
   return { data, error };
 }
 
-export async function addBreakReminderDecision(action, sessionId = null) {
-  const user = await getCurrentUser();
+export async function addBreakReminderDecision(action, sessionId = null, explicitUserId = null) {
+  const user = await getCurrentUser(explicitUserId);
   if (!user) return { data: null, error: new Error("No user logged in") };
 
   if (!["taken", "skipped"].includes(action)) {
@@ -136,7 +140,7 @@ export async function addBreakReminderDecision(action, sessionId = null) {
 
   let session_id = sessionId;
   if (!session_id) {
-    const latest = await ensureCurrentSessionForUser();
+    const latest = await ensureCurrentSessionForUser(explicitUserId);
     if (latest.error) return { data: null, error: latest.error };
     session_id = latest.data?.id;
   }
@@ -165,11 +169,11 @@ function isMissingReminderEventsTableError(error) {
   );
 }
 
-export async function loadLatestWellbeingSnapshot() {
-  const user = await getCurrentUser();
+export async function loadLatestWellbeingSnapshot(explicitUserId = null) {
+  const user = await getCurrentUser(explicitUserId);
   if (!user) return { data: null, error: new Error("No user logged in") };
 
-  const sessionResult = await getLatestSessionForUser();
+  const sessionResult = await getLatestSessionForUser(explicitUserId);
   if (sessionResult.error) return { data: null, error: sessionResult.error };
 
   const session = sessionResult.data;
@@ -264,6 +268,19 @@ function formatTimeLabel(dateValue) {
   }).format(new Date(dateValue));
 }
 
+function getTodayRangeIso(now = new Date()) {
+  const start = new Date(now);
+  start.setHours(0, 0, 0, 0);
+
+  const end = new Date(start);
+  end.setDate(end.getDate() + 1);
+
+  return {
+    startIso: start.toISOString(),
+    endIso: end.toISOString(),
+  };
+}
+
 function average(values, fallback = 0) {
   if (!values.length) return fallback;
   return values.reduce((sum, value) => sum + value, 0) / values.length;
@@ -280,11 +297,11 @@ function groupBySessionId(rows) {
   }, new Map());
 }
 
-export async function loadLatestSessionTimeline() {
-  const user = await getCurrentUser();
+export async function loadLatestSessionTimeline(explicitUserId = null) {
+  const user = await getCurrentUser(explicitUserId);
   if (!user) return { data: null, error: new Error("No user logged in") };
 
-  const sessionResult = await getLatestSessionForUser();
+  const sessionResult = await getLatestSessionForUser(explicitUserId);
   if (sessionResult.error) return { data: null, error: sessionResult.error };
 
   const session = sessionResult.data;
@@ -392,8 +409,128 @@ export async function loadLatestSessionTimeline() {
   };
 }
 
-export async function loadWeeklyWellbeingReport() {
-  const user = await getCurrentUser();
+export async function loadCurrentDayTimeline(explicitUserId = null) {
+  const user = await getCurrentUser(explicitUserId);
+  if (!user) return { data: null, error: new Error("No user logged in") };
+
+  const { startIso, endIso } = getTodayRangeIso();
+
+  const [sessionResult, stressResult, energyResult, breakResult, reminderResult] = await Promise.all([
+    supabase
+      .from("work_sessions")
+      .select("id, start_time")
+      .eq("user_id", user.id)
+      .gte("start_time", startIso)
+      .lt("start_time", endIso)
+      .order("start_time", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("stress_checkins")
+      .select("id, stress_level, created_at")
+      .eq("user_id", user.id)
+      .gte("created_at", startIso)
+      .lt("created_at", endIso)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("energy_checkins")
+      .select("id, energy_level, created_at")
+      .eq("user_id", user.id)
+      .gte("created_at", startIso)
+      .lt("created_at", endIso)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("breaks")
+      .select("id, type, duration_minutes, created_at")
+      .eq("user_id", user.id)
+      .gte("created_at", startIso)
+      .lt("created_at", endIso)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("break_reminder_events")
+      .select("id, action, created_at")
+      .eq("user_id", user.id)
+      .gte("created_at", startIso)
+      .lt("created_at", endIso)
+      .order("created_at", { ascending: true }),
+  ]);
+
+  const reminderTableMissing = isMissingReminderEventsTableError(reminderResult.error);
+  const firstError = sessionResult.error || stressResult.error || energyResult.error || breakResult.error || (!reminderTableMissing ? reminderResult.error : null);
+  if (firstError) {
+    return { data: null, error: firstError };
+  }
+
+  const stressCheckins = stressResult.data || [];
+  const energyCheckins = energyResult.data || [];
+  const breaks = breakResult.data || [];
+  const reminderEvents = reminderTableMissing ? [] : reminderResult.data || [];
+
+  const events = [
+    ...stressCheckins.map((entry) => ({
+      id: `stress-${entry.id}`,
+      createdAt: entry.created_at,
+      type: "stress",
+      title: "Stress",
+      value: entry.stress_level,
+      detail: `Stresscheck-in opgeslagen: ${entry.stress_level}/5`,
+      iconType: entry.stress_level >= 4 ? "highStress" : entry.stress_level <= 2 ? "highEnergy" : "warning",
+    })),
+    ...energyCheckins.map((entry) => ({
+      id: `energy-${entry.id}`,
+      createdAt: entry.created_at,
+      type: "energy",
+      title: "Energie",
+      value: entry.energy_level,
+      detail: `Energiecheck-in opgeslagen: ${entry.energy_level}/5`,
+      iconType: entry.energy_level >= 4 ? "highEnergy" : entry.energy_level <= 2 ? "highStress" : "warning",
+    })),
+    ...breaks.map((entry) => ({
+      id: `break-${entry.id}`,
+      createdAt: entry.created_at,
+      type: "break",
+      title: "Pauze",
+      value: entry.duration_minutes,
+      detail: `Pauze genomen: ${entry.duration_minutes} min`,
+      iconType: "break",
+    })),
+    ...reminderEvents.map((entry) => ({
+      id: `reminder-${entry.id}`,
+      createdAt: entry.created_at,
+      type: "reminder",
+      title: "Pauzeherinnering",
+      value: entry.action,
+      detail: entry.action === "taken" ? "Herinnering: pauze genomen" : "Herinnering: doorgewerkt",
+      iconType: entry.action === "taken" ? "break" : "warning",
+    })),
+  ]
+    .sort((left, right) => new Date(left.createdAt) - new Date(right.createdAt))
+    .map((entry) => ({
+      ...entry,
+      time: formatTimeLabel(entry.createdAt),
+    }));
+
+  const pauseSuggestions =
+    stressCheckins.filter((entry) => entry.stress_level >= 4).length +
+    energyCheckins.filter((entry) => entry.energy_level <= 2).length;
+  const remindersTaken = reminderEvents.filter((entry) => entry.action === "taken").length;
+  const remindersSkipped = reminderEvents.filter((entry) => entry.action === "skipped").length;
+
+  return {
+    data: {
+      session: sessionResult.data || null,
+      timeline: events,
+      stressLevel: stressCheckins[stressCheckins.length - 1]?.stress_level ?? 3,
+      energyLevel: energyCheckins[energyCheckins.length - 1]?.energy_level ?? 2,
+      pausesTaken: reminderEvents.length ? remindersTaken : breaks.length,
+      pausesSkipped: reminderEvents.length ? remindersSkipped : Math.max(pauseSuggestions - breaks.length, 0),
+    },
+    error: null,
+  };
+}
+
+export async function loadWeeklyWellbeingReport(explicitUserId = null) {
+  const user = await getCurrentUser(explicitUserId);
   if (!user) return { data: null, error: new Error("No user logged in") };
 
   const { data: sessions, error: sessionError } = await supabase
