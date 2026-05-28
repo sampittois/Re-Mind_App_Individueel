@@ -1,6 +1,10 @@
 const path = require("node:path");
 const { app, BrowserWindow, Notification, ipcMain } = require("electron");
 
+const windowIconPath = app.isPackaged
+  ? path.join(process.resourcesPath, "app-icon.png")
+  : path.join(__dirname, "..", "frontend", "src", "assets", "logo_primary.png");
+
 const reminderIntervals = new Map();
 
 function clearReminderForContents(contentsId) {
@@ -49,6 +53,8 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 900,
     height: 700,
+    title: "Re:Mind",
+    icon: windowIconPath,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
@@ -67,7 +73,10 @@ function createWindow() {
   });
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  app.setName("Re:Mind");
+  createWindow();
+});
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {

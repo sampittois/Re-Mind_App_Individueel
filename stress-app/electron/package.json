@@ -19,6 +19,7 @@
   "build": {
     "appId": "com.remind.stressapp",
     "productName": "Re-Mind",
+    "icon": "../frontend/src/assets/logo_primary.png",
     "directories": {
       "output": "release"
     },
@@ -31,6 +32,10 @@
       {
         "from": "../frontend/dist",
         "to": "renderer"
+      },
+      {
+        "from": "../frontend/src/assets/logo_primary.png",
+        "to": "app-icon.png"
       }
     ],
     "win": {

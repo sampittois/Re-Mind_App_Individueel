@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "../styles/navbar.css";
-import logo from "../assets/logo_primary.png";
+import logo from "../assets/logo_icon.svg";
 import menuIcon from "../assets/menu.svg";
 import closeIcon from "../assets/x.svg";
 
