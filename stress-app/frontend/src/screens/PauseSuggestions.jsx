@@ -181,8 +181,9 @@ export default function PauseSuggestions({
   async function toggleFavorite(pauseId) {
     const currentlyFavorite = favoriteIds.has(pauseId);
 
-    // Enforce basic plan favorite limit of 5
-    if (!currentlyFavorite && plan === "basic" && favoriteIds.size >= 5) {
+    // Enforce basic plan favorite limit of 5, but skip upgrade redirect for company-managed accounts
+    const isCompanyAccount = Boolean(profile?.company_id);
+    if (!currentlyFavorite && plan === "basic" && favoriteIds.size >= 5 && !isCompanyAccount) {
       // Redirect to upgrade page
       setCurrentPage?.("upgrade");
       return;
@@ -332,7 +333,7 @@ export default function PauseSuggestions({
             <p className="pause-page-empty">Nog geen favorieten.</p>
           ) : null}
 
-        {activeTab === "favorites" && plan === "basic" && favoriteIds.size >= 5 ? (
+        {activeTab === "favorites" && plan === "basic" && !profile?.company_id && favoriteIds.size >= 5 ? (
           <PauseCard
             key="upgrade-card"
             icon={<PlusIcon />}

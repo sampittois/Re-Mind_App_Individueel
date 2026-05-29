@@ -31,7 +31,7 @@ const ALL_SUGGESTIONS = [
 
 const SUGGESTION_BY_ID = new Map(ALL_SUGGESTIONS.map((item) => [item.id, item]));
 
-export default function ProfileSection({ profile, initialName = "John Doe", companyName = "", canEditCompanyName = false, onSaveName, onSaveCompanyName, onSaveAvatar, onLogout, user, onUpdateProfile, hasStoredName = true, setCurrentPage, companyColorsForced = false }) {
+export default function ProfileSection({ profile, initialName = "John Doe", companyName = "", canEditCompanyName = false, onSaveName, onSaveCompanyName, onSaveAvatar, onLogout, user, onUpdateProfile, onCompanyColorsChange, hasStoredName = true, setCurrentPage, companyColorsForced = false }) {
   const [name, setName] = useState(hasStoredName ? initialName : "");
   const [companyValue, setCompanyValue] = useState(companyName);
   useEffect(() => {
@@ -261,15 +261,23 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
         ) : null}
 
         <div className="profile-actions">
-          <button
-            className="action-btn"
-            type="button"
-            onClick={() => {
-              setCurrentPage?.("upgrade");
-            }}
-          >
-            Upgrade Plan
-          </button>
+          {(() => {
+            const isCompanyAccount = Boolean(profile?.company_id);
+            const canUpgrade = profile?.plan === "basic" && !isCompanyAccount;
+            if (!canUpgrade) return null;
+
+            return (
+              <button
+                className="action-btn"
+                type="button"
+                onClick={() => {
+                  setCurrentPage?.("upgrade");
+                }}
+              >
+                Upgrade Plan
+              </button>
+            );
+          })()}
           {profile?.plan !== "basic" ? (
             <button
               className="action-btn"
@@ -329,7 +337,7 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
               onToggleFavorite={() => removeFavorite(item.id)}
             />
           ))}
-          {profile?.plan === "basic" && favorites.length >= 5 ? (
+          {profile?.plan === "basic" && !profile?.company_id && favorites.length >= 5 ? (
             <PauseCard
               key="upgrade-card"
               icon={<PlusIcon />}
@@ -340,7 +348,7 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
         </div>
       </section>
 
-      <SettingsSection profile={profile} onUpdateProfile={onUpdateProfile} companyColorsForced={companyColorsForced} />
+      <SettingsSection profile={profile} onUpdateProfile={onUpdateProfile} onCompanyColorsChange={onCompanyColorsChange} companyColorsForced={companyColorsForced} />
     </div>
   );
 }

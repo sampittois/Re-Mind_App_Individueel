@@ -273,12 +273,12 @@ export function buildThemeVariables(theme) {
   };
 }
 
-export default function CompanyManagementPage({ profile, setCurrentPage, onThemeChange, onApplyColors, themeScopeId = null }) {
+export default function CompanyManagementPage({ profile, setCurrentPage, onThemeChange, onApplyColors, themeScopeId = null, companyColorsForced = true }) {
   const storageKeys = getScopedStorageKeys(themeScopeId);
   const [employees, setEmployees] = useState([]);
   const [themeId, setThemeId] = useState(() => readStoredValueWithLegacy(themeScopeId, storageKeys.theme, STORAGE_KEYS.theme, DEFAULT_THEME_ID));
   const [customTheme, setCustomTheme] = useState(() => normalizeCustomTheme(readStoredValueWithLegacy(themeScopeId, storageKeys.customTheme, STORAGE_KEYS.customTheme, DEFAULT_CUSTOM_THEME)));
-  const [companyColorsEnabled, setCompanyColorsEnabled] = useState(() => readStoredValueWithLegacy(themeScopeId, storageKeys.companyColorsEnabled, STORAGE_KEYS.companyColorsEnabled, true));
+  const [companyColorsEnabled, setCompanyColorsEnabled] = useState(() => Boolean(companyColorsForced));
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
   const [deleteEmployeeId, setDeleteEmployeeId] = useState(null);
@@ -447,9 +447,12 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
   
 
   useEffect(() => {
+    setCompanyColorsEnabled(Boolean(companyColorsForced));
+  }, [companyColorsForced]);
+
+  useEffect(() => {
     writeStoredValue(storageKeys.companyColorsEnabled, companyColorsEnabled);
-    onThemeChange?.({ companyColorsEnabled });
-  }, [companyColorsEnabled, onThemeChange, storageKeys.companyColorsEnabled]);
+  }, [companyColorsEnabled, storageKeys.companyColorsEnabled]);
 
   useEffect(() => {
     if (!isCreateOpen && !selectedEmployeeId) {
@@ -493,14 +496,51 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
   }
 
   async function applyColorsToApp() {
-    /* Company color editing reset:
     const nextTheme = normalizeCustomTheme(customTheme);
     setCustomTheme(nextTheme);
     setThemeId("custom");
     writeStoredValue(storageKeys.theme, "custom");
     writeStoredValue(storageKeys.customTheme, nextTheme);
 
-    // Persist the theme to the server so employees on other devices can read it.
+    // Apply CSS variables directly to the document so the UI updates immediately
+    try {
+      if (typeof document !== "undefined") {
+        const themeVars = buildThemeVariables(nextTheme);
+        Object.entries(themeVars).forEach(([k, v]) => {
+          if (v) document.documentElement.style.setProperty(k, v);
+        });
+
+        // Also set legacy token names so components using older tokens update.
+        try {
+          const legacy = {
+            "--primary-300": nextTheme.vars.primary,
+            "--primary-600": nextTheme.vars.primaryDark,
+            "--border-300": nextTheme.vars.border,
+            "--highlight-300": nextTheme.vars.highlight,
+            "--background-300": nextTheme.vars.background,
+            "--background-card-300": nextTheme.vars.backgroundDark,
+            "--background-section-300": nextTheme.vars.backgroundDark,
+            "--success-300": nextTheme.vars.success,
+            "--warning-300": nextTheme.vars.warning,
+            "--error-300": nextTheme.vars.error,
+            "--info-300": nextTheme.vars.info,
+            "--text-primary-300": nextTheme.vars.text,
+            "--text-secondary-300": nextTheme.vars.textLight,
+          };
+          Object.entries(legacy).forEach(([k, v]) => {
+            if (v) document.documentElement.style.setProperty(k, v);
+          });
+        } catch (e) {
+          console.error("Failed to apply legacy CSS variables:", e);
+        }
+
+        console.debug("CompanyManagementPage: applied CSS variables directly", themeVars);
+      }
+    } catch (e) {
+      console.error("Failed to directly apply CSS variables:", e);
+    }
+
+    // Try to persist company theme to server (profiles.company_theme) when possible
     let didPersistTheme = true;
     try {
       if (profile && profile.id) {
@@ -518,20 +558,26 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
       didPersistTheme = false;
     }
 
-    const didPersistProfileToggle = await onApplyColors?.({
-      theme: nextTheme,
-      companyColorsEnabled,
-    });
-    if (didPersistProfileToggle === false || didPersistTheme === false) {
+    // Let parent persist any additional profile-level toggles
+    let didPersistProfileToggle = true;
+    try {
+      console.debug("CompanyManagementPage: calling onApplyColors", { companyColorsEnabled, nextTheme });
+      const result = await onApplyColors?.({ theme: nextTheme, companyColorsEnabled });
+      if (result === false) didPersistProfileToggle = false;
+    } catch (e) {
+      console.error("onApplyColors failed:", e);
+      didPersistProfileToggle = false;
+    }
+
+    console.debug("CompanyManagementPage: calling onThemeChange", { companyColorsEnabled, nextTheme });
+    onThemeChange?.({ theme: nextTheme, companyColorsEnabled });
+
+    if (!didPersistTheme || !didPersistProfileToggle) {
       setColorApplyMessage("Kleuren lokaal toegepast, maar niet volledig opgeslagen. Probeer opnieuw.");
-      onThemeChange?.(nextTheme);
       return;
     }
 
-    onThemeChange?.(nextTheme);
     setColorApplyMessage("Kleuren toegepast op de app en opgeslagen.");
-    */
-    setColorApplyMessage("Kleurenfunctionaliteit staat voorlopig uit.");
   }
 
   async function submitEmployee(event) {
@@ -818,7 +864,11 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
 
             <button
               className={`toggle-switch ${companyColorsEnabled ? "active" : ""}`}
-              onClick={() => setCompanyColorsEnabled((previous) => !previous)}
+              onClick={async () => {
+                const nextValue = !companyColorsEnabled;
+                setCompanyColorsEnabled(nextValue);
+                onThemeChange?.({ companyColorsEnabled: nextValue });
+              }}
               type="button"
               role="switch"
               aria-checked={companyColorsEnabled}

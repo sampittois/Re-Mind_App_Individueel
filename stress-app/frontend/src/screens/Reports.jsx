@@ -25,8 +25,9 @@ export default function Reports({ setCurrentPage, profile, user }) {
           <button
             className={`toggle-btn ${view === "week" ? "active" : ""}`}
             onClick={() => {
-              if (plan === "basic") {
-                // Redirect to upgrade when basic users try to open weekly reports
+              const isCompanyAccount = Boolean(profile?.company_id);
+              if (plan === "basic" && !isCompanyAccount) {
+                // Redirect to upgrade when non-company basic users try to open weekly reports
                 setCurrentPage?.("upgrade");
                 return;
               }

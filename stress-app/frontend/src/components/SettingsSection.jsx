@@ -38,7 +38,7 @@ function createPauseId() {
   return Date.now() + Math.random();
 }
 
-export default function SettingsSection({ profile, onUpdateProfile, companyColorsForced = false }) {
+export default function SettingsSection({ profile, onUpdateProfile, onCompanyColorsChange, companyColorsForced = false }) {
   const [workStart, setWorkStart] = useState("08:00");
   const [workEnd, setWorkEnd] = useState("17:00");
   const [pauses, setPauses] = useState([{ id: 1, start: "12:00", end: "12:30" }]);
@@ -237,7 +237,7 @@ export default function SettingsSection({ profile, onUpdateProfile, companyColor
       <SettingsDropdowns profile={profile} onUpdateProfile={onUpdateProfile} />
 
       {/* Toggles section */}
-      <SettingsToggles profile={profile} onUpdateProfile={onUpdateProfile} companyColorsForced={companyColorsForced} />
+      <SettingsToggles profile={profile} onUpdateProfile={onUpdateProfile} onCompanyColorsChange={onCompanyColorsChange} companyColorsForced={companyColorsForced} />
     </section>
   );
 }
