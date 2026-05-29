@@ -253,15 +253,17 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
         </div>
 
         <div className="company-name-row">
-          <button
-            className="edit-pencil"
-            type="button"
-            onClick={handleCompanySaveToggle}
-            disabled={!canEditCompany || isSavingCompany}
-            aria-label={editingCompany ? "Opslaan bedrijfsnaam" : "Bewerk bedrijfsnaam"}
-          >
-            {editingCompany ? <CheckIcon className="edit-icon" /> : <PencilIcon className="edit-icon" />}
-          </button>
+          {canEditCompany ? (
+            <button
+              className="edit-pencil"
+              type="button"
+              onClick={handleCompanySaveToggle}
+              disabled={isSavingCompany}
+              aria-label={editingCompany ? "Opslaan bedrijfsnaam" : "Bewerk bedrijfsnaam"}
+            >
+              {editingCompany ? <CheckIcon className="edit-icon" /> : <PencilIcon className="edit-icon" />}
+            </button>
+          ) : null}
 
           {editingCompany && canEditCompany ? (
             <input
