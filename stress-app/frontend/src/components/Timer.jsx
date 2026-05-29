@@ -476,6 +476,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
     setWorkSeconds(0);
     setBreakSeconds(0);
     setLastTickAt(now);
+    onOpenReflection?.("manual");
   };
 
   const endDay = () => {

@@ -572,7 +572,9 @@ button.icon-add-btn.icon-add-btn--large svg {
   border: var(--border-width-sm) solid color-mix(in srgb, var(--text) 40%, transparent);
   background: var(--background);
   padding: 0 14px;
-  color: var(--primary-dark);
+  color: var(--text);
+  caret-color: var(--text);
+  -webkit-text-fill-color: var(--text);
   font-family: var(--text-body-regular-font-family);
   font-size: var(--text-body-regular-font-size);
   line-height: var(--text-body-regular-line-height);

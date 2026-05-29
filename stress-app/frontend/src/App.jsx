@@ -19,6 +19,7 @@ import Reports from "./screens/Reports";
 import UpgradePage from "./screens/UpgradePage";
 import AdminPage from "./screens/AdminPage";
 import { removeRecentLoginEmail } from "./lib/recentLoginEmails";
+import { moveUndoneTodayToTomorrow } from "./lib/todos";
 import CompanyManagementPage, {
   DEFAULT_CUSTOM_THEME,
   DEFAULT_THEME_ID,
@@ -260,6 +261,7 @@ export default function App() {
   const [workdayReflectionOpen, setWorkdayReflectionOpen] = useState(false);
   const [workdayReflectionShowFinishedTitle, setWorkdayReflectionShowFinishedTitle] = useState(false);
   const [workdayReflectionInitialTab, setWorkdayReflectionInitialTab] = useState("today");
+  const [workdayReflectionMode, setWorkdayReflectionMode] = useState("manual");
   const [companyThemeRevision, setCompanyThemeRevision] = useState(0);
   const [passwordResetMode, setPasswordResetMode] = useState(false);
   const accountEmail = profile?.email || user?.email || "";
@@ -613,23 +615,33 @@ export default function App() {
     setPauseSuggestionOverlaySource(null);
   }
 
-  function openWorkdayReflection(source = "manual") {
+  const openWorkdayReflection = useCallback((source = "manual") => {
     setWorkdayReflectionShowFinishedTitle(source === "finished-day");
     setWorkdayReflectionInitialTab(source === "finished-day" ? "tomorrow" : "today");
+    setWorkdayReflectionMode(source);
     setWorkdayReflectionOpen(true);
-  }
+  }, []);
 
-  function closeWorkdayReflection() {
+  const closeWorkdayReflection = useCallback(() => {
     setWorkdayReflectionOpen(false);
     setWorkdayReflectionShowFinishedTitle(false);
     setWorkdayReflectionInitialTab("today");
-  }
+    setWorkdayReflectionMode("manual");
+  }, []);
 
-  function handleWorkdayReflectionSubmit() {
+  const handleWorkdayReflectionSubmit = useCallback(async () => {
+    if (workdayReflectionMode === "finished-day") {
+      const { error } = await moveUndoneTodayToTomorrow();
+      if (error) {
+        console.error("Failed to move unfinished todos to tomorrow:", error);
+      }
+    }
+
     setWorkdayReflectionOpen(false);
     setWorkdayReflectionShowFinishedTitle(false);
     setWorkdayReflectionInitialTab("today");
-  }
+    setWorkdayReflectionMode("manual");
+  }, [workdayReflectionMode]);
 
   async function refreshWellbeingSnapshot() {
     const { data, error } = await loadLatestWellbeingSnapshot();
