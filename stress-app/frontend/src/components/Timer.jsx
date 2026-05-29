@@ -150,7 +150,6 @@ function BreathingLogo({ progress = 0, active = false, size = ORIGINAL_BREATHING
   const circumference = 2 * Math.PI * radius;
   const safeProgress = Math.max(0, Math.min(1, progress));
   const strokeDashoffset = circumference * (1 - safeProgress);
-
   return (
     <div className={`breathingLogo${active ? " breathingLogo--active" : ""}`} aria-hidden="true" style={{ position: "relative" }}>
       <Breathe className="breathing-logo-ball" size={timerSize} />
@@ -455,17 +454,25 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
     return () => window.removeEventListener("resize", applyHeight);
   }, []);
 
-  const startDay = () => {
+  const startDay = async () => {
     const now = Date.now();
-    // Rollover todos: move tomorrow -> today and remove today's done tasks
-    (async () => {
-      try {
-        const { error } = await import("../lib/todos").then((m) => m.rolloverTodosToToday());
-        if (error) console.error("Failed to rollover todos:", error);
-      } catch (e) {
-        console.error("Rollover todos failed:", e);
-      }
-    })();
+
+    // Ensure rollover completes, then open the to-do overlay for today first
+    try {
+      const { error } = await import("../lib/todos").then((m) => m.rolloverTodosToToday());
+      if (error) console.error("Failed to rollover todos to today:", error);
+    } catch (e) {
+      console.error("Rollover todos failed:", e);
+    }
+
+    // Open the reflection overlay to show today's to-dos first
+    try {
+      onOpenReflection?.("today");
+    } catch (e) {
+      console.error("Failed to open reflection:", e);
+    }
+
+    // Start timer state after opening overlay
     setWorkStarted(true);
     setWorkStartedAt(now);
     setFinished(false);
@@ -489,7 +496,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
     }
 
     resetTimerForReflection();
-    onOpenReflection?.();
+    onOpenReflection?.("finished-day");
   };
 
   const logReminderDecision = async (action) => {

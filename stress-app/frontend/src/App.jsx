@@ -210,6 +210,7 @@ export default function App() {
   const [pauseSuggestionOverlaySource, setPauseSuggestionOverlaySource] = useState(null);
   const [workdayReflectionOpen, setWorkdayReflectionOpen] = useState(false);
   const [workdayReflectionShowFinishedTitle, setWorkdayReflectionShowFinishedTitle] = useState(false);
+  const [workdayReflectionInitialTab, setWorkdayReflectionInitialTab] = useState("today");
   const [companyThemeRevision, setCompanyThemeRevision] = useState(0);
   const [passwordResetMode, setPasswordResetMode] = useState(false);
   const accountEmail = profile?.email || user?.email || "";
@@ -465,17 +466,20 @@ export default function App() {
 
   function openWorkdayReflection(source = "manual") {
     setWorkdayReflectionShowFinishedTitle(source === "finished-day");
+    setWorkdayReflectionInitialTab(source === "finished-day" ? "tomorrow" : "today");
     setWorkdayReflectionOpen(true);
   }
 
   function closeWorkdayReflection() {
     setWorkdayReflectionOpen(false);
     setWorkdayReflectionShowFinishedTitle(false);
+    setWorkdayReflectionInitialTab("today");
   }
 
   function handleWorkdayReflectionSubmit() {
     setWorkdayReflectionOpen(false);
     setWorkdayReflectionShowFinishedTitle(false);
+    setWorkdayReflectionInitialTab("today");
   }
 
   async function refreshWellbeingSnapshot() {
@@ -685,7 +689,7 @@ export default function App() {
             <div className="timer-section">
               <Timer
                 profile={profile}
-                onOpenReflection={() => openWorkdayReflection("finished-day")}
+                onOpenReflection={openWorkdayReflection}
                 onBreakLogged={refreshWellbeingSnapshot}
                 onReminderDecisionLogged={refreshWellbeingSnapshot}
                 onStartBreathingExercise={() => openBreathingExercise("box", "home", true)}
@@ -985,6 +989,7 @@ export default function App() {
         onClose={closeWorkdayReflection}
         onSubmit={handleWorkdayReflectionSubmit}
         showFinishedTitle={workdayReflectionShowFinishedTitle}
+        initialTab={workdayReflectionInitialTab}
       />
     </div>
   );

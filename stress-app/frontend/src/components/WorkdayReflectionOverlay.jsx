@@ -13,8 +13,8 @@ import xIcon from "../assets/x.svg";
 
 const EMPTY_LISTS = { today: [], tomorrow: [] };
 
-export default function WorkdayReflectionOverlay({ open, onClose, onSubmit, showFinishedTitle = true }) {
-  const [activeTab, setActiveTab] = useState(showFinishedTitle ? "tomorrow" : "today");
+export default function WorkdayReflectionOverlay({ open, onClose, onSubmit, showFinishedTitle = true, initialTab = "today" }) {
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [draftItem, setDraftItem] = useState("");
   // items are objects: { id, text, done }
   const [itemsByTab, setItemsByTab] = useState({ today: [], tomorrow: [] });
@@ -22,7 +22,7 @@ export default function WorkdayReflectionOverlay({ open, onClose, onSubmit, show
   useEffect(() => {
     if (!open) return undefined;
 
-    setActiveTab(showFinishedTitle ? "tomorrow" : "today");
+    setActiveTab(initialTab);
     setDraftItem("");
     setItemsByTab(EMPTY_LISTS);
 
@@ -61,7 +61,7 @@ export default function WorkdayReflectionOverlay({ open, onClose, onSubmit, show
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [open, onClose]);
+  }, [open, onClose, initialTab]);
 
   if (!open) {
     return null;
