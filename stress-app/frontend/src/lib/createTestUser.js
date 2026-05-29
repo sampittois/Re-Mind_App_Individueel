@@ -1,3 +1,4 @@
+/*
 import { supabase } from './supabaseClient'
 
 export async function createAndSignInTestUser() {
@@ -38,3 +39,10 @@ export async function createAndSignInTestUser() {
 
 // If run directly with node (after replacing keys in supabaseClient and installing deps),
 // you can run: `node src/lib/createTestUser.js` by adding a small wrapper or using a REPL.
+
+*/
+
+export async function createAndSignInTestUser() {
+  console.warn('createAndSignInTestUser is currently commented out (unused script). Restore the implementation in this file to enable.');
+  return null
+}
