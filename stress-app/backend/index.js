@@ -262,6 +262,111 @@ app.get('/admin/company', async (req, res) => {
   }
 });
 
+app.get('/admin/employees', async (req, res) => {
+  try {
+    const supabase = getSupabaseAdminClient();
+    const companyId = String(req.query.company_id || '').trim();
+    const managerId = String(req.query.manager_id || '').trim();
+
+    let resolvedCompanyId = companyId;
+    if (!resolvedCompanyId && managerId) {
+      const { data: managerProfile, error: managerProfileError } = await supabase
+        .from('profiles')
+        .select('company_id')
+        .eq('id', managerId)
+        .maybeSingle();
+
+      if (managerProfileError) {
+        return res.status(500).json({ ok: false, error: managerProfileError.message });
+      }
+
+      resolvedCompanyId = managerProfile?.company_id || '';
+    }
+
+    if (!resolvedCompanyId) {
+      return res.status(400).json({ ok: false, error: 'Missing company_id or manager_id' });
+    }
+
+    let query = supabase
+      .from('profiles')
+      .select('id, full_name, first_name, last_name, email, work_type, use_company_colors, created_at, updated_at, company_management_enabled')
+      .eq('company_id', resolvedCompanyId)
+      .order('created_at', { ascending: false });
+
+    if (managerId) {
+      query = query.neq('id', managerId);
+    }
+
+    const { data, error } = await query;
+    if (error) {
+      return res.status(500).json({ ok: false, error: error.message });
+    }
+
+    const profileMap = new Map((data || []).map((row) => [row.id, row]));
+    const { data: usersData, error: usersError } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
+    if (usersError) {
+      return res.status(500).json({ ok: false, error: usersError.message });
+    }
+
+    const existingAuthUserIds = new Set((usersData?.users || []).map((user) => user?.id).filter(Boolean));
+
+    if (managerId) {
+      const managerCreatedUserIds = (usersData?.users || [])
+        .filter((user) => {
+          const metadata = user?.user_metadata || {};
+          return metadata?.created_by === managerId || metadata?.created_by === String(managerId);
+        })
+        .map((user) => user.id)
+        .filter(Boolean);
+
+      if (managerCreatedUserIds.length) {
+        const { data: managerCreatedProfiles, error: managerCreatedProfilesError } = await supabase
+          .from('profiles')
+          .select('id, full_name, first_name, last_name, email, work_type, use_company_colors, created_at, updated_at, company_management_enabled, company_id')
+          .in('id', managerCreatedUserIds);
+
+        if (managerCreatedProfilesError) {
+          return res.status(500).json({ ok: false, error: managerCreatedProfilesError.message });
+        }
+
+        (managerCreatedProfiles || []).forEach((row) => {
+          if (row?.id && row.id !== managerId) {
+            profileMap.set(row.id, row);
+          }
+        });
+      }
+    }
+
+    const employees = [...profileMap.values()]
+      .filter((row) => row && row.company_management_enabled !== true)
+      .filter((row) => existingAuthUserIds.has(row.id))
+      .map((row) => {
+        const fullName = (row.full_name || '').trim();
+        const combinedName = [row.first_name, row.last_name].filter(Boolean).join(' ').trim();
+
+        return {
+          id: row.id,
+          authUserId: row.id,
+          name: fullName || combinedName || row.email || row.id,
+          email: row.email || '',
+          department: row.work_type || 'Sales',
+          status: 'Offline',
+          usesCompanyColors: Boolean(row.use_company_colors),
+          mustChangePassword: true,
+          adminCreated: true,
+          createdAt: row.created_at || row.updated_at || new Date().toISOString(),
+          lastSeenAt: row.updated_at || row.created_at || new Date().toISOString(),
+          createdBy: managerId || null,
+          companyId: row.company_id || resolvedCompanyId,
+        };
+      });
+
+    return res.json({ ok: true, employees });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 // Server-side endpoint to set a user's plan. This can be used after payment
 // verification to ensure the plan is written using the backend (service key
 // if available). Expects { user_id, plan } in the body.
@@ -314,6 +419,7 @@ app.post('/admin/create-employee', async (req, res) => {
       department,
       use_company_colors,
       created_by,
+      company_id,
     } = req.body || {};
 
     const safeName = (name || '').trim();
@@ -370,7 +476,11 @@ app.post('/admin/create-employee', async (req, res) => {
     };
 
     let companyId = null;
-    if (created_by) {
+    if (company_id) {
+      companyId = String(company_id).trim() || null;
+    }
+
+    if (!companyId && created_by) {
       try {
         companyId = await ensureCompanyForManager(supabase, created_by, null);
       } catch (companyError) {

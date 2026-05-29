@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BackIcon, PlusIcon } from "../components/IconActions";
 import closeIcon from "../assets/x.svg";
 import "../styles/companyManagement.css";
@@ -275,7 +275,7 @@ export function buildThemeVariables(theme) {
 
 export default function CompanyManagementPage({ profile, setCurrentPage, onThemeChange, onApplyColors, themeScopeId = null }) {
   const storageKeys = getScopedStorageKeys(themeScopeId);
-  const [employees, setEmployees] = useState(() => readStoredValueWithLegacy(themeScopeId, storageKeys.employees, STORAGE_KEYS.employees, createDefaultEmployees()));
+  const [employees, setEmployees] = useState(() => readStoredValueWithLegacy(themeScopeId, storageKeys.employees, STORAGE_KEYS.employees, []));
   const [themeId, setThemeId] = useState(() => readStoredValueWithLegacy(themeScopeId, storageKeys.theme, STORAGE_KEYS.theme, DEFAULT_THEME_ID));
   const [customTheme, setCustomTheme] = useState(() => normalizeCustomTheme(readStoredValueWithLegacy(themeScopeId, storageKeys.customTheme, STORAGE_KEYS.customTheme, DEFAULT_CUSTOM_THEME)));
   const [companyColorsEnabled, setCompanyColorsEnabled] = useState(() => readStoredValueWithLegacy(themeScopeId, storageKeys.companyColorsEnabled, STORAGE_KEYS.companyColorsEnabled, true));
@@ -288,6 +288,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
   const [isDeletingEmployee, setIsDeletingEmployee] = useState(false);
   const [deleteEmployeeError, setDeleteEmployeeError] = useState("");
   const [colorApplyMessage, setColorApplyMessage] = useState("");
+  const skipEmployeesPersistRef = useRef(false);
 
   const activeTheme = customTheme;
   const selectedEmployee = employees.find((employee) => employee.id === selectedEmployeeId) || null;
@@ -300,6 +301,61 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
   const [employeeStats, setEmployeeStats] = useState(null);
   const [employeeStatsLoading, setEmployeeStatsLoading] = useState(false);
   const remindTheme = normalizeCustomTheme(DEFAULT_CUSTOM_THEME);
+
+  useEffect(() => {
+    const hydratedEmployees = readStoredValueWithLegacy(themeScopeId, storageKeys.employees, STORAGE_KEYS.employees, []);
+    skipEmployeesPersistRef.current = true;
+    setEmployees(Array.isArray(hydratedEmployees) ? hydratedEmployees : []);
+  }, [themeScopeId, storageKeys.employees]);
+
+  useEffect(() => {
+    const companyId = profile?.company_id || themeScopeId || null;
+    const managerId = profile?.id || null;
+
+    if (!companyId) {
+      return undefined;
+    }
+
+    let cancelled = false;
+
+    async function loadEmployeesFromServer() {
+      try {
+        const query = new URLSearchParams({ company_id: companyId });
+        if (managerId) {
+          query.set("manager_id", managerId);
+        }
+
+        const response = await fetch(`http://localhost:3000/admin/employees?${query.toString()}`);
+        const payload = await response.json().catch(() => ({}));
+
+        if (!response.ok || !payload?.ok) {
+          throw new Error(payload?.error || "Werknemers konden niet geladen worden.");
+        }
+
+        if (cancelled) {
+          return;
+        }
+
+        const normalizedEmployees = Array.isArray(payload?.employees)
+          ? payload.employees.map((employee) => ({
+            ...employee,
+            createdBy: employee?.createdBy || managerId || adminOwnerKey,
+          }))
+          : [];
+
+        skipEmployeesPersistRef.current = true;
+        setEmployees(normalizedEmployees);
+      } catch {
+        // Keep local storage fallback when backend fetch fails.
+      }
+    }
+
+    loadEmployeesFromServer();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [profile?.company_id, profile?.id, themeScopeId, adminOwnerKey]);
 
   async function loadEmployeeStatsForDay(employee, isoDate) {
     setEmployeeStatsLoading(true);
@@ -375,9 +431,14 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
     }
   }, [selectedEmployee, selectedDay]);
 
-  const visibleEmployees = employees.filter((e) => e.createdBy === adminOwnerKey);
+  const visibleEmployees = employees;
 
   useEffect(() => {
+    if (skipEmployeesPersistRef.current) {
+      skipEmployeesPersistRef.current = false;
+      return;
+    }
+
     writeStoredValue(storageKeys.employees, employees);
   }, [employees, storageKeys.employees]);
 
@@ -500,6 +561,14 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
       return;
     }
 
+    const managerId = profile?.id || null;
+    const companyId = profile?.company_id || themeScopeId || null;
+
+    if (!managerId || !companyId) {
+      setCreateEmployeeError("Manager- of bedrijfsgegevens zijn nog niet geladen. Probeer binnen enkele seconden opnieuw.");
+      return;
+    }
+
     try {
       setIsCreatingEmployee(true);
       setCreateEmployeeError("");
@@ -515,7 +584,8 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
           password,
           department: formValues.department.trim() || "Sales",
           use_company_colors: Boolean(companyColorsEnabled),
-          created_by: adminOwnerKey,
+          created_by: managerId,
+          company_id: companyId,
         }),
       });
 
@@ -537,7 +607,8 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
         adminCreated: true,
         createdAt: new Date().toISOString(),
         lastSeenAt: new Date().toISOString(),
-        createdBy: adminOwnerKey,
+        createdBy: managerId,
+        companyId,
         themeId: companyColorsEnabled ? themeId : DEFAULT_THEME_ID,
       };
 
@@ -704,7 +775,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
                   Herstel Re-Mind kleuren
                 </button>
                 <button className="company-management-add" type="button" onClick={applyColorsToApp}>
-                  Apply colors
+                  Toepassen
                 </button>
               </div>
             </div>
