@@ -118,6 +118,42 @@ app.get('/supabase-health', async (req, res) => {
   }
 });
 
+app.post('/recent-login-emails/validate', async (req, res) => {
+  try {
+    const rawEmails = Array.isArray(req.body?.emails) ? req.body.emails : [];
+    const normalizedEmails = [...new Set(
+      rawEmails
+        .filter((email) => typeof email === 'string')
+        .map((email) => email.trim().toLowerCase())
+        .filter(Boolean),
+    )];
+
+    if (!normalizedEmails.length) {
+      return res.json({ ok: true, validEmails: [] });
+    }
+
+    const supabase = getSupabaseAdminClient();
+    const { data, error } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
+
+    if (error) {
+      return res.status(500).json({ ok: false, error: error.message });
+    }
+
+    const existingEmails = new Set(
+      (data?.users || [])
+        .map((user) => (user.email || '').trim().toLowerCase())
+        .filter(Boolean),
+    );
+
+    return res.json({
+      ok: true,
+      validEmails: normalizedEmails.filter((email) => existingEmails.has(email)),
+    });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 app.get('/admin/overview', async (req, res) => {
   try {
     const supabase = getSupabaseAdminClient();

@@ -1,45 +1,71 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../styles/login.css";
 import Breathe from "../components/Breathe";
 import { supabase } from "../lib/supabaseClient";
+import { loadRecentLoginEmails, normalizeEmail, saveRecentLoginEmails } from "../lib/recentLoginEmails";
 
-const RECENT_EMAILS_STORAGE_KEY = "remind.recentLoginEmails";
-
-function loadRecentEmails() {
-  if (typeof window === "undefined") return [];
-
-  try {
-    const raw = window.localStorage.getItem(RECENT_EMAILS_STORAGE_KEY);
-    const parsed = raw ? JSON.parse(raw) : [];
-
-    if (!Array.isArray(parsed)) return [];
-
-    return parsed.filter((email) => typeof email === "string" && email.trim()).slice(0, 5);
-  } catch {
-    return [];
-  }
-}
-
-function saveRecentEmails(emails) {
-  if (typeof window === "undefined") return;
-
-  try {
-    window.localStorage.setItem(RECENT_EMAILS_STORAGE_KEY, JSON.stringify(emails));
-  } catch {
-    // Ignore storage failures.
-  }
-}
+const RECENT_EMAILS_VALIDATE_URL = "http://localhost:3000/recent-login-emails/validate";
 
 export default function LoginPage({ onLogin, onGoToRegister, onSkip }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [emailFocused, setEmailFocused] = useState(false);
-  const [recentEmails, setRecentEmails] = useState(() => loadRecentEmails());
+  const [recentEmails, setRecentEmails] = useState(() => loadRecentLoginEmails());
+
+  useEffect(() => {
+    let isActive = true;
+
+    async function syncRecentEmails() {
+      const storedEmails = loadRecentLoginEmails();
+      if (!storedEmails.length) {
+        if (isActive) {
+          setRecentEmails([]);
+        }
+        return;
+      }
+
+      try {
+        const response = await fetch(RECENT_EMAILS_VALIDATE_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ emails: storedEmails }),
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const payload = await response.json();
+        const validEmails = Array.isArray(payload?.validEmails)
+          ? payload.validEmails.filter((savedEmail) => typeof savedEmail === "string" && normalizeEmail(savedEmail))
+          : storedEmails;
+
+        if (!isActive) {
+          return;
+        }
+
+        setRecentEmails(validEmails);
+        saveRecentLoginEmails(validEmails);
+      } catch {
+        if (isActive) {
+          setRecentEmails(storedEmails);
+        }
+      }
+    }
+
+    syncRecentEmails();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   const visibleRecentEmails = recentEmails.filter((savedEmail) => {
-    const normalizedSavedEmail = savedEmail.toLowerCase();
-    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedSavedEmail = normalizeEmail(savedEmail);
+    const normalizedEmail = normalizeEmail(email);
 
     if (!normalizedEmail) {
       return true;
@@ -54,7 +80,7 @@ export default function LoginPage({ onLogin, onGoToRegister, onSkip }) {
 
     setRecentEmails((currentEmails) => {
       const nextEmails = [normalizedEmail, ...currentEmails.filter((savedEmail) => savedEmail !== normalizedEmail)].slice(0, 5);
-      saveRecentEmails(nextEmails);
+      saveRecentLoginEmails(nextEmails);
       return nextEmails;
     });
   }

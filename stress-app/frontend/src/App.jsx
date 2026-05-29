@@ -18,6 +18,7 @@ import ProfileSettings from "./screens/profilesettings";
 import Reports from "./screens/Reports";
 import UpgradePage from "./screens/UpgradePage";
 import AdminPage from "./screens/AdminPage";
+import { removeRecentLoginEmail } from "./lib/recentLoginEmails";
 import CompanyManagementPage, {
   DEFAULT_CUSTOM_THEME,
   DEFAULT_THEME_ID,
@@ -437,6 +438,8 @@ export default function App() {
     if (result.error) {
       return result;
     }
+
+    removeRecentLoginEmail(accountEmail);
 
     await handleLogout();
     return result;
