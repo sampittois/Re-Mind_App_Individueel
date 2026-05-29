@@ -456,15 +456,6 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
 
   const startDay = async () => {
     const now = Date.now();
-    // Rollover todos: move tomorrow -> today and remove today's done tasks
-    (async () => {
-      try {
-        const { error } = await import("../lib/todos").then((m) => m.rolloverTodosToToday());
-        if (error) console.error("Failed to rollover todos:", error);
-      } catch (e) {
-        console.error("Rollover todos failed:", e);
-      }
-    })();
     setWorkStarted(true);
     setWorkStartedAt(now);
     setFinished(false);
@@ -476,6 +467,15 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
     setWorkSeconds(0);
     setBreakSeconds(0);
     setLastTickAt(now);
+
+    // Rollover todos: move tomorrow -> today and remove today's done tasks
+    try {
+      const { error } = await import("../lib/todos").then((m) => m.rolloverTodosToToday());
+      if (error) console.error("Failed to rollover todos:", error);
+    } catch (e) {
+      console.error("Rollover todos failed:", e);
+    }
+
     onOpenReflection?.("manual");
   };
 

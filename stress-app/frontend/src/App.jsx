@@ -615,7 +615,14 @@ export default function App() {
     setPauseSuggestionOverlaySource(null);
   }
 
-  const openWorkdayReflection = useCallback((source = "manual") => {
+  const openWorkdayReflection = useCallback(async (source = "manual") => {
+    if (source === "finished-day") {
+      const { error } = await moveUndoneTodayToTomorrow();
+      if (error) {
+        console.error("Failed to move unfinished todos to tomorrow:", error);
+      }
+    }
+
     setWorkdayReflectionShowFinishedTitle(source === "finished-day");
     setWorkdayReflectionInitialTab(source === "finished-day" ? "tomorrow" : "today");
     setWorkdayReflectionMode(source);
@@ -629,19 +636,12 @@ export default function App() {
     setWorkdayReflectionMode("manual");
   }, []);
 
-  const handleWorkdayReflectionSubmit = useCallback(async () => {
-    if (workdayReflectionMode === "finished-day") {
-      const { error } = await moveUndoneTodayToTomorrow();
-      if (error) {
-        console.error("Failed to move unfinished todos to tomorrow:", error);
-      }
-    }
-
+  const handleWorkdayReflectionSubmit = useCallback(() => {
     setWorkdayReflectionOpen(false);
     setWorkdayReflectionShowFinishedTitle(false);
     setWorkdayReflectionInitialTab("today");
     setWorkdayReflectionMode("manual");
-  }, [workdayReflectionMode]);
+  }, []);
 
   async function refreshWellbeingSnapshot() {
     const { data, error } = await loadLatestWellbeingSnapshot();
