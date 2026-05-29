@@ -42,6 +42,8 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
   }, [companyName]);
   const [editing, setEditing] = useState(false);
   const [isSavingName, setIsSavingName] = useState(false);
+  const [editingCompany, setEditingCompany] = useState(false);
+  const [isSavingCompany, setIsSavingCompany] = useState(false);
   const [avatarSrc, setAvatarSrc] = useState(profile?.avatar_url ?? null);
   const fileRef = useRef(null);
   const [favoriteIds, setFavoriteIds] = useState(() => []);
@@ -160,6 +162,32 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
     }
   }
 
+  async function handleCompanySaveToggle() {
+    if (!editingCompany) {
+      setEditingCompany(true);
+      return;
+    }
+
+    if (!onSaveCompanyName) {
+      setEditingCompany(false);
+      return;
+    }
+
+    setIsSavingCompany(true);
+    try {
+      const trimmedCompanyName = companyValue.trim();
+      if (!trimmedCompanyName) {
+        setEditingCompany(false);
+        return;
+      }
+
+      await onSaveCompanyName({ name: trimmedCompanyName });
+      setEditingCompany(false);
+    } finally {
+      setIsSavingCompany(false);
+    }
+  }
+
   return (
     <div className="profile-section">
       <div className="profile-info-column">
@@ -224,39 +252,35 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
           </button>
         </div>
 
-        {canEditCompany ? (
-          <label className="company-name-field">
+        <div className="company-name-row">
+          {editingCompany && canEditCompany ? (
             <input
-              className="name-input"
+              className="name-input company-name-input"
               value={companyValue}
               onChange={(event) => setCompanyValue(event.target.value)}
-              onBlur={async () => {
-                if (!onSaveCompanyName) return;
-                const trimmedCompanyName = companyValue.trim();
-                if (!trimmedCompanyName) return;
-                await onSaveCompanyName({ name: trimmedCompanyName });
-              }}
-              onKeyDown={async (event) => {
+              onKeyDown={(event) => {
                 if (event.key !== "Enter") return;
-                event.currentTarget.blur();
+                handleCompanySaveToggle();
               }}
               aria-label="Bedrijfsnaam"
               placeholder="Voeg je bedrijfsnaam toe"
             />
-          </label>
-        ) : null}
+          ) : (
+            <h3 className={`company-name ${companyValue.trim() ? "" : "company-name--placeholder"}`}>
+              {companyValue.trim() || "Voeg je bedrijfsnaam toe"}
+            </h3>
+          )}
 
-        {!canEditCompany && companyValue ? (
-          <label className="company-name-field">
-            <input
-              className="name-input"
-              value={companyValue}
-              readOnly
-              disabled
-              aria-label="Bedrijfsnaam"
-            />
-          </label>
-        ) : null}
+          <button
+            className="edit-pencil"
+            type="button"
+            onClick={handleCompanySaveToggle}
+            disabled={!canEditCompany || isSavingCompany}
+            aria-label={editingCompany ? "Opslaan bedrijfsnaam" : "Bewerk bedrijfsnaam"}
+          >
+            <img src={editingCompany ? checkIcon : editIcon} alt="edit" className="edit-icon" />
+          </button>
+        </div>
 
         <div className="profile-actions">
           {(() => {

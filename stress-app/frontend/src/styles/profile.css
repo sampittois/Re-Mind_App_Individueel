@@ -125,26 +125,28 @@
   box-sizing: border-box;
 }
 
-.company-name-field {
+.company-name-row {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 12px;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
 }
 
-.company-name-field span {
-  font-size: var(--font-size-sm);
-  color: var(--text-light);
-}
-
-/* Make the company name use the same heading font as the username,
-   but slightly smaller for visual hierarchy */
-.company-name-field .name-input {
+.company-name {
   font-family: var(--font-family-heading);
   font-size: var(--font-size-lg);
   color: var(--primary);
-  padding: 4px 6px;
-  max-width: 280px;
+  margin: 0;
+}
+
+.company-name--placeholder {
+  color: var(--text-light);
+}
+
+.company-name-input {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-lg);
+  color: var(--primary);
 }
 
 .edit-pencil {
