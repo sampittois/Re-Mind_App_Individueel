@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "../styles/settings.css";
+import "../styles/workday-overlay.css";
 import { BackIcon, PlusIcon } from "./IconActions";
 import xIcon from "../assets/x.svg";
 
