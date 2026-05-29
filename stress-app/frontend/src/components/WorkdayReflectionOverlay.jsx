@@ -2,6 +2,13 @@ import { useEffect, useState } from "react";
 import "../styles/settings.css";
 import "../styles/workday-overlay.css";
 import { BackIcon, PlusIcon } from "./IconActions";
+import {
+  fetchTodosForDays,
+  createTodoForDay,
+  updateTodo,
+  deleteTodo,
+  formatIsoDate,
+} from "../lib/todos";
 import xIcon from "../assets/x.svg";
 
 const EMPTY_LISTS = { today: [], tomorrow: [] };
@@ -18,6 +25,33 @@ export default function WorkdayReflectionOverlay({ open, onClose, onSubmit, show
     setActiveTab(showFinishedTitle ? "tomorrow" : "today");
     setDraftItem("");
     setItemsByTab(EMPTY_LISTS);
+
+    // load persistent todos for today and tomorrow
+    (async () => {
+      try {
+        const today = formatIsoDate(new Date());
+        const tomorrowDate = new Date();
+        tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+        const tomorrow = formatIsoDate(tomorrowDate);
+
+        const { data, error } = await fetchTodosForDays([today, tomorrow]);
+        if (error) {
+          console.error("Failed loading todos:", error);
+          return;
+        }
+
+        const byTab = { today: [], tomorrow: [] };
+        (data || []).forEach((row) => {
+          const item = { id: row.id, text: row.text, done: row.done };
+          if (String(row.day) === today) byTab.today.push(item);
+          else if (String(row.day) === tomorrow) byTab.tomorrow.push(item);
+        });
+
+        setItemsByTab(byTab);
+      } catch (e) {
+        console.error(e);
+      }
+    })();
 
     function handleKeyDown(event) {
       if (event.key === "Escape") {
@@ -41,26 +75,66 @@ export default function WorkdayReflectionOverlay({ open, onClose, onSubmit, show
     const nextText = draftItem.trim();
     if (!nextText) return;
 
-    const newItem = { id: Date.now() + Math.random(), text: nextText, done: false };
-    setItemsByTab((previous) => ({
-      ...previous,
-      [activeTab]: [...(previous[activeTab] || []), newItem],
-    }));
-    setDraftItem("");
+    (async () => {
+      try {
+        const day = activeTab === "today" ? new Date() : (() => { const d = new Date(); d.setDate(d.getDate() + 1); return d; })();
+        const { data, error } = await createTodoForDay(day, nextText);
+        if (error) {
+          console.error("Failed to create todo:", error);
+          return;
+        }
+
+        const newItem = { id: data.id, text: data.text, done: data.done };
+        setItemsByTab((previous) => ({
+          ...previous,
+          [activeTab]: [...(previous[activeTab] || []), newItem],
+        }));
+        setDraftItem("");
+      } catch (e) {
+        console.error(e);
+      }
+    })();
   }
 
   function handleDeleteItem(id) {
-    setItemsByTab((previous) => ({
-      ...previous,
-      [activeTab]: (previous[activeTab] || []).filter((it) => it.id !== id),
-    }));
+    (async () => {
+      try {
+        const { error } = await deleteTodo(id);
+        if (error) {
+          console.error("Failed to delete todo:", error);
+          return;
+        }
+
+        setItemsByTab((previous) => ({
+          ...previous,
+          [activeTab]: (previous[activeTab] || []).filter((it) => it.id !== id),
+        }));
+      } catch (e) {
+        console.error(e);
+      }
+    })();
   }
 
   function handleToggleDone(id) {
-    setItemsByTab((previous) => ({
-      ...previous,
-      [activeTab]: (previous[activeTab] || []).map((it) => (it.id === id ? { ...it, done: !it.done } : it)),
-    }));
+    (async () => {
+      try {
+        const prev = itemsByTab[activeTab] || [];
+        const current = prev.find((it) => it.id === id);
+        const newDone = !current?.done;
+        const { data, error } = await updateTodo(id, { done: newDone });
+        if (error) {
+          console.error("Failed to update todo:", error);
+          return;
+        }
+
+        setItemsByTab((previous) => ({
+          ...previous,
+          [activeTab]: (previous[activeTab] || []).map((it) => (it.id === id ? { ...it, done: data.done } : it)),
+        }));
+      } catch (e) {
+        console.error(e);
+      }
+    })();
   }
 
   function handleDone() {

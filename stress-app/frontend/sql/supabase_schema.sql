@@ -691,3 +691,41 @@ create policy "payment_details_delete_own"
 on public.payment_details
 for delete
 using (auth.uid() = user_id);
+
+-- Workday / To-do items table
+create table if not exists public.workday_todos (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users (id) on delete cascade,
+  day date not null,
+  text text not null,
+  done boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.workday_todos enable row level security;
+
+drop policy if exists "workday_todos_select_own" on public.workday_todos;
+create policy "workday_todos_select_own"
+on public.workday_todos
+for select
+using (auth.uid() = user_id);
+
+drop policy if exists "workday_todos_insert_own" on public.workday_todos;
+create policy "workday_todos_insert_own"
+on public.workday_todos
+for insert
+with check (auth.uid() = user_id);
+
+drop policy if exists "workday_todos_update_own" on public.workday_todos;
+create policy "workday_todos_update_own"
+on public.workday_todos
+for update
+using (auth.uid() = user_id)
+with check (auth.uid() = user_id);
+
+drop policy if exists "workday_todos_delete_own" on public.workday_todos;
+create policy "workday_todos_delete_own"
+on public.workday_todos
+for delete
+using (auth.uid() = user_id);
