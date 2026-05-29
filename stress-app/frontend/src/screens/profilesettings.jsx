@@ -12,6 +12,7 @@ export default function ProfileSettings({ profile, user, initialName = "", onGoB
   const [isSavingPassword, setIsSavingPassword] = useState(false);
   const [isSendingReset, setIsSendingReset] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -124,10 +125,11 @@ export default function ProfileSettings({ profile, user, initialName = "", onGoB
     setError("");
     setSuccess("");
 
-    const confirmed = window.confirm("Weet je zeker dat je je account definitief wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.");
-    if (!confirmed) {
-      return;
-    }
+    setDeleteConfirmOpen(true);
+  }
+
+  async function confirmDeleteAccount() {
+    setDeleteConfirmOpen(false);
 
     setIsDeleting(true);
     try {
@@ -138,6 +140,14 @@ export default function ProfileSettings({ profile, user, initialName = "", onGoB
     } finally {
       setIsDeleting(false);
     }
+  }
+
+  function cancelDeleteAccount() {
+    if (isDeleting) {
+      return;
+    }
+
+    setDeleteConfirmOpen(false);
   }
 
   return (
@@ -259,6 +269,26 @@ export default function ProfileSettings({ profile, user, initialName = "", onGoB
           </button>
         </section>
       </div>
+
+      {deleteConfirmOpen ? (
+        <div className="profilesettings-delete-modal" role="dialog" aria-modal="true" aria-labelledby="profilesettings-delete-title" onMouseDown={cancelDeleteAccount}>
+          <div className="profilesettings-delete-modal__card" onMouseDown={(event) => event.stopPropagation()}>
+            <h2 id="profilesettings-delete-title" className="profilesettings-delete-modal__title">Account verwijderen?</h2>
+            <p className="profilesettings-delete-modal__copy">
+              Deze actie kan niet ongedaan worden gemaakt. Je account, profiel en gekoppelde gegevens worden definitief verwijderd.
+            </p>
+
+            <div className="profilesettings-delete-modal__actions">
+              <button className="action-btn profilesettings-delete-modal__danger" type="button" onClick={confirmDeleteAccount} disabled={isDeleting}>
+                {isDeleting ? "Verwijderen..." : "Ja, verwijder"}
+              </button>
+              <button className="action-btn profilesettings-delete-modal__secondary" type="button" onClick={cancelDeleteAccount} disabled={isDeleting}>
+                Annuleer
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
