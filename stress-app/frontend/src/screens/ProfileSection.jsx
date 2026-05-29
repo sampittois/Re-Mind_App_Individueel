@@ -226,7 +226,6 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
 
         {canEditCompany ? (
           <label className="company-name-field">
-            <span>Bedrijfsnaam</span>
             <input
               className="name-input"
               value={companyValue}
@@ -249,7 +248,6 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
 
         {!canEditCompany && companyValue ? (
           <label className="company-name-field">
-            <span>Bedrijfsnaam</span>
             <input
               className="name-input"
               value={companyValue}
