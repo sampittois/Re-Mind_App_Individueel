@@ -65,6 +65,56 @@ export function formatIsoDate(date) {
   return toDateString(date);
 }
 
+export async function rolloverTodosToToday() {
+  const user = await getCurrentUser();
+  if (!user) return { data: null, error: new Error("No user logged in") };
+
+  const today = toDateString(new Date());
+  const tomorrowDate = new Date();
+  tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+  const tomorrow = toDateString(tomorrowDate);
+
+  // 1) Delete done tasks for today
+  const { error: deleteError } = await supabase
+    .from("workday_todos")
+    .delete()
+    .eq("day", today)
+    .eq("done", true)
+    .eq("user_id", user.id);
+
+  if (deleteError) return { data: null, error: deleteError };
+
+  // 2) Move tomorrow tasks to today
+  const { data, error } = await supabase
+    .from("workday_todos")
+    .update({ day: today, updated_at: new Date().toISOString() })
+    .match({ day: tomorrow, user_id: user.id })
+    .select();
+
+  return { data, error };
+}
+
+export async function moveUndoneTodayToTomorrow() {
+  const user = await getCurrentUser();
+  if (!user) return { data: null, error: new Error("No user logged in") };
+
+  const today = toDateString(new Date());
+  const tomorrowDate = new Date();
+  tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+  const tomorrow = toDateString(tomorrowDate);
+
+  // Move undone today tasks to tomorrow
+  const { data, error } = await supabase
+    .from("workday_todos")
+    .update({ day: tomorrow, updated_at: new Date().toISOString() })
+    .match({ day: today, user_id: user.id })
+    .neq("done", true)
+    .select();
+
+  return { data, error };
+}
+
+
 export default {
   fetchTodosForDays,
   createTodoForDay,
