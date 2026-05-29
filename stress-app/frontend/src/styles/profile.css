@@ -137,6 +137,16 @@
   color: var(--text-light);
 }
 
+/* Make the company name use the same heading font as the username,
+   but slightly smaller for visual hierarchy */
+.company-name-field .name-input {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-lg);
+  color: var(--primary);
+  padding: 4px 6px;
+  max-width: 280px;
+}
+
 .edit-pencil {
   background: var(--button-fill);
   border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
