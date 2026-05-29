@@ -88,10 +88,25 @@ export default function LoginPage({ onLogin, onGoToRegister, onSkip }) {
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       setError(error.message);
       return;
+    }
+
+    const userId = data?.user?.id;
+    if (userId) {
+      const { data: profileRow, error: profileError } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("id", userId)
+        .maybeSingle();
+
+      if (profileError || !profileRow?.id) {
+        await supabase.auth.signOut();
+        setError("Dit account bestaat niet meer en kan niet worden gebruikt om in te loggen.");
+        return;
+      }
     }
 
     rememberEmail(email);
