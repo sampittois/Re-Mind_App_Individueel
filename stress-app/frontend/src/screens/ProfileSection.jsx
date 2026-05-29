@@ -227,6 +227,16 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
         </div>
 
         <div className="profile-name-row">
+          <button
+            className="edit-pencil"
+            type="button"
+            onClick={handleNameSaveToggle}
+            disabled={isSavingName}
+            aria-label={editing ? "Opslaan" : "Bewerk naam"}
+          >
+            {editing ? <CheckIcon className="edit-icon" /> : <PencilIcon className="edit-icon" />}
+          </button>
+
           {editing ? (
             <input
               className="name-input"
@@ -240,19 +250,19 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
               {hasStoredName ? name : "Voeg je naam toe"}
             </h2>
           )}
-
-          <button
-            className="edit-pencil"
-            type="button"
-            onClick={handleNameSaveToggle}
-            disabled={isSavingName}
-            aria-label={editing ? "Opslaan" : "Bewerk naam"}
-          >
-            {editing ? <CheckIcon className="edit-icon" /> : <PencilIcon className="edit-icon" />}
-          </button>
         </div>
 
         <div className="company-name-row">
+          <button
+            className="edit-pencil"
+            type="button"
+            onClick={handleCompanySaveToggle}
+            disabled={!canEditCompany || isSavingCompany}
+            aria-label={editingCompany ? "Opslaan bedrijfsnaam" : "Bewerk bedrijfsnaam"}
+          >
+            {editingCompany ? <CheckIcon className="edit-icon" /> : <PencilIcon className="edit-icon" />}
+          </button>
+
           {editingCompany && canEditCompany ? (
             <input
               className="name-input company-name-input"
@@ -270,16 +280,6 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
               {companyValue.trim() || "Voeg je bedrijfsnaam toe"}
             </h3>
           )}
-
-          <button
-            className="edit-pencil"
-            type="button"
-            onClick={handleCompanySaveToggle}
-            disabled={!canEditCompany || isSavingCompany}
-            aria-label={editingCompany ? "Opslaan bedrijfsnaam" : "Bewerk bedrijfsnaam"}
-          >
-            {editingCompany ? <CheckIcon className="edit-icon" /> : <PencilIcon className="edit-icon" />}
-          </button>
         </div>
 
         <div className="profile-actions">
