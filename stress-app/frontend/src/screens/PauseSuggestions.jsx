@@ -15,6 +15,7 @@ import handStretch from "../assets/handStretch.png";
 import handToChestReset from "../assets/handToChestReset.png";
 import drinkPause from "../assets/drinkPauze.png";
 import closeIcon from "../assets/x.svg";
+import bigSwirl from "../assets/big_swirl.svg";
 
 const PREVIEW_DATA = [
   { id: "breath", title: "Ademhaling", icon: breathing },
@@ -268,6 +269,8 @@ export default function PauseSuggestions({
 
     return (
       <main className="pause-suggestions-page page">
+        <img className="pause-suggestions-page__swirl" src={bigSwirl} alt="" aria-hidden="true" />
+
         <div className="pause-page-top-row">
           <button
             className="back-btn pause-page-back icon-action-btn"

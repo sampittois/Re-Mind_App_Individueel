@@ -15,11 +15,26 @@
 	min-height: calc(100vh - 96px);
 }
 
+.pause-suggestions-page__swirl {
+	position: fixed;
+	right: -80px;
+	bottom: -80px;
+	display: block;
+	margin: 0;
+	padding: 0;
+	width: min(400px, 42vw);
+	height: auto;
+	pointer-events: none;
+	user-select: none;
+	z-index: 0;
+}
+
 .pause-page-top-row {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	position: relative;
+	z-index: 1;
 	margin-bottom: 140px;
 }
 
