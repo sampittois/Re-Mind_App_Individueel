@@ -511,6 +511,34 @@ export default function App() {
     return true;
   }
 
+  const canEditCompanyName = Boolean(company?.manager_id && user?.id && company.manager_id === user.id);
+
+  async function saveCompanyName(payload = {}) {
+    const nextName = String(payload?.name || "").trim();
+    if (!nextName) return false;
+    if (!canEditCompanyName || !user?.id) return false;
+
+    const targetCompanyId = company?.id || profile?.company_id || user?.user_metadata?.company_id || null;
+    if (!targetCompanyId) return false;
+
+    const { data, error } = await supabase
+      .from("companies")
+      .update({ name: nextName })
+      .eq("id", targetCompanyId)
+      .eq("manager_id", user.id)
+      .select("id, manager_id, name, theme, force_company_colors, created_at, updated_at")
+      .single();
+
+    if (error) {
+      console.error("Failed to save company name:", error);
+      return false;
+    }
+
+    setCompany((previous) => ({ ...(previous || {}), ...(data || {}), name: data?.name || nextName }));
+    setCompanyName(data?.name || nextName);
+    return true;
+  }
+
   async function handleOnboardingComplete(payload = {}) {
     const providedName = (payload.name || "").trim();
     const fallbackName = providedName || DEFAULT_NAME;
@@ -689,9 +717,9 @@ export default function App() {
           profile={profile}
           initialName={name}
           companyName={companyName}
-          canEditCompanyName={false}
+          canEditCompanyName={canEditCompanyName}
           onSaveName={saveProfileName}
-          onSaveCompanyName={null}
+          onSaveCompanyName={saveCompanyName}
           onSaveAvatar={async (nextAvatar) => {
             setAvatar(nextAvatar);
             const didSave = await saveProfilePatch({ avatar_url: nextAvatar });
