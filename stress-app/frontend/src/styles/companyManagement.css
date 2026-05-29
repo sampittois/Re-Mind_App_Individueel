@@ -442,6 +442,10 @@
   border: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
 }
 
+.company-toggle-row .toggle-switch {
+  flex: 0 0 60px;
+}
+
 .company-toggle-row__title {
   margin: 0 0 var(--space-1);
   font-family: var(--text-heading-3-font-family);
