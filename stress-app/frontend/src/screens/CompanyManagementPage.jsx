@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { BackIcon, PlusIcon } from "../components/IconActions";
 import closeIcon from "../assets/x.svg";
 import "../styles/companyManagement.css";
@@ -275,7 +275,7 @@ export function buildThemeVariables(theme) {
 
 export default function CompanyManagementPage({ profile, setCurrentPage, onThemeChange, onApplyColors, themeScopeId = null }) {
   const storageKeys = getScopedStorageKeys(themeScopeId);
-  const [employees, setEmployees] = useState(() => readStoredValueWithLegacy(themeScopeId, storageKeys.employees, STORAGE_KEYS.employees, []));
+  const [employees, setEmployees] = useState([]);
   const [themeId, setThemeId] = useState(() => readStoredValueWithLegacy(themeScopeId, storageKeys.theme, STORAGE_KEYS.theme, DEFAULT_THEME_ID));
   const [customTheme, setCustomTheme] = useState(() => normalizeCustomTheme(readStoredValueWithLegacy(themeScopeId, storageKeys.customTheme, STORAGE_KEYS.customTheme, DEFAULT_CUSTOM_THEME)));
   const [companyColorsEnabled, setCompanyColorsEnabled] = useState(() => readStoredValueWithLegacy(themeScopeId, storageKeys.companyColorsEnabled, STORAGE_KEYS.companyColorsEnabled, true));
@@ -288,7 +288,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
   const [isDeletingEmployee, setIsDeletingEmployee] = useState(false);
   const [deleteEmployeeError, setDeleteEmployeeError] = useState("");
   const [colorApplyMessage, setColorApplyMessage] = useState("");
-  const skipEmployeesPersistRef = useRef(false);
+  const [employeesLoaded, setEmployeesLoaded] = useState(false);
 
   const activeTheme = customTheme;
   const selectedEmployee = employees.find((employee) => employee.id === selectedEmployeeId) || null;
@@ -303,16 +303,13 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
   const remindTheme = normalizeCustomTheme(DEFAULT_CUSTOM_THEME);
 
   useEffect(() => {
-    const hydratedEmployees = readStoredValueWithLegacy(themeScopeId, storageKeys.employees, STORAGE_KEYS.employees, []);
-    skipEmployeesPersistRef.current = true;
-    setEmployees(Array.isArray(hydratedEmployees) ? hydratedEmployees : []);
-  }, [themeScopeId, storageKeys.employees]);
-
-  useEffect(() => {
+    setEmployeesLoaded(false);
     const companyId = profile?.company_id || themeScopeId || null;
     const managerId = profile?.id || null;
 
     if (!companyId) {
+      setEmployees([]);
+      setEmployeesLoaded(true);
       return undefined;
     }
 
@@ -343,10 +340,14 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
           }))
           : [];
 
-        skipEmployeesPersistRef.current = true;
         setEmployees(normalizedEmployees);
       } catch {
-        // Keep local storage fallback when backend fetch fails.
+        setEmployees([]);
+      }
+      finally {
+        if (!cancelled) {
+          setEmployeesLoaded(true);
+        }
       }
     }
 
@@ -432,15 +433,6 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
   }, [selectedEmployee, selectedDay]);
 
   const visibleEmployees = employees;
-
-  useEffect(() => {
-    if (skipEmployeesPersistRef.current) {
-      skipEmployeesPersistRef.current = false;
-      return;
-    }
-
-    writeStoredValue(storageKeys.employees, employees);
-  }, [employees, storageKeys.employees]);
 
   useEffect(() => {
     writeStoredValue(storageKeys.theme, themeId);
@@ -719,7 +711,11 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
             </div>
 
             <div className="employee-table__body">
-              {visibleEmployees.map((employee) => {
+              {!employeesLoaded ? (
+                <div className="employee-table__empty-state" aria-live="polite">
+                  <span className="employee-table__empty-state-title">Werknemers laden...</span>
+                </div>
+              ) : visibleEmployees.length ? visibleEmployees.map((employee) => {
                 const employeeStatusMeta = getEmployeeStatusMeta(employee.status, employee.lastSeenAt || employee.createdAt);
 
                 return (
@@ -750,7 +746,11 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
                     </span>
                   </div>
                 );
-                })}
+                }) : (
+                <div className="employee-table__empty-state" aria-live="polite">
+                  <span className="employee-table__empty-state-title">Geen werknemers toegevoegd</span>
+                </div>
+              )}
             </div>
           </div>
         </section>

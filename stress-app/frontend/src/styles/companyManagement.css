@@ -204,6 +204,33 @@
   line-height: var(--text-body-small-line-height);
 }
 
+.employee-table__empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  text-align: center;
+}
+
+.employee-table__empty-state-title {
+  color: var(--primary-dark);
+  font-family: var(--text-body-regular-font-family);
+  font-size: var(--text-body-regular-font-size);
+  line-height: var(--text-body-regular-line-height);
+  font-weight: var(--font-weight-bold);
+}
+
+.employee-table__empty-state-copy {
+  max-width: 28rem;
+  color: var(--text-light);
+  font-family: var(--text-body-small-font-family);
+  font-size: var(--text-body-small-font-size);
+  line-height: var(--text-body-small-line-height);
+}
+
 .theme-panel {
   display: flex;
   flex-direction: column;
