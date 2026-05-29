@@ -125,6 +125,18 @@
   box-sizing: border-box;
 }
 
+.company-name-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.company-name-field span {
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+}
+
 .edit-pencil {
   background: var(--button-fill);
   border: var(--button-border-width) var(--button-border-style) var(--button-border-color);

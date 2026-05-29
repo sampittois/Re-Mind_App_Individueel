@@ -31,17 +31,22 @@ const ALL_SUGGESTIONS = [
 
 const SUGGESTION_BY_ID = new Map(ALL_SUGGESTIONS.map((item) => [item.id, item]));
 
-export default function ProfileSection({ profile, initialName = "John Doe", onSaveName, onSaveAvatar, onLogout, user, onUpdateProfile, hasStoredName = true, setCurrentPage, companyColorsForced = false }) {
+export default function ProfileSection({ profile, initialName = "John Doe", companyName = "", canEditCompanyName = false, onSaveName, onSaveCompanyName, onSaveAvatar, onLogout, user, onUpdateProfile, hasStoredName = true, setCurrentPage, companyColorsForced = false }) {
   const [name, setName] = useState(hasStoredName ? initialName : "");
+  const [companyValue, setCompanyValue] = useState(companyName);
   useEffect(() => {
     setName(hasStoredName ? initialName : "");
   }, [initialName, hasStoredName]);
+  useEffect(() => {
+    setCompanyValue(companyName);
+  }, [companyName]);
   const [editing, setEditing] = useState(false);
   const [isSavingName, setIsSavingName] = useState(false);
   const [avatarSrc, setAvatarSrc] = useState(profile?.avatar_url ?? null);
   const fileRef = useRef(null);
   const [favoriteIds, setFavoriteIds] = useState(() => []);
   const isAdminPlan = profile?.plan === "admin";
+  const canEditCompany = Boolean(canEditCompanyName);
 
   useEffect(() => {
     setAvatarSrc(profile?.avatar_url ?? null);
@@ -218,6 +223,42 @@ export default function ProfileSection({ profile, initialName = "John Doe", onSa
             <img src={editing ? checkIcon : editIcon} alt="edit" className="edit-icon" />
           </button>
         </div>
+
+        {canEditCompany ? (
+          <label className="company-name-field">
+            <span>Bedrijfsnaam</span>
+            <input
+              className="name-input"
+              value={companyValue}
+              onChange={(event) => setCompanyValue(event.target.value)}
+              onBlur={async () => {
+                if (!onSaveCompanyName) return;
+                const trimmedCompanyName = companyValue.trim();
+                if (!trimmedCompanyName) return;
+                await onSaveCompanyName({ name: trimmedCompanyName });
+              }}
+              onKeyDown={async (event) => {
+                if (event.key !== "Enter") return;
+                event.currentTarget.blur();
+              }}
+              aria-label="Bedrijfsnaam"
+              placeholder="Voeg je bedrijfsnaam toe"
+            />
+          </label>
+        ) : null}
+
+        {!canEditCompany && companyValue ? (
+          <label className="company-name-field">
+            <span>Bedrijfsnaam</span>
+            <input
+              className="name-input"
+              value={companyValue}
+              readOnly
+              disabled
+              aria-label="Bedrijfsnaam"
+            />
+          </label>
+        ) : null}
 
         <div className="profile-actions">
           <button

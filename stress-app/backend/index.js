@@ -45,6 +45,58 @@ function getSupabaseAdminClient() {
   return supabaseAdminClient;
 }
 
+async function ensureCompanyForManager(supabase, managerId, fallbackName) {
+  if (!managerId) {
+    return null;
+  }
+
+  const { data: managerProfile, error: profileError } = await supabase
+    .from('profiles')
+    .select('id, full_name, email, company_id')
+    .eq('id', managerId)
+    .maybeSingle();
+
+  if (profileError) {
+    throw profileError;
+  }
+
+  if (!managerProfile?.id) {
+    throw new Error('Managerprofiel niet gevonden.');
+  }
+
+  if (managerProfile.company_id) {
+    return managerProfile.company_id;
+  }
+
+  const companyName = (fallbackName || managerProfile.full_name || managerProfile.email || 'Bedrijf').trim();
+  const { data: company, error: companyError } = await supabase
+    .from('companies')
+    .upsert(
+      {
+        manager_id: managerId,
+        name: companyName,
+      },
+      { onConflict: 'manager_id' },
+    )
+    .select('id')
+    .single();
+
+  if (companyError) {
+    throw companyError;
+  }
+
+  const { error: linkError } = await supabase
+    .from('profiles')
+    .update({ company_id: company.id })
+    .eq('id', managerId);
+
+  if (linkError) {
+    throw linkError;
+  }
+
+  return company.id;
+}
+
 app.post("/checkin", (req, res) => {
   const { stress, energy } = req.body;
 
@@ -252,7 +304,21 @@ app.post('/admin/create-employee', async (req, res) => {
       use_company_colors: Boolean(use_company_colors),
       company_management_enabled: false,
       work_type: safeDepartment,
+      company_id: null,
     };
+
+    let companyId = null;
+    if (created_by) {
+      try {
+        companyId = await ensureCompanyForManager(supabase, created_by, null);
+      } catch (companyError) {
+        return res.status(500).json({ ok: false, error: companyError.message });
+      }
+    }
+
+    if (companyId) {
+      profilePayload.company_id = companyId;
+    }
 
     const { error: upsertProfileError } = await supabase
       .from('profiles')
@@ -270,6 +336,7 @@ app.post('/admin/create-employee', async (req, res) => {
         name: safeName,
         department: safeDepartment,
         created_by: created_by || null,
+        company_id: companyId,
       },
     });
   } catch (err) {

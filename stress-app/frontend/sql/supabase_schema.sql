@@ -75,8 +75,19 @@ create table if not exists public.profiles (
   allow_reminders boolean not null default false,
   dark_mode boolean not null default false,
   use_company_colors boolean not null default true,
+  company_theme jsonb,
   calendar_linked boolean not null default false,
   company_management_enabled boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.companies (
+  id uuid primary key default gen_random_uuid(),
+  manager_id uuid not null unique references auth.users (id) on delete cascade,
+  name text not null,
+  theme jsonb,
+  force_company_colors boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -86,6 +97,7 @@ alter table public.profiles add column if not exists first_name text;
 alter table public.profiles add column if not exists last_name text;
 alter table public.profiles add column if not exists email text;
 alter table public.profiles add column if not exists avatar_url text;
+alter table public.profiles add column if not exists company_id uuid references public.companies (id) on delete set null;
 alter table public.profiles add column if not exists plan public.user_plan not null default 'basic';
 alter table public.profiles add column if not exists work_start time;
 alter table public.profiles add column if not exists work_end time;
@@ -102,6 +114,13 @@ alter table public.profiles add column if not exists calendar_linked boolean not
 alter table public.profiles add column if not exists company_management_enabled boolean not null default false;
 alter table public.profiles add column if not exists created_at timestamptz not null default now();
 alter table public.profiles add column if not exists updated_at timestamptz not null default now();
+
+alter table public.companies add column if not exists manager_id uuid;
+alter table public.companies add column if not exists name text;
+alter table public.companies add column if not exists theme jsonb;
+alter table public.companies add column if not exists force_company_colors boolean not null default true;
+alter table public.companies add column if not exists created_at timestamptz not null default now();
+alter table public.companies add column if not exists updated_at timestamptz not null default now();
 
 create table if not exists public.work_sessions (
   id uuid primary key default gen_random_uuid(),
@@ -224,6 +243,12 @@ create index if not exists profiles_full_name_idx
 create index if not exists profiles_email_idx
   on public.profiles (email);
 
+create index if not exists profiles_company_id_idx
+  on public.profiles (company_id);
+
+create index if not exists companies_manager_id_idx
+  on public.companies (manager_id);
+
 create index if not exists profiles_plan_idx
   on public.profiles (plan);
 
@@ -282,6 +307,11 @@ alter table public.favorite_pauses
 drop trigger if exists set_profiles_updated_at on public.profiles;
 create trigger set_profiles_updated_at
 before update on public.profiles
+for each row execute function public.set_updated_at();
+
+drop trigger if exists set_companies_updated_at on public.companies;
+create trigger set_companies_updated_at
+before update on public.companies
 for each row execute function public.set_updated_at();
 
 drop trigger if exists set_work_sessions_updated_at on public.work_sessions;
@@ -427,6 +457,7 @@ alter table public.breaks enable row level security;
 alter table public.break_reminder_events enable row level security;
 alter table public.favorite_pauses enable row level security;
 alter table public.payment_details enable row level security;
+alter table public.companies enable row level security;
 
 drop policy if exists "profiles_select_own" on public.profiles;
 create policy "profiles_select_own"
@@ -452,6 +483,39 @@ create policy "profiles_delete_own"
 on public.profiles
 for delete
 using (auth.uid() = id);
+
+drop policy if exists "companies_select_member_or_manager" on public.companies;
+create policy "companies_select_member_or_manager"
+on public.companies
+for select
+using (
+  auth.uid() = manager_id
+  or exists (
+    select 1
+    from public.profiles p
+    where p.id = auth.uid()
+      and p.company_id = id
+  )
+);
+
+drop policy if exists "companies_insert_manager" on public.companies;
+create policy "companies_insert_manager"
+on public.companies
+for insert
+with check (auth.uid() = manager_id);
+
+drop policy if exists "companies_update_manager" on public.companies;
+create policy "companies_update_manager"
+on public.companies
+for update
+using (auth.uid() = manager_id)
+with check (auth.uid() = manager_id);
+
+drop policy if exists "companies_delete_manager" on public.companies;
+create policy "companies_delete_manager"
+on public.companies
+for delete
+using (auth.uid() = manager_id);
 
 drop policy if exists "work_sessions_select_own" on public.work_sessions;
 create policy "work_sessions_select_own"

@@ -395,7 +395,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
 
   useEffect(() => {
     writeStoredValue(storageKeys.companyColorsEnabled, companyColorsEnabled);
-    onThemeChange?.();
+    onThemeChange?.({ companyColorsEnabled });
   }, [companyColorsEnabled, onThemeChange, storageKeys.companyColorsEnabled]);
 
   useEffect(() => {
@@ -445,18 +445,37 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
     setThemeId("custom");
     writeStoredValue(storageKeys.theme, "custom");
     writeStoredValue(storageKeys.customTheme, nextTheme);
-    writeStoredValue(storageKeys.companyColorsEnabled, true);
-    setCompanyColorsEnabled(true);
 
-    const didPersistProfileToggle = await onApplyColors?.();
-    if (didPersistProfileToggle === false) {
-      setColorApplyMessage("Kleuren lokaal toegepast, maar niet opgeslagen in profiel. Probeer opnieuw.");
+    // Persist the theme to the server so employees on other devices can read it.
+    let didPersistTheme = true;
+    try {
+      if (profile && profile.id) {
+        const { error } = await supabase
+          .from("profiles")
+          .upsert({ id: profile.id, company_theme: nextTheme }, { onConflict: "id" });
+
+        if (error) {
+          console.error("Failed to persist company theme:", error);
+          didPersistTheme = false;
+        }
+      }
+    } catch (e) {
+      console.error("Failed to persist company theme:", e);
+      didPersistTheme = false;
+    }
+
+    const didPersistProfileToggle = await onApplyColors?.({
+      theme: nextTheme,
+      companyColorsEnabled,
+    });
+    if (didPersistProfileToggle === false || didPersistTheme === false) {
+      setColorApplyMessage("Kleuren lokaal toegepast, maar niet volledig opgeslagen. Probeer opnieuw.");
       onThemeChange?.(nextTheme);
       return;
     }
 
     onThemeChange?.(nextTheme);
-    setColorApplyMessage("Kleuren toegepast op de app.");
+    setColorApplyMessage("Kleuren toegepast op de app en opgeslagen.");
   }
 
   async function submitEmployee(event) {

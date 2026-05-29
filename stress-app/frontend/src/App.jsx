@@ -32,7 +32,7 @@ import RegisterPage from "./screens/RegisterPage";
 import OnboardingPage from "./screens/OnboardingPage";
 
 const DEFAULT_NAME = "John Doe";
-const PROFILE_SELECT = "id, full_name, first_name, last_name, email, avatar_url, plan, work_start, work_end, break_frequency_mins, fixed_breaks, break_reminders, pause_habit, work_style, work_type, allow_reminders, dark_mode, use_company_colors, calendar_linked, company_management_enabled";
+const PROFILE_SELECT = "id, full_name, first_name, last_name, email, avatar_url, company_id, plan, work_start, work_end, break_frequency_mins, fixed_breaks, break_reminders, pause_habit, work_style, work_type, allow_reminders, dark_mode, use_company_colors, calendar_linked, company_management_enabled";
 const LAST_PAGE_STORAGE_KEY = "remind:last-page";
 const THEME_VARIABLES = [
   "--background",
@@ -186,6 +186,8 @@ export default function App() {
   const [name, setName] = useState(DEFAULT_NAME);
   const [avatar, setAvatar] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [company, setCompany] = useState(null);
+  const [companyName, setCompanyName] = useState("");
   const [stressLevel, setStressLevel] = useState(3);
   const [energyLevel, setEnergyLevel] = useState(2);
   const [pausesTaken, setPausesTaken] = useState(0);
@@ -203,7 +205,7 @@ export default function App() {
   const [companyThemeRevision, setCompanyThemeRevision] = useState(0);
   const [passwordResetMode, setPasswordResetMode] = useState(false);
   const accountEmail = profile?.email || user?.email || "";
-  const managerScopeCandidate = profile?.id || user?.id || null;
+  const managerScopeCandidate = profile?.company_id || profile?.id || user?.id || null;
   const managerScopedStorageKeys = getScopedStorageKeys(managerScopeCandidate);
   const canManageCompanyColors = Boolean(
     profile?.company_management_enabled
@@ -216,14 +218,14 @@ export default function App() {
       || readStoredValue(managerScopedStorageKeys.customTheme, null) !== null
       || readStoredValue(managerScopedStorageKeys.companyColorsEnabled, null) !== null
     : false;
-  const companyThemeScopeId =
-    user?.user_metadata?.created_by
-    || ((canManageCompanyColors || hasManagerScopedTheme) ? managerScopeCandidate : null)
-    || null;
+  const companyThemeScopeId = company?.id || profile?.company_id || ((canManageCompanyColors || hasManagerScopedTheme) ? managerScopeCandidate : null) || null;
   const companyStorageKeys = getScopedStorageKeys(companyThemeScopeId);
-  const handleCompanyThemeChange = useCallback(() => {
+  const handleCompanyThemeChange = useCallback(async (payload = {}) => {
+    if (typeof payload.companyColorsEnabled === "boolean") {
+      await saveCompanyRecord({ forceCompanyColors: payload.companyColorsEnabled });
+    }
     setCompanyThemeRevision((previous) => previous + 1);
-  }, []);
+  }, [saveCompanyRecord]);
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -254,6 +256,85 @@ export default function App() {
     }
 
     setProfile(data || nextProfile);
+    return true;
+  }
+
+  function getDefaultCompanyName() {
+    return (companyName || profile?.full_name || profile?.email || "Bedrijf").trim() || "Bedrijf";
+  }
+
+  function createCompanyId() {
+    if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+      return crypto.randomUUID();
+    }
+
+    return `company-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
+
+  async function saveCompanyRecord({ name, theme, forceCompanyColors } = {}) {
+    if (!user?.id) {
+      return false;
+    }
+
+    const nextName = (name || getDefaultCompanyName()).trim();
+    let nextCompanyId = profile?.company_id || company?.id || null;
+
+    if (!nextCompanyId) {
+      const { data: existingCompany, error: existingCompanyError } = await supabase
+        .from("companies")
+        .select("id, manager_id, name, theme, force_company_colors")
+        .eq("manager_id", user.id)
+        .maybeSingle();
+
+      if (existingCompanyError) {
+        console.error("Failed to load existing company:", existingCompanyError);
+        return false;
+      }
+
+      if (existingCompany?.id) {
+        nextCompanyId = existingCompany.id;
+        setCompany(existingCompany);
+        setCompanyName(existingCompany.name || nextName);
+      }
+    }
+
+    if (!nextCompanyId) {
+      nextCompanyId = createCompanyId();
+    }
+
+    const companyPayload = {
+      id: nextCompanyId,
+      manager_id: user.id,
+      name: nextName,
+      theme: theme ?? company?.theme ?? null,
+      force_company_colors: typeof forceCompanyColors === "boolean" ? forceCompanyColors : Boolean(company?.force_company_colors),
+    };
+
+    const { data, error } = await supabase
+      .from("companies")
+      .upsert(companyPayload, { onConflict: "id" })
+      .select("id, manager_id, name, theme, force_company_colors")
+      .single();
+
+    if (error) {
+      console.error("Failed to save company record:", error);
+      return false;
+    }
+
+    const linkedProfileId = profile?.company_id ? profile.company_id : data?.id;
+    if (!profile?.company_id) {
+      const didLink = await saveProfilePatch({ company_id: data?.id || nextCompanyId });
+      if (!didLink) {
+        return false;
+      }
+    }
+
+    setCompany(data || companyPayload);
+    setCompanyName(data?.name || nextName);
+    if (linkedProfileId) {
+      setCompanyThemeRevision((previous) => previous + 1);
+    }
+
     return true;
   }
 
@@ -463,7 +544,10 @@ export default function App() {
         <ProfileSection
           profile={profile}
           initialName={name}
+          companyName={companyName}
+          canEditCompanyName={Boolean(canManageCompanyColors) && !Boolean(user?.user_metadata?.created_by)}
           onSaveName={saveProfileName}
+          onSaveCompanyName={saveCompanyRecord}
           onSaveAvatar={async (nextAvatar) => {
             setAvatar(nextAvatar);
             const didSave = await saveProfilePatch({ avatar_url: nextAvatar });
@@ -479,7 +563,7 @@ export default function App() {
           onUpdateProfile={saveProfilePatch}
           hasStoredName={Boolean(profile?.full_name || profile?.first_name || profile?.last_name)}
           setCurrentPage={setCurrentPage}
-          companyColorsForced={Boolean(user?.user_metadata?.created_by) && readStoredValue(companyStorageKeys.companyColorsEnabled, true)}
+          companyColorsForced={Boolean(company?.force_company_colors) && Boolean(company?.manager_id) && company?.manager_id !== user?.id}
         />
       </main>
     );
@@ -513,15 +597,22 @@ export default function App() {
         profile={profile}
         setCurrentPage={setCurrentPage}
         onThemeChange={handleCompanyThemeChange}
-        onApplyColors={async () => {
+          onApplyColors={async ({ theme, companyColorsEnabled } = {}) => {
           const didSave = await saveProfilePatch({ use_company_colors: true });
           if (!didSave) {
             return false;
           }
+            const didSaveCompany = await saveCompanyRecord({
+              theme,
+              forceCompanyColors: companyColorsEnabled,
+            });
+            if (!didSaveCompany) {
+              return false;
+            }
           handleCompanyThemeChange();
           return true;
         }}
-        themeScopeId={profile?.id || user?.id || null}
+        themeScopeId={companyThemeScopeId}
       />
     );
   } else if (currentPage === "admin") {
@@ -692,6 +783,42 @@ export default function App() {
   }, [user]);
 
   useEffect(() => {
+    let active = true;
+
+    async function loadCompany() {
+      if (!profile?.company_id) {
+        if (active) {
+          setCompany(null);
+          setCompanyName("");
+        }
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("companies")
+        .select("id, manager_id, name, theme, force_company_colors")
+        .eq("id", profile.company_id)
+        .maybeSingle();
+
+      if (!active) return;
+
+      if (error) {
+        console.error("Failed to load company:", error);
+        return;
+      }
+
+      setCompany(data || null);
+      setCompanyName(data?.name || "");
+    }
+
+    loadCompany();
+
+    return () => {
+      active = false;
+    };
+  }, [profile?.company_id]);
+
+  useEffect(() => {
     if (!user) return;
     if (!shouldForceOnboarding(user)) return;
     if (currentPage === "onboarding") return;
@@ -699,25 +826,30 @@ export default function App() {
   }, [user, currentPage]);
 
   useEffect(() => {
-    const isManagedEmployee = Boolean(user?.user_metadata?.created_by);
-    const isCompanyColorsForced = isManagedEmployee && readStoredValue(companyStorageKeys.companyColorsEnabled, true);
+    const isCompanyColorsForced = Boolean(company?.force_company_colors);
 
-    if (!isManagedEmployee || !isCompanyColorsForced || profile?.use_company_colors === true || !user?.id) {
+    if (!isCompanyColorsForced || profile?.use_company_colors === true || !user?.id) {
       return;
     }
 
     saveProfilePatch({ use_company_colors: true });
-  }, [companyStorageKeys.companyColorsEnabled, profile?.use_company_colors, user?.id, user?.user_metadata?.created_by]);
+  }, [company?.force_company_colors, profile?.use_company_colors, user?.id]);
 
   useEffect(() => {
-    const hasCompanyScope = Boolean(companyThemeScopeId);
-    const isManagedEmployee = Boolean(user?.user_metadata?.created_by);
-    const companyEnabled = hasCompanyScope ? readStoredValue(companyStorageKeys.companyColorsEnabled, true) : false;
-    const theme = readCompanyThemeFromStorage(companyStorageKeys);
-    const shouldApply = hasCompanyScope
-      && (isManagedEmployee ? (companyEnabled || Boolean(profile?.use_company_colors)) : Boolean(profile?.use_company_colors));
-    applyCompanyThemeToRoot(theme, shouldApply);
-  }, [companyThemeScopeId, companyStorageKeys, profile?.id, profile?.use_company_colors, user?.user_metadata?.created_by, companyThemeRevision]);
+    let active = true;
+
+    async function loadAndApplyTheme() {
+      const hasCompanyScope = Boolean(companyThemeScopeId);
+      const theme = company?.theme ? normalizeCustomTheme(company.theme) : readCompanyThemeFromStorage(companyStorageKeys);
+      const shouldApply = hasCompanyScope
+        && (Boolean(company?.force_company_colors) || Boolean(profile?.use_company_colors));
+
+      if (!active) return;
+      applyCompanyThemeToRoot(theme, shouldApply);
+    }
+
+    loadAndApplyTheme();
+  }, [company?.force_company_colors, company?.theme, companyStorageKeys, companyThemeScopeId, profile?.use_company_colors, companyThemeRevision]);
 
   useEffect(() => {
     let active = true;
