@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import "../styles/profile.css";
-import editIcon from "../assets/edit.svg";
-import checkIcon from "../assets/check.svg";
 import xIcon from "../assets/x.svg";
 import PauseCard from "../components/PauseCard";
 import SettingsSection from "../components/SettingsSection";
+import CheckIcon from "../components/CheckIcon";
+import PencilIcon from "../components/PencilIcon";
 import { supabase } from "../lib/supabaseClient";
 import { PlusIcon } from "../components/IconActions"
 import breathing from "../assets/ademhaling.png";
@@ -248,7 +248,7 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
             disabled={isSavingName}
             aria-label={editing ? "Opslaan" : "Bewerk naam"}
           >
-            <img src={editing ? checkIcon : editIcon} alt="edit" className="edit-icon" />
+            {editing ? <CheckIcon className="edit-icon" /> : <PencilIcon className="edit-icon" />}
           </button>
         </div>
 
@@ -278,7 +278,7 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
             disabled={!canEditCompany || isSavingCompany}
             aria-label={editingCompany ? "Opslaan bedrijfsnaam" : "Bewerk bedrijfsnaam"}
           >
-            <img src={editingCompany ? checkIcon : editIcon} alt="edit" className="edit-icon" />
+            {editingCompany ? <CheckIcon className="edit-icon" /> : <PencilIcon className="edit-icon" />}
           </button>
         </div>
 

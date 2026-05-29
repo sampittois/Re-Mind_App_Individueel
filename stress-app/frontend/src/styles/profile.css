@@ -150,13 +150,42 @@
 }
 
 .edit-pencil {
-  background: var(--button-fill);
-  border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
+  background: var(--highlight-light);
+  border: var(--button-border-width) var(--button-border-style) var(--primary-dark);
   padding: 4px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--text);
+  color: var(--primary);
+  line-height: 0;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+button.edit-pencil,
+button.edit-pencil.icon-action-btn {
+  background: var(--highlight-light) !important;
+  border: var(--button-border-width) var(--button-border-style) var(--primary-dark) !important;
+  color: var(--primary) !important;
+}
+
+.edit-pencil:hover:not(:disabled),
+.edit-pencil:focus-visible:not(:disabled),
+.edit-pencil:active:not(:disabled),
+.edit-pencil[aria-pressed="true"]:not(:disabled),
+button.edit-pencil:hover:not(:disabled),
+button.edit-pencil:focus-visible:not(:disabled),
+button.edit-pencil:active:not(:disabled),
+button.edit-pencil[aria-pressed="true"]:not(:disabled),
+button.edit-pencil.icon-action-btn:hover:not(:disabled),
+button.edit-pencil.icon-action-btn:focus-visible:not(:disabled),
+button.edit-pencil.icon-action-btn:active:not(:disabled),
+button.edit-pencil.icon-action-btn[aria-pressed="true"]:not(:disabled) {
+  background: var(--highlight);
+  border-color: var(--primary-dark);
+  color: var(--background);
+  background: var(--highlight) !important;
+  border-color: var(--primary-dark) !important;
+  color: var(--background) !important;
 }
 
 .edit-icon {
