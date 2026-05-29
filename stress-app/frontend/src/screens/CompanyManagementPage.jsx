@@ -440,6 +440,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
   }
 
   async function applyColorsToApp() {
+    /* Company color editing reset:
     const nextTheme = normalizeCustomTheme(customTheme);
     setCustomTheme(nextTheme);
     setThemeId("custom");
@@ -476,6 +477,8 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
 
     onThemeChange?.(nextTheme);
     setColorApplyMessage("Kleuren toegepast op de app en opgeslagen.");
+    */
+    setColorApplyMessage("Kleurenfunctionaliteit staat voorlopig uit.");
   }
 
   async function submitEmployee(event) {
@@ -613,7 +616,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
   }
 
   return (
-    <main className="company-management-page page" style={themedVariables}>
+    <main className="company-management-page page">
       <div className="company-management-header">
         <button className="company-management-back icon-action-btn back-btn" type="button" onClick={() => setCurrentPage?.("profile")} aria-label="Terug">
           <BackIcon />

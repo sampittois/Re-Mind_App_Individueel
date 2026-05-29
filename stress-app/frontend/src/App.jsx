@@ -157,13 +157,17 @@ async function updateAuthNameMetadata(fullName, firstName, lastName, userMetadat
 }
 
 function readCompanyThemeFromStorage(storageKeys) {
+  /* Company color loading reset:
   const themeId = readStoredValue(storageKeys.theme, DEFAULT_THEME_ID);
   const customTheme = normalizeCustomTheme(readStoredValue(storageKeys.customTheme, DEFAULT_CUSTOM_THEME));
 
   return themeId === "custom" ? customTheme : getThemeById(themeId);
+  */
+  return DEFAULT_CUSTOM_THEME;
 }
 
 function applyCompanyThemeToRoot(theme, useCompanyColors) {
+  /* Company color application reset:
   if (typeof document === "undefined") return;
 
   const root = document.documentElement;
@@ -180,12 +184,15 @@ function applyCompanyThemeToRoot(theme, useCompanyColors) {
       root.style.setProperty(variable, value);
     }
   });
+  */
+  return;
 }
 
 export default function App() {
   const [name, setName] = useState(DEFAULT_NAME);
   const [avatar, setAvatar] = useState(null);
   const [profile, setProfile] = useState(null);
+  // Company color state reset: company-specific theme data is no longer applied.
   const [company, setCompany] = useState(null);
   const [companyName, setCompanyName] = useState("");
   const [stressLevel, setStressLevel] = useState(3);
@@ -205,6 +212,7 @@ export default function App() {
   const [companyThemeRevision, setCompanyThemeRevision] = useState(0);
   const [passwordResetMode, setPasswordResetMode] = useState(false);
   const accountEmail = profile?.email || user?.email || "";
+  /* Company color behavior reset:
   const managerScopeCandidate = profile?.company_id || user?.user_metadata?.company_id || profile?.id || user?.id || null;
   const managerScopedStorageKeys = getScopedStorageKeys(managerScopeCandidate);
   const canManageCompanyColors = Boolean(
@@ -226,6 +234,12 @@ export default function App() {
     }
     setCompanyThemeRevision((previous) => previous + 1);
   }, [saveCompanyRecord]);
+  */
+  const companyThemeScopeId = null;
+  const companyStorageKeys = getScopedStorageKeys(null);
+  const handleCompanyThemeChange = useCallback(async () => {
+    return;
+  }, []);
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -271,6 +285,7 @@ export default function App() {
     return `company-${Date.now()}-${Math.random().toString(16).slice(2)}`;
   }
 
+  /* Company record color save reset:
   async function saveCompanyRecord({ name, theme, forceCompanyColors } = {}) {
     if (!user?.id) {
       return false;
@@ -337,6 +352,7 @@ export default function App() {
 
     return true;
   }
+  */
 
   async function saveProfileName(nextName) {
     const cleanName = (nextName || "").trim();
@@ -541,13 +557,13 @@ export default function App() {
   } else if (currentPage === "profile") {
     pageContent = (
       <main className="page profile-page">
-        <ProfileSection
+          <ProfileSection
           profile={profile}
           initialName={name}
           companyName={companyName}
-          canEditCompanyName={Boolean(canManageCompanyColors) && !Boolean(user?.user_metadata?.created_by)}
+          canEditCompanyName={false}
           onSaveName={saveProfileName}
-          onSaveCompanyName={saveCompanyRecord}
+          onSaveCompanyName={null}
           onSaveAvatar={async (nextAvatar) => {
             setAvatar(nextAvatar);
             const didSave = await saveProfilePatch({ avatar_url: nextAvatar });
@@ -563,7 +579,7 @@ export default function App() {
           onUpdateProfile={saveProfilePatch}
           hasStoredName={Boolean(profile?.full_name || profile?.first_name || profile?.last_name)}
           setCurrentPage={setCurrentPage}
-          companyColorsForced={Boolean(company?.force_company_colors) && Boolean(company?.manager_id) && company?.manager_id !== user?.id}
+          companyColorsForced={false}
         />
       </main>
     );
@@ -597,22 +613,8 @@ export default function App() {
         profile={profile}
         setCurrentPage={setCurrentPage}
         onThemeChange={handleCompanyThemeChange}
-          onApplyColors={async ({ theme, companyColorsEnabled } = {}) => {
-          const didSave = await saveProfilePatch({ use_company_colors: true });
-          if (!didSave) {
-            return false;
-          }
-            const didSaveCompany = await saveCompanyRecord({
-              theme,
-              forceCompanyColors: companyColorsEnabled,
-            });
-            if (!didSaveCompany) {
-              return false;
-            }
-          handleCompanyThemeChange();
-          return true;
-        }}
-        themeScopeId={companyThemeScopeId}
+          onApplyColors={async () => true}
+          themeScopeId={null}
       />
     );
   } else if (currentPage === "admin") {
