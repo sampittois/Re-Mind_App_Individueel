@@ -45,6 +45,7 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
   const [editingCompany, setEditingCompany] = useState(false);
   const [isSavingCompany, setIsSavingCompany] = useState(false);
   const [avatarSrc, setAvatarSrc] = useState(profile?.avatar_url ?? null);
+  const [isAvatarOpen, setIsAvatarOpen] = useState(false);
   const fileRef = useRef(null);
   const [favoriteIds, setFavoriteIds] = useState(() => []);
   const isAdminPlan = profile?.plan === "admin";
@@ -118,10 +119,12 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
 
       if (onSaveAvatar) {
         await onSaveAvatar(nextAvatar);
-        return;
+          setIsAvatarOpen(false);
+          return;
       }
 
       await onUpdateProfile?.({ avatar_url: nextAvatar });
+        setIsAvatarOpen(false);
     };
 
     reader.readAsDataURL(f);
@@ -129,6 +132,7 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
 
   async function onRemoveAvatar() {
     setAvatarSrc(null);
+    setIsAvatarOpen(false);
     if (onSaveAvatar) {
       await onSaveAvatar(null);
       return;
@@ -136,6 +140,18 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
 
     await onUpdateProfile?.({ avatar_url: null });
   }
+
+  // close gallery on Escape
+  useEffect(() => {
+    if (!isAvatarOpen) return undefined;
+
+    function onKey(event) {
+      if (event.key === "Escape") setIsAvatarOpen(false);
+    }
+
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isAvatarOpen]);
 
   async function handleNameSaveToggle() {
     if (!editing) {
@@ -195,7 +211,14 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
           <button
             className="avatar-button"
             type="button"
-            onClick={() => fileRef.current?.click()}
+            onClick={() => {
+              if (avatarSrc) {
+                setIsAvatarOpen(true);
+                return;
+              }
+
+              fileRef.current?.click();
+            }}
             aria-label="Wijzig profielfoto"
           >
             {avatarSrc ? (
@@ -207,16 +230,7 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
               </svg>
             )}
           </button>
-          {avatarSrc && (
-            <button
-              className="avatar-remove-btn icon-action-btn"
-              type="button"
-              onClick={onRemoveAvatar}
-              aria-label="Verwijder profielfoto"
-            >
-              <img src={xIcon} alt="remove" />
-            </button>
-          )}
+
           <input
             ref={fileRef}
             onChange={onFileChange}
@@ -224,6 +238,27 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
             accept="image/*"
             style={{ display: "none" }}
           />
+
+          {isAvatarOpen && avatarSrc ? (
+            <div className="avatar-gallery-overlay" role="dialog" aria-modal="true" onMouseDown={() => setIsAvatarOpen(false)}>
+              <div className="avatar-gallery-card" onMouseDown={(e) => e.stopPropagation()}>
+                <button className="avatar-gallery-close icon-remove-btn" type="button" onClick={() => setIsAvatarOpen(false)} aria-label="Sluit">
+                  <img src={xIcon} alt="" aria-hidden="true" />
+                </button>
+
+                <img src={avatarSrc} alt="Grote profielfoto" className="avatar-gallery-img" />
+
+                <div className="avatar-gallery-actions">
+                  <button className="action-btn" type="button" onClick={async () => { await onRemoveAvatar(); }}>
+                    Reset
+                  </button>
+                  <button className="action-btn" type="button" onClick={() => fileRef.current?.click()}>
+                    Change
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
         </div>
 
         <div className="profile-name-row">
