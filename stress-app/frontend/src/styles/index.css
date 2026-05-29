@@ -7,6 +7,29 @@ a:hover {
   color: var(--primary-dark);
 }
 
+html {
+  scrollbar-color: var(--primary) transparent;
+  scrollbar-width: autho;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--highlight), var(--primary));
+  border: 2px solid transparent;
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+}
+
+*::-webkit-scrollbar-corner {
+  background: var(--background-dark);
+}
+
 body {
   margin: 0;
   min-width: 320px;
