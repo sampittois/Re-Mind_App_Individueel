@@ -435,23 +435,58 @@ app.post('/admin/create-employee', async (req, res) => {
       return res.status(400).json({ ok: false, error: 'Wachtwoord moet minstens 8 tekens bevatten.' });
     }
 
+    async function findAuthUserByEmail(emailAddress) {
+      const normalizedEmail = String(emailAddress || '').trim().toLowerCase();
+      if (!normalizedEmail) {
+        return null;
+      }
+
+      const { data: usersData, error: usersError } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
+      if (usersError) {
+        throw usersError;
+      }
+
+      return (usersData?.users || []).find((user) => (user?.email || '').trim().toLowerCase() === normalizedEmail) || null;
+    }
+
+    async function createEmployeeUser() {
+      return supabase.auth.admin.createUser({
+        email: safeEmail,
+        password: safePassword,
+        email_confirm: true,
+        user_metadata: {
+          first_name: firstName,
+          last_name: lastName,
+          full_name: safeName,
+          force_onboarding: true,
+          admin_created: true,
+          created_by: created_by || null,
+          company_id: null,
+        },
+      });
+    }
+
     const [firstName = safeName, ...rest] = safeName.split(/\s+/);
     const lastName = rest.join(' ') || null;
 
-    const { data: createdUser, error: createUserError } = await supabase.auth.admin.createUser({
-      email: safeEmail,
-      password: safePassword,
-      email_confirm: true,
-      user_metadata: {
-        first_name: firstName,
-        last_name: lastName,
-        full_name: safeName,
-        force_onboarding: true,
-        admin_created: true,
-        created_by: created_by || null,
-        company_id: null,
-      },
-    });
+    let { data: createdUser, error: createUserError } = await createEmployeeUser();
+
+    if (createUserError && /email.*already.*use|already exists|user.*already/i.test(createUserError.message || '')) {
+      const existingAuthUser = await findAuthUserByEmail(safeEmail);
+      const existingAuthUserId = existingAuthUser?.id || null;
+      const { data: existingProfile } = existingAuthUserId
+        ? await supabase.from('profiles').select('id').eq('id', existingAuthUserId).maybeSingle()
+        : { data: null };
+
+      if (!existingProfile?.id && existingAuthUserId) {
+        const { error: deleteExistingUserError } = await supabase.auth.admin.deleteUser(existingAuthUserId);
+        if (deleteExistingUserError) {
+          return res.status(409).json({ ok: false, error: createUserError.message });
+        }
+
+        ({ data: createdUser, error: createUserError } = await createEmployeeUser());
+      }
+    }
 
     if (createUserError) {
       return res.status(400).json({ ok: false, error: createUserError.message });
