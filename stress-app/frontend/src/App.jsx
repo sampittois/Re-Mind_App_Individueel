@@ -205,7 +205,7 @@ export default function App() {
   const [companyThemeRevision, setCompanyThemeRevision] = useState(0);
   const [passwordResetMode, setPasswordResetMode] = useState(false);
   const accountEmail = profile?.email || user?.email || "";
-  const managerScopeCandidate = profile?.company_id || profile?.id || user?.id || null;
+  const managerScopeCandidate = profile?.company_id || user?.user_metadata?.company_id || profile?.id || user?.id || null;
   const managerScopedStorageKeys = getScopedStorageKeys(managerScopeCandidate);
   const canManageCompanyColors = Boolean(
     profile?.company_management_enabled
@@ -218,7 +218,7 @@ export default function App() {
       || readStoredValue(managerScopedStorageKeys.customTheme, null) !== null
       || readStoredValue(managerScopedStorageKeys.companyColorsEnabled, null) !== null
     : false;
-  const companyThemeScopeId = company?.id || profile?.company_id || ((canManageCompanyColors || hasManagerScopedTheme) ? managerScopeCandidate : null) || null;
+  const companyThemeScopeId = company?.id || profile?.company_id || user?.user_metadata?.company_id || ((canManageCompanyColors || hasManagerScopedTheme) ? managerScopeCandidate : null) || null;
   const companyStorageKeys = getScopedStorageKeys(companyThemeScopeId);
   const handleCompanyThemeChange = useCallback(async (payload = {}) => {
     if (typeof payload.companyColorsEnabled === "boolean") {
@@ -786,7 +786,9 @@ export default function App() {
     let active = true;
 
     async function loadCompany() {
-      if (!profile?.company_id) {
+      const profileCompanyId = profile?.company_id || user?.user_metadata?.company_id || null;
+
+      if (!profileCompanyId) {
         if (active) {
           setCompany(null);
           setCompanyName("");
@@ -797,7 +799,7 @@ export default function App() {
       const { data, error } = await supabase
         .from("companies")
         .select("id, manager_id, name, theme, force_company_colors")
-        .eq("id", profile.company_id)
+        .eq("id", profileCompanyId)
         .maybeSingle();
 
       if (!active) return;
@@ -816,7 +818,7 @@ export default function App() {
     return () => {
       active = false;
     };
-  }, [profile?.company_id]);
+  }, [profile?.company_id, user?.user_metadata?.company_id]);
 
   useEffect(() => {
     if (!user) return;

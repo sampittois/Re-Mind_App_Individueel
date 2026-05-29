@@ -282,6 +282,7 @@ app.post('/admin/create-employee', async (req, res) => {
         force_onboarding: true,
         admin_created: true,
         created_by: created_by || null,
+        company_id: null,
       },
     });
 
@@ -318,6 +319,16 @@ app.post('/admin/create-employee', async (req, res) => {
 
     if (companyId) {
       profilePayload.company_id = companyId;
+      const { error: metadataUpdateError } = await supabase.auth.admin.updateUserById(user.id, {
+        user_metadata: {
+          ...(user.user_metadata || {}),
+          company_id: companyId,
+        },
+      });
+
+      if (metadataUpdateError) {
+        return res.status(500).json({ ok: false, error: metadataUpdateError.message });
+      }
     }
 
     const { error: upsertProfileError } = await supabase
