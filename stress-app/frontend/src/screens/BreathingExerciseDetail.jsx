@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import breathingIcon from "../assets/swirl.png";
+import bigSwirl from "../assets/big_swirl.svg";
 import { BackIcon } from "../components/IconActions";
 
 const EXERCISE_DATA = {
@@ -128,6 +129,8 @@ export default function BreathingExerciseDetail({ exerciseId, onBack, autoStart 
 
     return (
         <main className="exercise-detail-page">
+            <img className="exercise-detail-page__swirl" src={bigSwirl} alt="" aria-hidden="true" />
+
             <div className="exercise-detail-top-row">
                 <button className="back-btn exercise-detail-back icon-action-btn" onClick={onBack} aria-label="Terug" type="button">
                     <BackIcon />

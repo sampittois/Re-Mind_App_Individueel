@@ -1275,11 +1275,27 @@ button.back-btn.icon-action-btn[aria-pressed="true"] {
   min-height: calc(100vh - 96px);
 }
 
+.exercise-detail-page__swirl {
+  position: fixed;
+  right: -80px;
+  bottom: -80px;
+  display: block;
+  margin: 0;
+  padding: 0;
+  width: min(360px, 42vw);
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
 .exercise-detail-top-row {
   display: flex;
   justify-content: flex-start;
   align-items: center;
   margin-bottom: var(--space-6);
+  position: relative;
+  z-index: 1;
 }
 
 .back-btn.exercise-detail-back {
@@ -1321,6 +1337,8 @@ button.back-btn.icon-action-btn[aria-pressed="true"] {
   color: var(--text);
   opacity: 1;
   transform: none;
+  position: relative;
+  z-index: 1;
 }
 
 .exercise-phase {
