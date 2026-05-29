@@ -796,21 +796,19 @@ export default function App() {
         return;
       }
 
-      const { data, error } = await supabase
-        .from("companies")
-        .select("id, manager_id, name, theme, force_company_colors")
-        .eq("id", profileCompanyId)
-        .maybeSingle();
+      const response = await fetch(`http://localhost:3000/admin/company?company_id=${encodeURIComponent(profileCompanyId)}`);
+      const payload = await response.json().catch(() => ({}));
 
       if (!active) return;
 
-      if (error) {
-        console.error("Failed to load company:", error);
+      if (!response.ok || !payload?.ok) {
+        console.error("Failed to load company:", payload?.error || "Unknown error");
         return;
       }
 
-      setCompany(data || null);
-      setCompanyName(data?.name || "");
+      setCompany(payload.company || null);
+      setCompanyName(payload.company?.name || "");
+      setCompanyThemeRevision((previous) => previous + 1);
     }
 
     loadCompany();

@@ -201,6 +201,31 @@ app.get('/admin/overview', async (req, res) => {
   }
 });
 
+app.get('/admin/company', async (req, res) => {
+  try {
+    const supabase = getSupabaseAdminClient();
+    const companyId = String(req.query.company_id || '').trim();
+
+    if (!companyId) {
+      return res.status(400).json({ ok: false, error: 'Missing company_id' });
+    }
+
+    const { data, error } = await supabase
+      .from('companies')
+      .select('id, manager_id, name, theme, force_company_colors, created_at, updated_at')
+      .eq('id', companyId)
+      .maybeSingle();
+
+    if (error) {
+      return res.status(500).json({ ok: false, error: error.message });
+    }
+
+    return res.json({ ok: true, company: data || null });
+  } catch (err) {
+    return res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
 // Server-side endpoint to set a user's plan. This can be used after payment
 // verification to ensure the plan is written using the backend (service key
 // if available). Expects { user_id, plan } in the body.
