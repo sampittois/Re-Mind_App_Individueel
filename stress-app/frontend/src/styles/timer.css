@@ -377,10 +377,6 @@
   text-transform: uppercase;
 }
 
-.timer-break-overlay__back {
-  margin-top: var(--space-6);
-}
-
 @media (max-width: 720px) {
   .timer-reminder-card {
     padding: var(--space-6);
@@ -402,10 +398,6 @@
 
   .timer-break-overlay__grid {
     grid-template-columns: 1fr;
-  }
-
-  .timer-break-overlay__back {
-    width: 100%;
   }
 }
 
