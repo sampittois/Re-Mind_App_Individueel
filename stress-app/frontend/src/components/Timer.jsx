@@ -456,23 +456,15 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
 
   const startDay = async () => {
     const now = Date.now();
-
-    // Ensure rollover completes, then open the to-do overlay for today first
-    try {
-      const { error } = await import("../lib/todos").then((m) => m.rolloverTodosToToday());
-      if (error) console.error("Failed to rollover todos to today:", error);
-    } catch (e) {
-      console.error("Rollover todos failed:", e);
-    }
-
-    // Open the reflection overlay to show today's to-dos first
-    try {
-      onOpenReflection?.("today");
-    } catch (e) {
-      console.error("Failed to open reflection:", e);
-    }
-
-    // Start timer state after opening overlay
+    // Rollover todos: move tomorrow -> today and remove today's done tasks
+    (async () => {
+      try {
+        const { error } = await import("../lib/todos").then((m) => m.rolloverTodosToToday());
+        if (error) console.error("Failed to rollover todos:", error);
+      } catch (e) {
+        console.error("Rollover todos failed:", e);
+      }
+    })();
     setWorkStarted(true);
     setWorkStartedAt(now);
     setFinished(false);
@@ -486,15 +478,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
     setLastTickAt(now);
   };
 
-  const endDay = async () => {
-    // Move incomplete tasks for today to tomorrow before ending day
-    try {
-      const { error } = await import("../lib/todos").then((m) => m.moveUndoneTodayToTomorrow());
-      if (error) console.error("Failed to move undone tasks to tomorrow:", error);
-    } catch (e) {
-      console.error("Moving undone tasks failed:", e);
-    }
-
+  const endDay = () => {
     resetTimerForReflection();
     onOpenReflection?.("finished-day");
   };
