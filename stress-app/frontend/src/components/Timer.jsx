@@ -38,9 +38,6 @@ function loadTimerState(key = TIMER_STATE_STORAGE_KEY) {
       nextReminderAt: Number.isFinite(parsed.nextReminderAt) ? parsed.nextReminderAt : null,
       breakType: typeof parsed.breakType === "string" && parsed.breakType.trim() ? parsed.breakType : "walk",
       workSeconds: Number.isFinite(parsed.workSeconds) ? Math.max(0, Math.floor(parsed.workSeconds)) : 0,
-      primarySeconds: Number.isFinite(parsed.primarySeconds) ? Math.max(0, Math.floor(parsed.primarySeconds)) : 0,
-      continuationSeconds: Number.isFinite(parsed.continuationSeconds) ? Math.max(0, Math.floor(parsed.continuationSeconds)) : 0,
-      hasTakenBreak: Boolean(parsed.hasTakenBreak),
       breakSeconds: Number.isFinite(parsed.breakSeconds) ? Math.max(0, Math.floor(parsed.breakSeconds)) : 0,
       lastTickAt: Number.isFinite(parsed.lastTickAt) ? parsed.lastTickAt : Date.now(),
     };
@@ -146,17 +143,25 @@ function getBreakSuggestionMode(profile) {
   return "balanced";
 }
 
-function BreathingLogo({ progress = 0, breakProgress = 0, onBreak = false, active = false, size = ORIGINAL_BREATHING_LOGO_SIZE }) {
+function getWorkdayDurationSeconds(profile) {
+  const startMinutes = parseTimeToMinutes(profile?.work_start);
+  const endMinutes = parseTimeToMinutes(profile?.work_end);
+
+  if (!Number.isFinite(startMinutes) || !Number.isFinite(endMinutes)) {
+    return DAY_TARGET_SECONDS;
+  }
+
+  const durationMinutes = endMinutes >= startMinutes ? endMinutes - startMinutes : endMinutes + 24 * 60 - startMinutes;
+  return Math.max(60, durationMinutes * 60);
+}
+
+function BreathingLogo({ progress = 0, stroke = "var(--primary-dark)", active = false, size = ORIGINAL_BREATHING_LOGO_SIZE }) {
   const timerSize = size;
   const timerStroke = 4;
   const radius = (timerSize - timerStroke) / 2;
   const circumference = 2 * Math.PI * radius;
   const safeProgress = Math.max(0, Math.min(1, progress));
-  const safeBreakProgress = Math.max(0, Math.min(1 - safeProgress, breakProgress));
-  const workDasharray = `${circumference * safeProgress} ${circumference}`;
-  const breakDasharray = `${circumference * safeBreakProgress} ${circumference}`;
-  const breakDashoffset = -circumference * safeProgress;
-  const continuationStroke = onBreak ? "var(--primary)" : "var(--primary-dark)";
+  const strokeDasharray = `${circumference * safeProgress} ${circumference}`;
   return (
     <div className={`breathingLogo${active ? " breathingLogo--active" : ""}`} aria-hidden="true" style={{ position: "relative" }}>
       <Breathe className="breathing-logo-ball" size={timerSize} />
@@ -184,30 +189,15 @@ function BreathingLogo({ progress = 0, breakProgress = 0, onBreak = false, activ
           cx={timerSize / 2}
           cy={timerSize / 2}
           r={radius}
-          stroke="var(--primary-dark)"
+          stroke={stroke}
           strokeWidth={timerStroke}
           fill="none"
-          strokeDasharray={workDasharray}
+          strokeDasharray={strokeDasharray}
           strokeDashoffset={0}
           strokeLinecap="round"
-          className="breathingLogo__segment breathingLogo__segment--work"
+          className="breathingLogo__segment"
           transform={`rotate(-90 ${timerSize / 2} ${timerSize / 2})`}
         />
-        {safeBreakProgress > 0 ? (
-          <circle
-            cx={timerSize / 2}
-            cy={timerSize / 2}
-            r={radius}
-            stroke={continuationStroke}
-            strokeWidth={timerStroke}
-            fill="none"
-            strokeDasharray={breakDasharray}
-            strokeDashoffset={breakDashoffset}
-            strokeLinecap="round"
-            className="breathingLogo__segment breathingLogo__segment--break"
-            transform={`rotate(-90 ${timerSize / 2} ${timerSize / 2})`}
-          />
-        ) : null}
       </svg>
     </div>
   );
@@ -229,9 +219,6 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
   const [breakSuggestionsRequest, setBreakSuggestionsRequest] = useState(null);
 
   const [workSeconds, setWorkSeconds] = useState(initialTimerState?.workSeconds ?? 0);
-  const [primarySeconds, setPrimarySeconds] = useState(initialTimerState?.primarySeconds ?? 0);
-  const [continuationSeconds, setContinuationSeconds] = useState(initialTimerState?.continuationSeconds ?? 0);
-  const [hasTakenBreak, setHasTakenBreak] = useState(initialTimerState?.hasTakenBreak ?? false);
   const [breakSeconds, setBreakSeconds] = useState(initialTimerState?.breakSeconds ?? 0);
   const [lastTickAt, setLastTickAt] = useState(() => initialTimerState?.lastTickAt ?? Date.now());
   const [breathingLogoSize, setBreathingLogoSize] = useState(ORIGINAL_BREATHING_LOGO_SIZE);
@@ -254,9 +241,6 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
       setActiveBreakType("walk");
       setBreakSuggestionsRequest(null);
       setWorkSeconds(0);
-      setPrimarySeconds(0);
-      setContinuationSeconds(0);
-      setHasTakenBreak(false);
       setBreakSeconds(0);
       setLastTickAt(Date.now());
       return;
@@ -271,9 +255,6 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
     setActiveBreakType(state.breakType ?? "walk");
     setBreakSuggestionsRequest(null);
     setWorkSeconds(state.workSeconds ?? 0);
-    setPrimarySeconds(state.primarySeconds ?? 0);
-    setContinuationSeconds(state.continuationSeconds ?? 0);
-    setHasTakenBreak(Boolean(state.hasTakenBreak));
     setBreakSeconds(state.breakSeconds ?? 0);
     setLastTickAt(state.lastTickAt ?? Date.now());
   }, [storageKey]);
@@ -296,15 +277,12 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
         nextReminderAt,
         breakType: activeBreakType,
         workSeconds,
-        primarySeconds,
-        continuationSeconds,
-        hasTakenBreak,
         breakSeconds,
         lastTickAt,
       },
       storageKey
     );
-  }, [workStarted, workStartedAt, onBreak, finished, activeReminder, nextReminderAt, activeBreakType, workSeconds, primarySeconds, continuationSeconds, hasTakenBreak, breakSeconds, lastTickAt, storageKey]);
+  }, [workStarted, workStartedAt, onBreak, finished, activeReminder, nextReminderAt, activeBreakType, workSeconds, breakSeconds, lastTickAt, storageKey]);
 
   useEffect(() => {
     const notificationsApi = window.electronNotifications;
@@ -361,12 +339,6 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
         setWorkSeconds((previous) => previous + elapsedSeconds);
       }
 
-      if (hasTakenBreak) {
-        setContinuationSeconds((previous) => previous + elapsedSeconds);
-      } else {
-        setPrimarySeconds((previous) => previous + elapsedSeconds);
-      }
-
       setLastTickAt((previous) => previous + elapsedSeconds * 1000);
     };
 
@@ -376,7 +348,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
     return () => {
       clearInterval(timer);
     };
-  }, [workStarted, finished, onBreak, hasTakenBreak, lastTickAt]);
+  }, [workStarted, finished, onBreak, lastTickAt]);
 
   useEffect(() => {
     if (!isTimerTicking || activeReminder || !reminderIntervalMs || !Number.isFinite(nextReminderAt)) {
@@ -399,17 +371,16 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
   const mainTime = useMemo(() => formatTime(workSeconds), [workSeconds]);
 
   const progress = useMemo(() => {
-    return Math.min(1, primarySeconds / DAY_TARGET_SECONDS);
-  }, [primarySeconds]);
-
-  const breakProgress = useMemo(() => {
-    if (!hasTakenBreak) {
+    if (!workStartedAt) {
       return 0;
     }
 
-    const totalProgress = Math.min(1, (primarySeconds + continuationSeconds) / DAY_TARGET_SECONDS);
-    return Math.max(0, totalProgress - progress);
-  }, [continuationSeconds, hasTakenBreak, primarySeconds, progress]);
+    const workdayDurationSeconds = getWorkdayDurationSeconds(profile);
+    const elapsedSeconds = Math.max(0, Math.floor((Date.now() - workStartedAt) / 1000));
+    return Math.min(1, elapsedSeconds / workdayDurationSeconds);
+  }, [profile, workStartedAt, workSeconds, breakSeconds, onBreak, lastTickAt]);
+
+  const ringStroke = onBreak ? "var(--primary)" : "var(--primary-dark)";
 
   const logoActive = workStarted && !onBreak && !finished;
 
@@ -510,9 +481,6 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
     setActiveBreakType("walk");
     setNextReminderAt(reminderIntervalMs ? now + reminderIntervalMs : null);
     setWorkSeconds(0);
-    setPrimarySeconds(0);
-    setContinuationSeconds(0);
-    setHasTakenBreak(false);
     setBreakSeconds(0);
     setLastTickAt(now);
 
@@ -551,11 +519,6 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
   };
 
   const beginBreak = () => {
-    if (!hasTakenBreak) {
-      setPrimarySeconds(workSeconds);
-      setHasTakenBreak(true);
-    }
-
     setOnBreak(true);
     setBreakSeconds(0);
     setLastTickAt(Date.now());
@@ -629,12 +592,6 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
     setActiveBreakType("walk");
     setBreakSuggestionsRequest(null);
     setWorkSeconds(0);
-    setPrimarySeconds(0);
-    setContinuationSeconds(0);
-    setHasTakenBreak(false);
-    setPrimarySeconds(0);
-    setContinuationSeconds(0);
-    setHasTakenBreak(false);
     setBreakSeconds(0);
     setLastTickAt(now);
   };
@@ -653,7 +610,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
   return (
     <div className="timer-card" ref={timerCardRef}>
       <div className="hrRow">
-        <BreathingLogo progress={progress} breakProgress={breakProgress} onBreak={onBreak} active={logoActive} size={breathingLogoSize} />
+        <BreathingLogo progress={progress} stroke={ringStroke} active={logoActive} size={breathingLogoSize} />
 
         <div ref={timerTimeRef} style={{ minWidth: 140, display: "flex", justifyContent: "center" }}>
           <div className="bigTime">{workStarted ? mainTime : "--:--"}</div>
