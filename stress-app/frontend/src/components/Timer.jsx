@@ -155,13 +155,25 @@ function getWorkdayDurationSeconds(profile) {
   return Math.max(60, durationMinutes * 60);
 }
 
-function BreathingLogo({ progress = 0, stroke = "var(--primary-dark)", active = false, size = ORIGINAL_BREATHING_LOGO_SIZE }) {
+function getWorkdayProgress(profile, workStartedAt, now = Date.now()) {
+  if (!workStartedAt) {
+    return 0;
+  }
+
+  const workdayDurationSeconds = getWorkdayDurationSeconds(profile);
+  const elapsedSeconds = Math.max(0, Math.floor((now - workStartedAt) / 1000));
+  return Math.min(1, elapsedSeconds / workdayDurationSeconds);
+}
+
+function createRingSegment(startProgress, endProgress, stroke) {
+  return { startProgress, endProgress, stroke };
+}
+
+function BreathingLogo({ progress = 0, segments = [], active = false, size = ORIGINAL_BREATHING_LOGO_SIZE }) {
   const timerSize = size;
   const timerStroke = 4;
   const radius = (timerSize - timerStroke) / 2;
   const circumference = 2 * Math.PI * radius;
-  const safeProgress = Math.max(0, Math.min(1, progress));
-  const strokeDasharray = `${circumference * safeProgress} ${circumference}`;
   return (
     <div className={`breathingLogo${active ? " breathingLogo--active" : ""}`} aria-hidden="true" style={{ position: "relative" }}>
       <Breathe className="breathing-logo-ball" size={timerSize} />
@@ -185,19 +197,32 @@ function BreathingLogo({ progress = 0, stroke = "var(--primary-dark)", active = 
           strokeWidth={timerStroke}
           fill="none"
         />
-        <circle
-          cx={timerSize / 2}
-          cy={timerSize / 2}
-          r={radius}
-          stroke={stroke}
-          strokeWidth={timerStroke}
-          fill="none"
-          strokeDasharray={strokeDasharray}
-          strokeDashoffset={0}
-          strokeLinecap="round"
-          className="breathingLogo__segment"
-          transform={`rotate(-90 ${timerSize / 2} ${timerSize / 2})`}
-        />
+        {segments.map((segment, index) => {
+          const startProgress = Math.max(0, Math.min(1, segment.startProgress ?? 0));
+          const endProgress = Math.max(startProgress, Math.min(1, segment.endProgress ?? progress));
+          const segmentLength = endProgress - startProgress;
+
+          if (segmentLength <= 0) {
+            return null;
+          }
+
+          return (
+            <circle
+              key={`${segment.stroke}-${startProgress}-${endProgress}-${index}`}
+              cx={timerSize / 2}
+              cy={timerSize / 2}
+              r={radius}
+              stroke={segment.stroke}
+              strokeWidth={timerStroke}
+              fill="none"
+              strokeDasharray={`${circumference * segmentLength} ${circumference}`}
+              strokeDashoffset={-circumference * startProgress}
+              strokeLinecap="round"
+              className="breathingLogo__segment"
+              transform={`rotate(-90 ${timerSize / 2} ${timerSize / 2})`}
+            />
+          );
+        })}
       </svg>
     </div>
   );
@@ -217,6 +242,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
   const [nextReminderAt, setNextReminderAt] = useState(initialTimerState?.nextReminderAt ?? null);
   const [activeBreakType, setActiveBreakType] = useState(initialTimerState?.breakType ?? "walk");
   const [breakSuggestionsRequest, setBreakSuggestionsRequest] = useState(null);
+  const [ringSegments, setRingSegments] = useState([]);
 
   const [workSeconds, setWorkSeconds] = useState(initialTimerState?.workSeconds ?? 0);
   const [breakSeconds, setBreakSeconds] = useState(initialTimerState?.breakSeconds ?? 0);
@@ -371,16 +397,16 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
   const mainTime = useMemo(() => formatTime(workSeconds), [workSeconds]);
 
   const progress = useMemo(() => {
-    if (!workStartedAt) {
-      return 0;
-    }
-
-    const workdayDurationSeconds = getWorkdayDurationSeconds(profile);
-    const elapsedSeconds = Math.max(0, Math.floor((Date.now() - workStartedAt) / 1000));
-    return Math.min(1, elapsedSeconds / workdayDurationSeconds);
+    return getWorkdayProgress(profile, workStartedAt);
   }, [profile, workStartedAt, workSeconds, breakSeconds, onBreak, lastTickAt]);
 
-  const ringStroke = onBreak ? "var(--primary)" : "var(--primary-dark)";
+  const renderedRingSegments = useMemo(() => {
+    if (ringSegments.length === 0 && workStartedAt) {
+      return [createRingSegment(0, null, "var(--primary-dark)")];
+    }
+
+    return ringSegments;
+  }, [ringSegments, workStartedAt]);
 
   const logoActive = workStarted && !onBreak && !finished;
 
@@ -480,6 +506,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
     setBreakSuggestionsRequest(null);
     setActiveBreakType("walk");
     setNextReminderAt(reminderIntervalMs ? now + reminderIntervalMs : null);
+    setRingSegments([createRingSegment(0, null, "var(--primary-dark)")]);
     setWorkSeconds(0);
     setBreakSeconds(0);
     setLastTickAt(now);
@@ -519,6 +546,20 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
   };
 
   const beginBreak = () => {
+    const currentProgress = getWorkdayProgress(profile, workStartedAt);
+
+    setRingSegments((previous) => {
+      const nextSegments = previous.slice();
+      const activeSegment = nextSegments[nextSegments.length - 1];
+
+      if (activeSegment && activeSegment.endProgress == null) {
+        activeSegment.endProgress = currentProgress;
+      }
+
+      nextSegments.push(createRingSegment(currentProgress, null, "var(--primary)"));
+      return nextSegments;
+    });
+
     setOnBreak(true);
     setBreakSeconds(0);
     setLastTickAt(Date.now());
@@ -565,6 +606,20 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
   const endBreak = async () => {
     const durationMinutes = Math.max(1, Math.round(breakSeconds / 60));
     const breakType = activeBreakType || "walk";
+    const currentProgress = getWorkdayProgress(profile, workStartedAt);
+
+    setRingSegments((previous) => {
+      const nextSegments = previous.slice();
+      const activeSegment = nextSegments[nextSegments.length - 1];
+
+      if (activeSegment && activeSegment.endProgress == null) {
+        activeSegment.endProgress = currentProgress;
+      }
+
+      nextSegments.push(createRingSegment(currentProgress, null, "var(--primary-dark)"));
+      return nextSegments;
+    });
+
     setOnBreak(false);
     setBreakSeconds(0);
     setActiveBreakType("walk");
@@ -591,6 +646,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
     setNextReminderAt(null);
     setActiveBreakType("walk");
     setBreakSuggestionsRequest(null);
+    setRingSegments([]);
     setWorkSeconds(0);
     setBreakSeconds(0);
     setLastTickAt(now);
@@ -610,7 +666,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
   return (
     <div className="timer-card" ref={timerCardRef}>
       <div className="hrRow">
-        <BreathingLogo progress={progress} stroke={ringStroke} active={logoActive} size={breathingLogoSize} />
+        <BreathingLogo progress={progress} segments={renderedRingSegments} active={logoActive} size={breathingLogoSize} />
 
         <div ref={timerTimeRef} style={{ minWidth: 140, display: "flex", justifyContent: "center" }}>
           <div className="bigTime">{workStarted ? mainTime : "--:--"}</div>
