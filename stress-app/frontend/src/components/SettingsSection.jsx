@@ -11,7 +11,7 @@ function normalizeTime(value, fallback) {
 }
 
 function normalizePauseName(value) {
-  return value === "kofie" ? "kofie" : "lunch";
+  return value === "koffie" ? "koffie" : "lunch";
 }
 
 function normalizePauses(value) {
@@ -45,7 +45,7 @@ function createPauseId() {
 
 const pauseNameOptions = [
   { value: "lunch", label: "lunch" },
-  { value: "kofie", label: "kofie" },
+  { value: "koffie", label: "koffie" },
 ];
 
 export default function SettingsSection({ profile, onUpdateProfile, onCompanyColorsChange, companyColorsForced = false }) {
