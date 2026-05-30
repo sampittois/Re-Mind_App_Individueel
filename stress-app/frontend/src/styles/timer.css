@@ -115,8 +115,16 @@
   overflow: visible;
 }
 
-.breathingLogo__ring circle:last-child {
+.breathingLogo__segment {
   transition: stroke-dashoffset 900ms linear;
+}
+
+.breathingLogo__segment--break {
+  stroke: var(--primary);
+}
+
+.breathingLogo__segment--work {
+  stroke: var(--primary-dark);
 }
 
 @keyframes breatheOuter {
