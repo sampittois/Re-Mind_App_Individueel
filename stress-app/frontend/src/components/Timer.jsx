@@ -160,9 +160,17 @@ function getWorkdayProgress(profile, workStartedAt, now = Date.now()) {
     return 0;
   }
 
+  return Math.min(1, getWorkdayProgressRatio(profile, workStartedAt, now));
+}
+
+function getWorkdayProgressRatio(profile, workStartedAt, now = Date.now()) {
+  if (!workStartedAt) {
+    return 0;
+  }
+
   const workdayDurationSeconds = getWorkdayDurationSeconds(profile);
   const elapsedSeconds = Math.max(0, Math.floor((now - workStartedAt) / 1000));
-  return Math.min(1, elapsedSeconds / workdayDurationSeconds);
+  return elapsedSeconds / workdayDurationSeconds;
 }
 
 function createRingSegment(startProgress, endProgress, stroke) {
@@ -401,12 +409,15 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
   }, [profile, workStartedAt, workSeconds, breakSeconds, onBreak, lastTickAt]);
 
   const renderedRingSegments = useMemo(() => {
-    if (ringSegments.length === 0 && workStartedAt) {
-      return [createRingSegment(0, null, "var(--primary-dark)")];
+    const baseSegments = ringSegments.length === 0 && workStartedAt ? [createRingSegment(0, null, "var(--primary-dark)")] : ringSegments;
+    const overflowProgress = Math.max(0, getWorkdayProgressRatio(profile, workStartedAt) - 1);
+
+    if (!workStartedAt || overflowProgress <= 0 || finished) {
+      return baseSegments;
     }
 
-    return ringSegments;
-  }, [ringSegments, workStartedAt]);
+    return [...baseSegments, createRingSegment(0, Math.min(1, overflowProgress), "var(--warning)")];
+  }, [finished, onBreak, profile, ringSegments, workStartedAt]);
 
   const logoActive = workStarted && !onBreak && !finished;
 
