@@ -5,6 +5,10 @@ import Breathe from "../components/Breathe";
 import CustomDropdown from "../components/CustomDropdown";
 import { PlusIcon } from "../components/IconActions";
 
+function normalizePauseName(value) {
+  return value === "kofie" ? "kofie" : "lunch";
+}
+
 export default function OnboardingPage({ onComplete, onSkip, initialFirstName = "", initialLastName = "" }) {
   const [step, setStep] = useState(1);
 
@@ -26,17 +30,22 @@ export default function OnboardingPage({ onComplete, onSkip, initialFirstName = 
   const [workEnd, setWorkEnd] = useState("17:00");
   const [breakFrequencyMins, setBreakFrequencyMins] = useState(60);
 
-  const [pauses, setPauses] = useState([{ id: 1, start: "12:00", end: "12:30" }]);
+  const [pauses, setPauses] = useState([{ id: 1, name: "lunch", start: "12:00", end: "12:30" }]);
 
   const [workType, setWorkType] = useState("");
 
+  const pauseNameOptions = [
+    { value: "lunch", label: "lunch" },
+    { value: "kofie", label: "kofie" },
+  ];
+
   const addPause = () => {
     const newId = Math.max(...pauses.map((p) => p.id), 0) + 1;
-    setPauses([...pauses, { id: newId, start: "12:00", end: "12:30" }]);
+    setPauses([...pauses, { id: newId, name: "lunch", start: "12:00", end: "12:30" }]);
   };
 
   const updatePause = (id, field, value) => {
-    setPauses(pauses.map((p) => (p.id === id ? { ...p, [field]: value } : p)));
+    setPauses(pauses.map((p) => (p.id === id ? { ...p, [field]: field === "name" ? normalizePauseName(value) : value } : p)));
   };
 
   const removePause = (id) => {
@@ -158,10 +167,23 @@ export default function OnboardingPage({ onComplete, onSkip, initialFirstName = 
 
             <div className="pauses-group">
               <h4 className="pauses-title">Heb je vaste pauzes?</h4>
+              <div className="pause-row pause-row--header" aria-hidden="true">
+                <span className="pause-row__label pause-row__label--spacer" />
+                <span className="pause-row__label">Start uur</span>
+                <span className="pause-row__label">Eind uur</span>
+                <span className="pause-row__label" />
+              </div>
               {pauses.map((pause) => (
-                <div key={pause.id} className="pause-row">
+                <div key={pause.id} className="pause-row pause-row--break-item">
+                  <CustomDropdown
+                    value={pause.name}
+                    onChange={(value) => updatePause(pause.id, "name", value)}
+                    placeholder="Kies een pauze"
+                    options={pauseNameOptions}
+                    compact
+                  />
+
                   <div className="time-input-group">
-                    <label className="settings-label">Start uur</label>
                     <input
                       type="time"
                       value={pause.start}
@@ -171,7 +193,6 @@ export default function OnboardingPage({ onComplete, onSkip, initialFirstName = 
                   </div>
 
                   <div className="time-input-group">
-                    <label className="settings-label">Eind uur</label>
                     <input
                       type="time"
                       value={pause.end}

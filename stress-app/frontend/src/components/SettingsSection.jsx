@@ -10,13 +10,18 @@ function normalizeTime(value, fallback) {
   return value.slice(0, 5);
 }
 
+function normalizePauseName(value) {
+  return value === "kofie" ? "kofie" : "lunch";
+}
+
 function normalizePauses(value) {
   if (!Array.isArray(value) || value.length === 0) {
-    return [{ id: 1, start: "12:00", end: "12:30" }];
+    return [{ id: 1, name: "lunch", start: "12:00", end: "12:30" }];
   }
 
   return value.map((pause, index) => ({
     id: pause?.id ?? index + 1,
+    name: normalizePauseName(pause?.name),
     start: normalizeTime(pause?.start, "12:00"),
     end: normalizeTime(pause?.end, "12:30"),
   }));
@@ -38,10 +43,15 @@ function createPauseId() {
   return Date.now() + Math.random();
 }
 
+const pauseNameOptions = [
+  { value: "lunch", label: "lunch" },
+  { value: "kofie", label: "kofie" },
+];
+
 export default function SettingsSection({ profile, onUpdateProfile, onCompanyColorsChange, companyColorsForced = false }) {
   const [workStart, setWorkStart] = useState("08:00");
   const [workEnd, setWorkEnd] = useState("17:00");
-  const [pauses, setPauses] = useState([{ id: 1, start: "12:00", end: "12:30" }]);
+  const [pauses, setPauses] = useState([{ id: 1, name: "lunch", start: "12:00", end: "12:30" }]);
   const [remindersEnabled, setRemindersEnabled] = useState(false);
   const [reminderAmount, setReminderAmount] = useState("");
   const [reminderUnit, setReminderUnit] = useState("minutes");
@@ -61,7 +71,7 @@ export default function SettingsSection({ profile, onUpdateProfile, onCompanyCol
   }
 
   const addPause = async () => {
-    const nextPauses = [...pauses, { id: createPauseId(), start: "12:00", end: "12:30" }];
+    const nextPauses = [...pauses, { id: createPauseId(), name: "lunch", start: "12:00", end: "12:30" }];
     setPauses(nextPauses);
     await saveProfileFields({ fixed_breaks: nextPauses });
   };
@@ -74,7 +84,7 @@ export default function SettingsSection({ profile, onUpdateProfile, onCompanyCol
 
   const removePause = async (id) => {
     const nextPauses = pauses.filter((pause) => pause.id !== id);
-    const normalizedPauses = nextPauses.length > 0 ? nextPauses : [{ id: createPauseId(), start: "12:00", end: "12:30" }];
+    const normalizedPauses = nextPauses.length > 0 ? nextPauses : [{ id: createPauseId(), name: "lunch", start: "12:00", end: "12:30" }];
     setPauses(normalizedPauses);
     await saveProfileFields({ fixed_breaks: normalizedPauses });
   };
@@ -152,10 +162,23 @@ export default function SettingsSection({ profile, onUpdateProfile, onCompanyCol
         {/* Fixed pauses */}
         <div className="pauses-group">
           <h4 className="pauses-title">Heb je vaste pauzes?</h4>
+          <div className="pause-row pause-row--header" aria-hidden="true">
+            <span className="pause-row__label pause-row__label--spacer" />
+            <span className="pause-row__label">Start uur</span>
+            <span className="pause-row__label">Eind uur</span>
+            <span className="pause-row__label" />
+          </div>
           {pauses.map((pause) => (
-            <div key={pause.id} className="pause-row">
+            <div key={pause.id} className="pause-row pause-row--break-item">
+              <CustomDropdown
+                value={pause.name}
+                onChange={(value) => updatePause(pause.id, "name", value)}
+                placeholder="Kies een pauze"
+                options={pauseNameOptions}
+                compact
+              />
+
               <div className="time-input-group">
-                <label className="settings-label">Start uur</label>
                 <input
                   type="time"
                   value={pause.start}
@@ -163,8 +186,8 @@ export default function SettingsSection({ profile, onUpdateProfile, onCompanyCol
                   className="time-input"
                 />
               </div>
+
               <div className="time-input-group">
-                <label className="settings-label">Eind uur</label>
                 <input
                   type="time"
                   value={pause.end}
@@ -172,6 +195,7 @@ export default function SettingsSection({ profile, onUpdateProfile, onCompanyCol
                   className="time-input"
                 />
               </div>
+
               {pauses.length > 1 && (
                 <button
                   className="remove-pause-btn icon-action-btn"

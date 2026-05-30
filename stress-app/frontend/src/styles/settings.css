@@ -96,11 +96,59 @@
   margin: 0;
 }
 
+.pause-row--header {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.9fr) 1fr 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 0 2px;
+}
+
+.pause-row__label {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-xs);
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pause-row__label--spacer {
+  display: block;
+}
+
 .pause-row {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: minmax(120px, 0.9fr) 1fr 1fr auto;
   gap: 12px;
   align-items: flex-end;
+}
+
+.pause-row--break-item {
+  align-items: center;
+}
+
+.pause-row .time-input-group {
+  min-width: 0;
+}
+
+.custom-dropdown--compact {
+  width: 100%;
+}
+
+.custom-dropdown-trigger--compact {
+  min-height: 38px;
+  padding: 8px 12px;
+  font-size: var(--font-size-xs);
+}
+
+.custom-dropdown-trigger--compact .dropdown-arrow {
+  width: 16px;
+  height: 16px;
+  margin-left: 6px;
+}
+
+.custom-dropdown-menu--compact {
+  border-radius: 14px;
 }
 
 .remove-pause-btn {
@@ -236,6 +284,26 @@ button.add-pause-btn.icon-add-btn svg {
 button.add-pause-btn.icon-add-btn:hover svg,
 button.add-pause-btn.icon-add-btn:focus-visible svg {
   color: var(--icon-action-hover-icon-color) !important;
+}
+
+@media (max-width: 640px) {
+  .pause-row,
+  .pause-row--header {
+    grid-template-columns: 1fr;
+  }
+
+  .pause-row__label--spacer,
+  .pause-row__label {
+    display: none;
+  }
+
+  .custom-dropdown--compact {
+    width: 100%;
+  }
+
+  .pause-row__label {
+    font-size: 10px;
+  }
 }
 
 /* Dropdowns Group */

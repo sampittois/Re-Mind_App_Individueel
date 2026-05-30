@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import "../styles/customDropdown.css";
 
-export default function CustomDropdown({ value, onChange, placeholder, options }) {
+export default function CustomDropdown({ value, onChange, placeholder, options, compact = false }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -42,10 +42,10 @@ export default function CustomDropdown({ value, onChange, placeholder, options }
   };
 
   return (
-    <div className="custom-dropdown" ref={dropdownRef}>
+    <div className={`custom-dropdown ${compact ? "custom-dropdown--compact" : ""}`} ref={dropdownRef}>
       <button
         type="button"
-        className="custom-dropdown-trigger"
+        className={`custom-dropdown-trigger ${compact ? "custom-dropdown-trigger--compact" : ""}`}
         onClick={() => setIsOpen(!isOpen)}
         onKeyDown={handleKeyDown}
         aria-haspopup="listbox"
@@ -67,7 +67,7 @@ export default function CustomDropdown({ value, onChange, placeholder, options }
       </button>
 
       {isOpen && (
-        <div className="custom-dropdown-menu" role="listbox">
+        <div className={`custom-dropdown-menu ${compact ? "custom-dropdown-menu--compact" : ""}`} role="listbox">
           {options.map((option) => (
             <button
               type="button"
