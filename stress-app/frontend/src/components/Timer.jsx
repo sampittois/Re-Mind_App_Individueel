@@ -40,6 +40,7 @@ function loadTimerState(key = TIMER_STATE_STORAGE_KEY) {
       workSeconds: Number.isFinite(parsed.workSeconds) ? Math.max(0, Math.floor(parsed.workSeconds)) : 0,
       breakSeconds: Number.isFinite(parsed.breakSeconds) ? Math.max(0, Math.floor(parsed.breakSeconds)) : 0,
       lastTickAt: Number.isFinite(parsed.lastTickAt) ? parsed.lastTickAt : Date.now(),
+      ringSegments: Array.isArray(parsed.ringSegments) ? parsed.ringSegments : [],
     };
   } catch {
     return null;
@@ -155,26 +156,44 @@ function getWorkdayDurationSeconds(profile) {
   return Math.max(60, durationMinutes * 60);
 }
 
-function getWorkdayProgress(profile, workStartedAt, now = Date.now()) {
-  if (!workStartedAt) {
-    return 0;
-  }
-
-  return Math.min(1, getWorkdayProgressRatio(profile, workStartedAt, now));
+function getWorkdayProgress(profile, now = Date.now()) {
+  return Math.min(1, Math.max(0, getWorkdayProgressRatio(profile, now)));
 }
 
-function getWorkdayProgressRatio(profile, workStartedAt, now = Date.now()) {
-  if (!workStartedAt) {
+function getWorkdayProgressRatio(profile, now = Date.now()) {
+  const startMinutes = parseTimeToMinutes(profile?.work_start);
+  const endMinutes = parseTimeToMinutes(profile?.work_end);
+
+  if (!Number.isFinite(startMinutes) || !Number.isFinite(endMinutes)) {
     return 0;
   }
 
   const workdayDurationSeconds = getWorkdayDurationSeconds(profile);
-  const elapsedSeconds = Math.max(0, Math.floor((now - workStartedAt) / 1000));
-  return elapsedSeconds / workdayDurationSeconds;
+  const workdayDurationMinutes = workdayDurationSeconds / 60;
+  if (workdayDurationMinutes <= 0) {
+    return 0;
+  }
+
+  const currentDate = new Date(now);
+  const currentMinutes = currentDate.getHours() * 60 + currentDate.getMinutes() + currentDate.getSeconds() / 60 + currentDate.getMilliseconds() / 60000;
+  const isOvernight = endMinutes < startMinutes;
+  const elapsedMinutes = isOvernight && currentMinutes < endMinutes ? currentMinutes + 24 * 60 - startMinutes : currentMinutes - startMinutes;
+
+  return elapsedMinutes / workdayDurationMinutes;
 }
 
 function createRingSegment(startProgress, endProgress, stroke) {
   return { startProgress, endProgress, stroke };
+}
+
+function normalizeRingSegments(segments = []) {
+  return segments
+    .map((segment) => ({
+      startProgress: Number.isFinite(segment?.startProgress) ? segment.startProgress : 0,
+      endProgress: Number.isFinite(segment?.endProgress) ? segment.endProgress : null,
+      stroke: typeof segment?.stroke === "string" && segment.stroke ? segment.stroke : "var(--primary-dark)",
+    }))
+    .filter((segment) => Number.isFinite(segment.startProgress));
 }
 
 function BreathingLogo({ progress = 0, segments = [], active = false, size = ORIGINAL_BREATHING_LOGO_SIZE }) {
@@ -250,11 +269,12 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
   const [nextReminderAt, setNextReminderAt] = useState(initialTimerState?.nextReminderAt ?? null);
   const [activeBreakType, setActiveBreakType] = useState(initialTimerState?.breakType ?? "walk");
   const [breakSuggestionsRequest, setBreakSuggestionsRequest] = useState(null);
-  const [ringSegments, setRingSegments] = useState([]);
+  const [ringSegments, setRingSegments] = useState(() => normalizeRingSegments(initialTimerState?.ringSegments ?? []));
 
   const [workSeconds, setWorkSeconds] = useState(initialTimerState?.workSeconds ?? 0);
   const [breakSeconds, setBreakSeconds] = useState(initialTimerState?.breakSeconds ?? 0);
   const [lastTickAt, setLastTickAt] = useState(() => initialTimerState?.lastTickAt ?? Date.now());
+  const [clockNow, setClockNow] = useState(() => Date.now());
   const [breathingLogoSize, setBreathingLogoSize] = useState(ORIGINAL_BREATHING_LOGO_SIZE);
 
   const hrRowRef = useRef(null);
@@ -274,6 +294,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
       setNextReminderAt(null);
       setActiveBreakType("walk");
       setBreakSuggestionsRequest(null);
+      setRingSegments([]);
       setWorkSeconds(0);
       setBreakSeconds(0);
       setLastTickAt(Date.now());
@@ -288,10 +309,21 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
     setNextReminderAt(state.nextReminderAt ?? null);
     setActiveBreakType(state.breakType ?? "walk");
     setBreakSuggestionsRequest(null);
+    setRingSegments(normalizeRingSegments(state.ringSegments ?? []));
     setWorkSeconds(state.workSeconds ?? 0);
     setBreakSeconds(state.breakSeconds ?? 0);
     setLastTickAt(state.lastTickAt ?? Date.now());
   }, [storageKey]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setClockNow(Date.now());
+    }, 1000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
 
   const frequencyMins = Number(profile?.break_frequency_mins);
   const reminderIntervalMs =
@@ -310,13 +342,14 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
         activeReminder,
         nextReminderAt,
         breakType: activeBreakType,
+        ringSegments,
         workSeconds,
         breakSeconds,
         lastTickAt,
       },
       storageKey
     );
-  }, [workStarted, workStartedAt, onBreak, finished, activeReminder, nextReminderAt, activeBreakType, workSeconds, breakSeconds, lastTickAt, storageKey]);
+  }, [workStarted, workStartedAt, onBreak, finished, activeReminder, nextReminderAt, activeBreakType, ringSegments, workSeconds, breakSeconds, lastTickAt, storageKey]);
 
   useEffect(() => {
     const notificationsApi = window.electronNotifications;
@@ -405,19 +438,27 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
   const mainTime = useMemo(() => formatTime(workSeconds), [workSeconds]);
 
   const progress = useMemo(() => {
-    return getWorkdayProgress(profile, workStartedAt);
-  }, [profile, workStartedAt, workSeconds, breakSeconds, onBreak, lastTickAt]);
+    return getWorkdayProgress(profile, clockNow);
+  }, [clockNow, profile]);
 
   const renderedRingSegments = useMemo(() => {
-    const baseSegments = ringSegments.length === 0 && workStartedAt ? [createRingSegment(0, null, "var(--primary-dark)")] : ringSegments;
-    const overflowProgress = Math.max(0, getWorkdayProgressRatio(profile, workStartedAt) - 1);
-
-    if (!workStartedAt || overflowProgress <= 0 || finished) {
-      return baseSegments;
+    if (ringSegments.length === 0 && !workStartedAt) {
+      return [];
     }
 
-    return [...baseSegments, createRingSegment(0, Math.min(1, overflowProgress), "var(--warning)")];
-  }, [finished, onBreak, profile, ringSegments, workStartedAt]);
+    const currentProgress = getWorkdayProgress(profile, clockNow);
+
+    return ringSegments.map((segment) => {
+      if (segment.endProgress != null) {
+        return segment;
+      }
+
+      return {
+        ...segment,
+        endProgress: currentProgress,
+      };
+    });
+  }, [clockNow, profile, ringSegments, workStartedAt]);
 
   const logoActive = workStarted && !onBreak && !finished;
 
@@ -509,6 +550,11 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
 
   const startDay = async () => {
     const now = Date.now();
+    const startProgress = getWorkdayProgress(profile, now);
+    const initialSegments = startProgress > 0
+      ? [createRingSegment(0, startProgress, "var(--error)"), createRingSegment(startProgress, null, "var(--primary-dark)")]
+      : [createRingSegment(0, null, "var(--primary-dark)")];
+
     setWorkStarted(true);
     setWorkStartedAt(now);
     setFinished(false);
@@ -517,7 +563,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
     setBreakSuggestionsRequest(null);
     setActiveBreakType("walk");
     setNextReminderAt(reminderIntervalMs ? now + reminderIntervalMs : null);
-    setRingSegments([createRingSegment(0, null, "var(--primary-dark)")]);
+    setRingSegments(initialSegments);
     setWorkSeconds(0);
     setBreakSeconds(0);
     setLastTickAt(now);
@@ -557,7 +603,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
   };
 
   const beginBreak = () => {
-    const currentProgress = getWorkdayProgress(profile, workStartedAt);
+    const currentProgress = getWorkdayProgress(profile, clockNow);
 
     setRingSegments((previous) => {
       const nextSegments = previous.slice();
@@ -617,7 +663,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
   const endBreak = async () => {
     const durationMinutes = Math.max(1, Math.round(breakSeconds / 60));
     const breakType = activeBreakType || "walk";
-    const currentProgress = getWorkdayProgress(profile, workStartedAt);
+    const currentProgress = getWorkdayProgress(profile, clockNow);
 
     setRingSegments((previous) => {
       const nextSegments = previous.slice();
