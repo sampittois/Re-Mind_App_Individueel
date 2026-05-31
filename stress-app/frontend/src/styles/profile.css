@@ -132,6 +132,10 @@
   margin-top: 8px;
 }
 
+.company-name-row[hidden] {
+  display: none;
+}
+
 .company-name {
   font-family: var(--font-family-heading);
   font-size: var(--font-size-lg);
