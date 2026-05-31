@@ -24,7 +24,7 @@ function formatTodayDate() {
   return formatReportDate(new Date());
 }
 
-export default function ReportsDay({ profile, user, reportUserId = null }) {
+export default function ReportsDay({ profile, user, reportUserId = null, sidePanelOpen = false }) {
   const [reportData, setReportData] = useState({
     timeline: [],
     stressLevel: 3,
@@ -110,7 +110,7 @@ export default function ReportsDay({ profile, user, reportUserId = null }) {
 
   return (
     <div className="reports-layout">
-      <aside className="reports-left">
+      <aside id="reports-side-panel" className={`reports-left${sidePanelOpen ? " reports-left--open" : ""}`}>
         <div className="rating-cards-container">
           <StressSlider label="Hoe hoog is je stressniveau nu?" value={reportData.stressLevel} onStressChange={handleStressChange} />
           <EnergySlider label="Wat is jouw energie level nu?" value={reportData.energyLevel} onEnergyChange={handleEnergyChange} />
