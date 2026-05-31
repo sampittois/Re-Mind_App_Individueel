@@ -96,6 +96,16 @@ function buildLineSeries(series, width, height, leftPadding, rightPadding, topPa
   });
 }
 
+function getPauseAxisConfig(data) {
+  const highestValue = Math.max(...data.map((entry) => Math.max(entry.taken, entry.suggested, entry.missed, 0)));
+  const step = highestValue > 30 ? 10 : highestValue > 10 ? 5 : 1;
+  const axisMax = Math.max(4, Math.ceil(highestValue / step) * step);
+  const tickCount = axisMax / step;
+  const tickValues = Array.from({ length: tickCount + 1 }, (_, index) => index * step);
+
+  return { axisMax, tickValues };
+}
+
 function ChartGrid({ width, height, leftPadding, rightPadding, topPadding, bottomPadding, ticks, labels }) {
   const innerHeight = height - topPadding - bottomPadding;
   const xPositions = getBandPositions(labels.length, width, leftPadding, rightPadding);
@@ -126,8 +136,6 @@ function PauseBehaviorChart({ data }) {
   const rightPadding = 22;
   const topPadding = 16;
   const bottomPadding = 34;
-  const axisMax = Math.max(4, ...data.map((entry) => Math.max(entry.taken, entry.suggested, entry.missed, 0)));
-  const tickValues = Array.from({ length: Math.max(2, Math.ceil(axisMax) + 1) }, (_, value) => value);
 
   if (!data.length) {
     return (
@@ -137,6 +145,7 @@ function PauseBehaviorChart({ data }) {
     );
   }
 
+  const { axisMax, tickValues } = getPauseAxisConfig(data);
   const bars = buildBarSeries(data, axisMax, width, height, leftPadding, rightPadding, topPadding, bottomPadding);
   const ticks = tickValues.map((value) => ({ value, max: axisMax }));
 
