@@ -3,15 +3,11 @@ import '../styles/stats.css';
 
 function formatStatNumber(value) {
   if (typeof value === "number" && Number.isFinite(value)) {
-    return Number.isInteger(value) ? String(value) : value.toFixed(1).replace(/\.0$/, "");
+    return String(Math.round(value));
   }
 
-  const text = String(value ?? 0).trim();
-  if (/^-?\d+,\d{1,2}$/.test(text)) {
-    return text.replace(",", ".");
-  }
-
-  return text.replace(/,/g, "");
+  const numericValue = Number(String(value ?? 0).trim().replace(",", "."));
+  return Number.isFinite(numericValue) ? String(Math.round(numericValue)) : "0";
 }
 
 function StressIcon() {

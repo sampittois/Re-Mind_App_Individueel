@@ -672,8 +672,8 @@ export async function loadWeeklyWellbeingReport(explicitUserId = null) {
       })),
       stressLevel: average(stressCheckins.map((entry) => entry.stress_level), 3),
       energyLevel: average(energyCheckins.map((entry) => entry.energy_level), 2),
-      pausesTaken: weeklyRows.reduce((total, row) => total + row.taken, 0),
-      pausesSkipped: weeklyRows.reduce((total, row) => total + row.missed, 0),
+      pausesTaken: average(weeklyRows.map((row) => row.taken), 0),
+      pausesSkipped: average(weeklyRows.map((row) => row.missed), 0),
     },
     error: null,
   };
