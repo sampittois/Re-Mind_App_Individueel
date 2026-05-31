@@ -24,7 +24,11 @@ function formatTodayDate() {
   return formatReportDate(new Date());
 }
 
-export default function ReportsDay({ profile, user, reportUserId = null }) {
+function isSliderValue(value) {
+  return Number.isFinite(value) && value >= 1 && value <= 5;
+}
+
+export default function ReportsDay({ profile, user, reportUserId = null, stressLevel, energyLevel, onStressLevelChange, onEnergyLevelChange }) {
   const [reportData, setReportData] = useState({
     timeline: [],
     stressLevel: 3,
@@ -48,6 +52,7 @@ export default function ReportsDay({ profile, user, reportUserId = null }) {
   }
 
   async function handleStressChange(value) {
+    onStressLevelChange?.(value);
     setReportData((previous) => ({ ...previous, stressLevel: value }));
     const { error } = await addStressCheck(value, null, reportUserId || profile?.id || user?.id || null);
     if (error) {
@@ -59,6 +64,7 @@ export default function ReportsDay({ profile, user, reportUserId = null }) {
   }
 
   async function handleEnergyChange(value) {
+    onEnergyLevelChange?.(value);
     setReportData((previous) => ({ ...previous, energyLevel: value }));
     const { error } = await addEnergyCheck(value, null, reportUserId || profile?.id || user?.id || null);
     if (error) {
@@ -108,17 +114,20 @@ export default function ReportsDay({ profile, user, reportUserId = null }) {
     return warningIcon;
   };
 
+  const activeStressLevel = isSliderValue(stressLevel) ? stressLevel : reportData.stressLevel;
+  const activeEnergyLevel = isSliderValue(energyLevel) ? energyLevel : reportData.energyLevel;
+
   return (
     <div className="reports-layout">
       <aside className="reports-left">
         <div className="rating-cards-container">
-          <StressSlider label="Hoe hoog is je stressniveau nu?" value={reportData.stressLevel} onStressChange={handleStressChange} />
-          <EnergySlider label="Wat is jouw energie level nu?" value={reportData.energyLevel} onEnergyChange={handleEnergyChange} />
+          <StressSlider label="Hoe hoog is je stressniveau nu?" value={activeStressLevel} onStressChange={handleStressChange} />
+          <EnergySlider label="Wat is jouw energie level nu?" value={activeEnergyLevel} onEnergyChange={handleEnergyChange} />
         </div>
 
         <StatsSection
-          stress={reportData.stressLevel}
-          energy={reportData.energyLevel}
+          stress={activeStressLevel}
+          energy={activeEnergyLevel}
           pausesTaken={reportData.pausesTaken}
           pausesSkipped={reportData.pausesSkipped}
         />

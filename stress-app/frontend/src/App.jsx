@@ -705,8 +705,17 @@ export default function App() {
       />
     );
   } else if (currentPage === "reports") {
-    pageContent = <Reports setCurrentPage={setCurrentPage} profile={profile} />;
-    pageContent = <Reports setCurrentPage={setCurrentPage} profile={profile} user={user} />;
+    pageContent = (
+      <Reports
+        setCurrentPage={setCurrentPage}
+        profile={profile}
+        user={user}
+        stressLevel={stressLevel}
+        energyLevel={energyLevel}
+        onStressLevelChange={setStressLevel}
+        onEnergyLevelChange={setEnergyLevel}
+      />
+    );
   } else if (currentPage === "pause") {
     pageContent = (
       <PauseSuggestions
