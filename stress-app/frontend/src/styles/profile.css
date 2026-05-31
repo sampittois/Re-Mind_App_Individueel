@@ -291,3 +291,34 @@ button.edit-pencil.icon-action-btn[aria-pressed="true"]:not(:disabled) {
   gap: 10px;
   margin-top: 6px;
 }
+
+@media (max-width: 900px) {
+  :root {
+    --avatar-size: 180px;
+  }
+
+  .profile-section {
+    grid-template-columns: minmax(180px, 0.8fr) minmax(0, 1.2fr);
+    gap: 20px;
+  }
+
+  .profile-info-column {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .profile-section > .favorites-section {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .profile-section > .favorites-section .favorites-column {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .profile-section > :not(.profile-info-column):not(.favorites-section) {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
