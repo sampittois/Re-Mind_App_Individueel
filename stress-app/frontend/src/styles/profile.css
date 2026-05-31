@@ -5,7 +5,7 @@
 .profile-section {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 24px;
+  gap: 80px;
   width: 100%;
   align-items: start;
 }
