@@ -50,6 +50,7 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
   const [favoriteIds, setFavoriteIds] = useState(() => []);
   const isAdminPlan = profile?.plan === "admin";
   const canEditCompany = Boolean(canEditCompanyName);
+  const canViewCompanyName = Boolean(canEditCompany || profile?.company_id);
 
   useEffect(() => {
     setAvatarSrc(profile?.avatar_url ?? null);
@@ -287,7 +288,7 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
           )}
         </div>
 
-        <div className="company-name-row">
+        <div className="company-name-row" hidden={!canViewCompanyName}>
           {canEditCompany ? (
             <button
               className="edit-pencil"

@@ -5,7 +5,7 @@
 .profile-section {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 24px;
+  gap: 80px;
   width: 100%;
   align-items: start;
 }
@@ -130,6 +130,10 @@
   align-items: center;
   gap: 8px;
   margin-top: 8px;
+}
+
+.company-name-row[hidden] {
+  display: none;
 }
 
 .company-name {
@@ -290,4 +294,94 @@ button.edit-pencil.icon-action-btn[aria-pressed="true"]:not(:disabled) {
   display: flex;
   gap: 10px;
   margin-top: 6px;
+}
+
+@media (max-width: 900px) {
+  :root {
+    --avatar-size: 180px;
+  }
+
+  .profile-section {
+    grid-template-columns: minmax(160px, 0.75fr) minmax(0, 1.25fr);
+    gap: 16px;
+  }
+
+  .profile-info-column {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .profile-section > .favorites-section {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .profile-section > .favorites-section .favorites-column {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .profile-section > :not(.profile-info-column):not(.favorites-section) {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .profile-section > .settings-section {
+    min-width: 0;
+    gap: 14px;
+    margin-top: 0;
+  }
+
+  .profile-section > .settings-section .settings-hours-container,
+  .profile-section > .settings-section .reminders-group,
+  .profile-section > .settings-section .dropdowns-group,
+  .profile-section > .settings-section .toggles-group {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .profile-section > .settings-section .settings-hours-container,
+  .profile-section > .settings-section .reminders-group {
+    padding: 12px 14px;
+    gap: 12px;
+  }
+
+  .profile-section > .settings-section .time-inputs-row,
+  .profile-section > .settings-section .pause-row,
+  .profile-section > .settings-section .pause-row--header {
+    gap: 10px;
+  }
+
+  .profile-section > .settings-section .settings-label,
+  .profile-section > .settings-section .pauses-title,
+  .profile-section > .settings-section .toggle-label,
+  .profile-section > .settings-section .time-input,
+  .profile-section > .settings-section .custom-dropdown-trigger,
+  .profile-section > .settings-section .custom-dropdown-option {
+    font-size: var(--font-size-xs);
+  }
+
+  .profile-section > .settings-section .time-input,
+  .profile-section > .settings-section .custom-dropdown-trigger {
+    padding: 8px 10px;
+  }
+
+  .profile-section > .settings-section .custom-dropdown-trigger {
+    padding-right: 32px;
+  }
+
+  .profile-section > .settings-section .toggle-switch {
+    width: 52px;
+    height: 28px;
+  }
+
+  .profile-section > .settings-section .toggle-thumb {
+    width: 20px;
+    height: 20px;
+  }
+
+  .profile-section > .settings-section .toggle-switch.active .toggle-thumb {
+    left: calc(100% - 24px);
+  }
 }

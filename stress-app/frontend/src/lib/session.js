@@ -281,18 +281,51 @@ function getTodayRangeIso(now = new Date()) {
   };
 }
 
+function getCurrentWeekRangeIso(now = new Date()) {
+  const start = new Date(now);
+  start.setHours(0, 0, 0, 0);
+
+  const day = start.getDay();
+  const daysSinceMonday = day === 0 ? 6 : day - 1;
+  start.setDate(start.getDate() - daysSinceMonday);
+
+  const end = new Date(start);
+  end.setDate(end.getDate() + 7);
+
+  return {
+    startIso: start.toISOString(),
+    endIso: end.toISOString(),
+  };
+}
+
 function average(values, fallback = 0) {
   if (!values.length) return fallback;
   return values.reduce((sum, value) => sum + value, 0) / values.length;
 }
 
-function groupBySessionId(rows) {
+function getLocalDateKey(dateValue) {
+  const date = new Date(dateValue);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+function dateFromLocalDateKey(dateKey) {
+  const [year, month, day] = dateKey.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
+function groupByCreatedDate(rows) {
   return rows.reduce((groups, row) => {
-    if (!groups.has(row.session_id)) {
-      groups.set(row.session_id, []);
+    const dateKey = getLocalDateKey(row.created_at);
+
+    if (!groups.has(dateKey)) {
+      groups.set(dateKey, []);
     }
 
-    groups.get(row.session_id).push(row);
+    groups.get(dateKey).push(row);
     return groups;
   }, new Map());
 }
@@ -533,45 +566,37 @@ export async function loadWeeklyWellbeingReport(explicitUserId = null) {
   const user = await getCurrentUser(explicitUserId);
   if (!user) return { data: null, error: new Error("No user logged in") };
 
-  const { data: sessions, error: sessionError } = await supabase
-    .from("work_sessions")
-    .select("id, start_time")
-    .eq("user_id", user.id)
-    .order("start_time", { ascending: false })
-    .limit(7);
-
-  if (sessionError) {
-    return { data: null, error: sessionError };
-  }
-
-  const sessionList = (sessions || []).slice().reverse();
-  if (!sessionList.length) {
-    return { data: { weekTimeline: [], pauseBehaviorData: [], stressEnergyData: [], stressLevel: 3, energyLevel: 2, pausesTaken: 0, pausesSkipped: 0 }, error: null };
-  }
-
-  const sessionIds = sessionList.map((session) => session.id);
+  const { startIso, endIso } = getCurrentWeekRangeIso();
 
   const [stressResult, energyResult, breakResult, reminderResult] = await Promise.all([
     supabase
       .from("stress_checkins")
-      .select("session_id, stress_level, created_at")
+      .select("stress_level, created_at")
       .eq("user_id", user.id)
-      .in("session_id", sessionIds),
+      .gte("created_at", startIso)
+      .lt("created_at", endIso)
+      .order("created_at", { ascending: true }),
     supabase
       .from("energy_checkins")
-      .select("session_id, energy_level, created_at")
+      .select("energy_level, created_at")
       .eq("user_id", user.id)
-      .in("session_id", sessionIds),
+      .gte("created_at", startIso)
+      .lt("created_at", endIso)
+      .order("created_at", { ascending: true }),
     supabase
       .from("breaks")
-      .select("session_id, created_at")
+      .select("created_at")
       .eq("user_id", user.id)
-      .in("session_id", sessionIds),
+      .gte("created_at", startIso)
+      .lt("created_at", endIso)
+      .order("created_at", { ascending: true }),
     supabase
       .from("break_reminder_events")
-      .select("session_id, action, created_at")
+      .select("action, created_at")
       .eq("user_id", user.id)
-      .in("session_id", sessionIds),
+      .gte("created_at", startIso)
+      .lt("created_at", endIso)
+      .order("created_at", { ascending: true }),
   ]);
 
   const reminderTableMissing = isMissingReminderEventsTableError(reminderResult.error);
@@ -580,16 +605,33 @@ export async function loadWeeklyWellbeingReport(explicitUserId = null) {
     return { data: null, error: firstError };
   }
 
-  const stressBySession = groupBySessionId(stressResult.data || []);
-  const energyBySession = groupBySessionId(energyResult.data || []);
-  const breaksBySession = groupBySessionId(breakResult.data || []);
-  const remindersBySession = groupBySessionId(reminderTableMissing ? [] : reminderResult.data || []);
+  const stressCheckins = stressResult.data || [];
+  const energyCheckins = energyResult.data || [];
+  const breaks = breakResult.data || [];
+  const reminderEvents = reminderTableMissing ? [] : reminderResult.data || [];
 
-  const weeklyRows = sessionList.map((session) => {
-    const stressRows = stressBySession.get(session.id) || [];
-    const energyRows = energyBySession.get(session.id) || [];
-    const breakRows = breaksBySession.get(session.id) || [];
-    const reminderRows = remindersBySession.get(session.id) || [];
+  const stressByDay = groupByCreatedDate(stressCheckins);
+  const energyByDay = groupByCreatedDate(energyCheckins);
+  const breaksByDay = groupByCreatedDate(breaks);
+  const remindersByDay = groupByCreatedDate(reminderEvents);
+
+  const dayKeys = Array.from(new Set([
+    ...stressByDay.keys(),
+    ...energyByDay.keys(),
+    ...breaksByDay.keys(),
+    ...remindersByDay.keys(),
+  ])).sort();
+
+  if (!dayKeys.length) {
+    return { data: { weekTimeline: [], pauseBehaviorData: [], stressEnergyData: [], stressLevel: 3, energyLevel: 2, pausesTaken: 0, pausesSkipped: 0 }, error: null };
+  }
+
+  const weeklyRows = dayKeys.map((dateKey) => {
+    const date = dateFromLocalDateKey(dateKey);
+    const stressRows = stressByDay.get(dateKey) || [];
+    const energyRows = energyByDay.get(dateKey) || [];
+    const breakRows = breaksByDay.get(dateKey) || [];
+    const reminderRows = remindersByDay.get(dateKey) || [];
     const suggestedCount =
       stressRows.filter((entry) => entry.stress_level >= 4).length +
       energyRows.filter((entry) => entry.energy_level <= 2).length;
@@ -601,8 +643,9 @@ export async function loadWeeklyWellbeingReport(explicitUserId = null) {
     const totalSuggestions = hasReminderRows ? takenCount + missedCount : suggestedCount;
 
     return {
-      day: formatShortDayLabel(session.start_time),
-      fullDay: formatLongDayLabel(session.start_time),
+      id: dateKey,
+      day: formatShortDayLabel(date),
+      fullDay: formatLongDayLabel(date),
       stress: average(stressRows.map((entry) => entry.stress_level), 3),
       energy: average(energyRows.map((entry) => entry.energy_level), 2),
       taken: takenCount,
@@ -611,14 +654,14 @@ export async function loadWeeklyWellbeingReport(explicitUserId = null) {
     };
   });
 
-  const latestRow = weeklyRows[weeklyRows.length - 1];
-  const weekTimeline = weeklyRows.map((row) => {
+  const weekTimeline = weeklyRows.slice().reverse().map((row) => {
     const stressDescriptor = row.stress >= 4 ? "je stress lag hoog" : row.stress >= 3 ? "je stress bleef gemiddeld" : "je stress bleef laag";
     const energyDescriptor = row.energy >= 4 ? "je energie was sterk" : row.energy >= 3 ? "je energie bleef stabiel" : "je energie zakte weg";
     const pauseDescriptor = row.taken > 0 ? `${row.taken} pauze${row.taken === 1 ? "" : "s"} werden genomen` : "er werden geen pauzes genomen";
     const missedDescriptor = row.missed > 0 ? `en ${row.missed} pauze${row.missed === 1 ? "" : "s"} werden gemist` : "en geen pauzes werden gemist";
 
     return {
+      id: row.id,
       day: row.fullDay,
       icon: row.taken > row.missed && row.taken > 0 ? "break" : row.stress >= 4 ? "highStress" : row.energy >= 4 ? "highEnergy" : "warning",
       summary: `Op ${row.fullDay} ${stressDescriptor}, ${energyDescriptor}, ${pauseDescriptor} ${missedDescriptor}.`,
@@ -639,10 +682,10 @@ export async function loadWeeklyWellbeingReport(explicitUserId = null) {
         stress: row.stress,
         energy: row.energy,
       })),
-      stressLevel: latestRow?.stress ?? 3,
-      energyLevel: latestRow?.energy ?? 2,
-      pausesTaken: latestRow?.taken ?? 0,
-      pausesSkipped: latestRow?.missed ?? 0,
+      stressLevel: average(stressCheckins.map((entry) => entry.stress_level), 3),
+      energyLevel: average(energyCheckins.map((entry) => entry.energy_level), 2),
+      pausesTaken: weeklyRows.reduce((total, row) => total + row.taken, 0),
+      pausesSkipped: weeklyRows.reduce((total, row) => total + row.missed, 0),
     },
     error: null,
   };
