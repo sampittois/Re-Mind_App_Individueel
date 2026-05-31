@@ -5,7 +5,7 @@ import premiumIcon from "../assets/premium.svg";
 import { BackIcon } from "../components/IconActions";
 import "../styles/reports.css";
 
-export default function Reports({ setCurrentPage, profile, user }) {
+export default function Reports({ setCurrentPage, profile, user, stressLevel, energyLevel, onStressLevelChange, onEnergyLevelChange }) {
   const [view, setView] = useState("day");
   const plan = profile?.plan || "basic";
   const reportUserId = profile?.id || user?.id || null;
@@ -39,7 +39,27 @@ export default function Reports({ setCurrentPage, profile, user }) {
         </div>
       </div>
 
-      {view === "day" ? <ReportsDay profile={profile} user={user} reportUserId={reportUserId} /> : <ReportsWeek profile={profile} user={user} reportUserId={reportUserId} />}
+      {view === "day" ? (
+        <ReportsDay
+          profile={profile}
+          user={user}
+          reportUserId={reportUserId}
+          stressLevel={stressLevel}
+          energyLevel={energyLevel}
+          onStressLevelChange={onStressLevelChange}
+          onEnergyLevelChange={onEnergyLevelChange}
+        />
+      ) : (
+        <ReportsWeek
+          profile={profile}
+          user={user}
+          reportUserId={reportUserId}
+          stressLevel={stressLevel}
+          energyLevel={energyLevel}
+          onStressLevelChange={onStressLevelChange}
+          onEnergyLevelChange={onEnergyLevelChange}
+        />
+      )}
     </main>
   );
 }
