@@ -1,6 +1,19 @@
 import React from 'react';
 import '../styles/stats.css';
 
+function formatStatNumber(value) {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return Number.isInteger(value) ? String(value) : value.toFixed(1).replace(/\.0$/, "");
+  }
+
+  const text = String(value ?? 0).trim();
+  if (/^-?\d+,\d{1,2}$/.test(text)) {
+    return text.replace(",", ".");
+  }
+
+  return text.replace(/,/g, "");
+}
+
 function StressIcon() {
   return (
     <svg className="stat-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -30,6 +43,11 @@ function PausesIcon() {
 }
 
 export default function StatsSection({ stress, energy, pausesTaken, pausesSkipped }) {
+  const stressValue = formatStatNumber(stress);
+  const energyValue = formatStatNumber(energy);
+  const pausesTakenValue = formatStatNumber(pausesTaken);
+  const pausesSkippedValue = formatStatNumber(pausesSkipped);
+
   return (
     <section className="stats-section">
       <h2 className="section-title">Stats</h2>
@@ -39,7 +57,7 @@ export default function StatsSection({ stress, energy, pausesTaken, pausesSkippe
             <StressIcon />
             <div className="stat-label">Stress</div>
           </div>
-          <div className="stat-number">{stress}/5</div>
+          <div className="stat-number">{stressValue}/5</div>
           <div className="stat-sublabel">gemiddeld</div>
         </div>
 
@@ -48,7 +66,7 @@ export default function StatsSection({ stress, energy, pausesTaken, pausesSkippe
             <EnergyIcon />
             <div className="stat-label">Energie</div>
           </div>
-          <div className="stat-number">{energy}/5</div>
+          <div className="stat-number">{energyValue}/5</div>
           <div className="stat-sublabel">laag</div>
         </div>
 
@@ -58,8 +76,8 @@ export default function StatsSection({ stress, energy, pausesTaken, pausesSkippe
             <div className="stat-label">Pauzes</div>
           </div>
           <div className="stat-number-row">
-            <div className="stat-number split">{pausesTaken}</div>
-            <div className="stat-number split">{pausesSkipped}</div>
+            <div className="stat-number split">{pausesTakenValue}</div>
+            <div className="stat-number split">{pausesSkippedValue}</div>
           </div>
           <div className="stat-sublabel split-labels">
             <span className="split-sublabel">genomen</span>
