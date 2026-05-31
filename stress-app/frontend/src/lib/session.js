@@ -220,9 +220,6 @@ export async function loadLatestWellbeingSnapshot(explicitUserId = null) {
   const reminderEvents = reminderTableMissing ? [] : reminderResult.data || [];
   const latestStress = stressCheckins[0]?.stress_level ?? 3;
   const latestEnergy = energyCheckins[0]?.energy_level ?? 2;
-  const pauseSuggestions =
-    stressCheckins.filter((entry) => entry.stress_level >= 4).length +
-    energyCheckins.filter((entry) => entry.energy_level <= 2).length;
   const remindersTaken = reminderEvents.filter((entry) => entry.action === "taken").length;
   const remindersSkipped = reminderEvents.filter((entry) => entry.action === "skipped").length;
 
@@ -232,7 +229,7 @@ export async function loadLatestWellbeingSnapshot(explicitUserId = null) {
       stressLevel: latestStress,
       energyLevel: latestEnergy,
       pausesTaken: reminderEvents.length ? remindersTaken : breaks.length,
-      pausesSkipped: reminderEvents.length ? remindersSkipped : Math.max(pauseSuggestions - breaks.length, 0),
+      pausesSkipped: reminderEvents.length ? remindersSkipped : 0,
     },
     error: null,
   };
@@ -423,9 +420,6 @@ export async function loadLatestSessionTimeline(explicitUserId = null) {
       time: formatTimeLabel(entry.createdAt),
     }));
 
-  const pauseSuggestions =
-    stressCheckins.filter((entry) => entry.stress_level >= 4).length +
-    energyCheckins.filter((entry) => entry.energy_level <= 2).length;
   const remindersTaken = reminderEvents.filter((entry) => entry.action === "taken").length;
   const remindersSkipped = reminderEvents.filter((entry) => entry.action === "skipped").length;
 
@@ -436,7 +430,7 @@ export async function loadLatestSessionTimeline(explicitUserId = null) {
       stressLevel: stressCheckins[stressCheckins.length - 1]?.stress_level ?? 3,
       energyLevel: energyCheckins[energyCheckins.length - 1]?.energy_level ?? 2,
       pausesTaken: reminderEvents.length ? remindersTaken : breaks.length,
-      pausesSkipped: reminderEvents.length ? remindersSkipped : Math.max(pauseSuggestions - breaks.length, 0),
+      pausesSkipped: reminderEvents.length ? remindersSkipped : 0,
     },
     error: null,
   };
@@ -543,9 +537,6 @@ export async function loadCurrentDayTimeline(explicitUserId = null) {
       time: formatTimeLabel(entry.createdAt),
     }));
 
-  const pauseSuggestions =
-    stressCheckins.filter((entry) => entry.stress_level >= 4).length +
-    energyCheckins.filter((entry) => entry.energy_level <= 2).length;
   const remindersTaken = reminderEvents.filter((entry) => entry.action === "taken").length;
   const remindersSkipped = reminderEvents.filter((entry) => entry.action === "skipped").length;
 
@@ -556,7 +547,7 @@ export async function loadCurrentDayTimeline(explicitUserId = null) {
       stressLevel: stressCheckins[stressCheckins.length - 1]?.stress_level ?? 3,
       energyLevel: energyCheckins[energyCheckins.length - 1]?.energy_level ?? 2,
       pausesTaken: reminderEvents.length ? remindersTaken : breaks.length,
-      pausesSkipped: reminderEvents.length ? remindersSkipped : Math.max(pauseSuggestions - breaks.length, 0),
+      pausesSkipped: reminderEvents.length ? remindersSkipped : 0,
     },
     error: null,
   };
@@ -632,15 +623,12 @@ export async function loadWeeklyWellbeingReport(explicitUserId = null) {
     const energyRows = energyByDay.get(dateKey) || [];
     const breakRows = breaksByDay.get(dateKey) || [];
     const reminderRows = remindersByDay.get(dateKey) || [];
-    const suggestedCount =
-      stressRows.filter((entry) => entry.stress_level >= 4).length +
-      energyRows.filter((entry) => entry.energy_level <= 2).length;
     const reminderTakenCount = reminderRows.filter((entry) => entry.action === "taken").length;
     const reminderSkippedCount = reminderRows.filter((entry) => entry.action === "skipped").length;
     const hasReminderRows = reminderRows.length > 0;
     const takenCount = hasReminderRows ? reminderTakenCount : breakRows.length;
-    const missedCount = hasReminderRows ? reminderSkippedCount : Math.max(suggestedCount - breakRows.length, 0);
-    const totalSuggestions = hasReminderRows ? takenCount + missedCount : suggestedCount;
+    const missedCount = hasReminderRows ? reminderSkippedCount : 0;
+    const totalSuggestions = hasReminderRows ? takenCount + missedCount : breakRows.length;
 
     return {
       id: dateKey,
