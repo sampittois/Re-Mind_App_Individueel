@@ -31,6 +31,10 @@ const ALL_SUGGESTIONS = [
 ];
 
 const SUGGESTION_BY_ID = new Map(ALL_SUGGESTIONS.map((item) => [item.id, item]));
+const CALENDAR_PROVIDER_LABELS = {
+  google: "Google",
+  microsoft: "Microsoft",
+};
 
 export default function ProfileSection({ profile, initialName = "John Doe", companyName = "", canEditCompanyName = false, onSaveName, onSaveCompanyName, onSaveAvatar, onLogout, user, onUpdateProfile, onCompanyColorsChange, hasStoredName = true, setCurrentPage, companyColorsForced = false }) {
   const [name, setName] = useState(hasStoredName ? initialName : "");
@@ -50,8 +54,10 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
   const fileRef = useRef(null);
   const [favoriteIds, setFavoriteIds] = useState(() => []);
   const [isLinkingCalendar, setIsLinkingCalendar] = useState(false);
+  const [linkingCalendarProvider, setLinkingCalendarProvider] = useState("");
   const [calendarLinkError, setCalendarLinkError] = useState("");
-  const [calendarConnectUrl, setCalendarConnectUrl] = useState("");
+  const [calendarLinkDialogOpen, setCalendarLinkDialogOpen] = useState(false);
+  const [calendarConnectUrls, setCalendarConnectUrls] = useState({ google: "", microsoft: "" });
   const isAdminPlan = profile?.plan === "admin";
   const canEditCompany = Boolean(canEditCompanyName);
   const canViewCompanyName = Boolean(canEditCompany || profile?.company_id);
@@ -233,25 +239,40 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
     }
   }
 
-  async function handleCalendarLink() {
+  function openCalendarLinkDialog() {
     setCalendarLinkError("");
+    setCalendarLinkDialogOpen(true);
+
+    if (!calendarConnectUrls.google || !calendarConnectUrls.microsoft) {
+      loadCalendarConnectUrls();
+    }
+  }
+
+  async function loadCalendarConnectUrls() {
     setIsLinkingCalendar(true);
+    setLinkingCalendarProvider("all");
 
     try {
-      const { data, error } = await startCalendarLink("google");
-      if (error) {
-        setCalendarLinkError(error.message || "Agenda koppelen is mislukt.");
-        return;
-      }
+      const [googleResult, microsoftResult] = await Promise.all([
+        startCalendarLink("google"),
+        startCalendarLink("microsoft"),
+      ]);
 
-      setCalendarConnectUrl(data?.url || "");
+      const firstError = googleResult.error || microsoftResult.error;
+      if (firstError) setCalendarLinkError(firstError.message || "Agenda koppelen is mislukt.");
+
+      setCalendarConnectUrls({
+        google: googleResult.data?.url || "",
+        microsoft: microsoftResult.data?.url || "",
+      });
     } finally {
       setIsLinkingCalendar(false);
+      setLinkingCalendarProvider("");
     }
   }
 
   function closeCalendarLinkDialog() {
-    setCalendarConnectUrl("");
+    setCalendarLinkDialogOpen(false);
     setCalendarLinkError("");
   }
 
@@ -389,29 +410,42 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
             );
           })()}
           {profile?.plan !== "basic" ? (
-            <button
-              className="action-btn"
-              type="button"
-              onClick={handleCalendarLink}
-              disabled={isLinkingCalendar || profile?.calendar_linked}
-            >
-              {profile?.calendar_linked ? "Agenda gekoppeld" : isLinkingCalendar ? "Agenda koppelen..." : "Link Agenda"}
+            <button className="action-btn" type="button" onClick={openCalendarLinkDialog} disabled={isLinkingCalendar}>
+              {isLinkingCalendar && linkingCalendarProvider === "all" ? "Agenda-opties laden..." : "Link Agenda"}
             </button>
           ) : null}
           {calendarLinkError ? <p className="profile-action-error">{calendarLinkError}</p> : null}
 
-          {calendarConnectUrl ? (
+          {calendarLinkDialogOpen ? (
             <div className="calendar-link-modal" role="dialog" aria-modal="true" aria-labelledby="calendar-link-title" onMouseDown={closeCalendarLinkDialog}>
               <div className="calendar-link-modal__card" onMouseDown={(event) => event.stopPropagation()}>
                 <button className="pause-suggestion-card__favorite calendar-link-modal__close" type="button" onClick={closeCalendarLinkDialog} aria-label="Sluit agenda koppelen">
                   <img src={xIcon} alt="" aria-hidden="true" className="pause-suggestion-card__favorite-custom" />
                 </button>
                 <h2 id="calendar-link-title">Agenda koppelen</h2>
-                <p>Open Google om read-only toegang te geven. Dit scherm blijft beschikbaar, dus je kan altijd terug.</p>
+                <p>Kies welke agenda je wil koppelen met read-only toegang.</p>
                 <div className="calendar-link-modal__actions">
-                  <a className="action-btn calendar-link-modal__primary" href={calendarConnectUrl} target="remind-calendar-link" rel="opener" onClick={() => setCalendarConnectUrl("")}>
-                    Open Google
-                  </a>
+                  {["google", "microsoft"].map((provider) => {
+                    const providerLabel = CALENDAR_PROVIDER_LABELS[provider];
+                    const url = calendarConnectUrls[provider];
+
+                    return url ? (
+                      <a
+                        className="action-btn calendar-link-modal__primary"
+                        href={url}
+                        target="remind-calendar-link"
+                        rel="opener"
+                        onClick={closeCalendarLinkDialog}
+                        key={provider}
+                      >
+                        Open {providerLabel}
+                      </a>
+                    ) : (
+                      <button className="action-btn calendar-link-modal__primary" type="button" disabled key={provider}>
+                        {isLinkingCalendar ? `${providerLabel} laden...` : `Open ${providerLabel}`}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
