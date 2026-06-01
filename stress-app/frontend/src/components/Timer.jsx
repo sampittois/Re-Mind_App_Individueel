@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import "../styles/timer.css";
 import Breathe from "./Breathe";
 import BreakSuggestionsOverlay from "./BreakSuggestionsOverlay";
-import { addBreak, addBreakReminderDecision } from "../lib/session";
+import { addBreak, addBreakReminderDecision, startSession } from "../lib/session";
 
 const TIMER_STATE_STORAGE_KEY = "remind.timerState";
 const DAY_TARGET_SECONDS = 8 * 60 * 60;
@@ -574,6 +574,11 @@ export default function Timer({
     const initialSegments = startProgress > 0
       ? [createRingSegment(0, startProgress, "var(--error)"), createRingSegment(startProgress, null, "var(--primary-dark)")]
       : [createRingSegment(0, null, "var(--primary-dark)")];
+
+    const { error: sessionError } = await startSession();
+    if (sessionError) {
+      console.error("Failed to start work session:", sessionError);
+    }
 
     setWorkStarted(true);
     setWorkStartedAt(now);
