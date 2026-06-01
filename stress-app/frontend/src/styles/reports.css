@@ -17,11 +17,18 @@
   margin-bottom: var(--space-6);
 }
 
-.reports-back {
+.reports-top-actions {
   position: absolute;
   left: 0;
   top: 50%;
   transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.reports-back,
+.reports-panel-toggle {
   width: 40px;
   height: 40px;
   background: var(--icon-action-fill);
@@ -36,19 +43,35 @@
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
+.reports-panel-toggle {
+  display: none;
+}
+
 .reports-back svg {
   width: 18px;
   height: 18px;
 }
 
-.back-btn.reports-back:hover {
+.reports-panel-toggle-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+  background: currentColor;
+  mask: url("../assets/stats.svg") center / contain no-repeat;
+  -webkit-mask: url("../assets/stats.svg") center / contain no-repeat;
+}
+
+button.back-btn.reports-back:hover:not(:disabled),
+button.reports-panel-toggle:hover:not(:disabled),
+button.reports-panel-toggle:focus-visible:not(:disabled) {
   background: var(--icon-action-hover-fill);
   border-color: var(--icon-action-hover-border);
   color: var(--icon-action-hover-icon-color);
 }
 
-.back-btn.reports-back:active,
-.back-btn.reports-back[aria-pressed="true"] {
+button.back-btn.reports-back:active:not(:disabled),
+button.back-btn.reports-back[aria-pressed="true"]:not(:disabled),
+button.reports-panel-toggle:active:not(:disabled) {
   background: var(--icon-action-active-fill);
   border-color: var(--icon-action-active-border);
   color: var(--icon-action-active-icon-color);
@@ -98,4 +121,34 @@
   height: 16px;
   margin-right: 0;
   flex-shrink: 0;
+}
+
+@media (max-width: 1100px) {
+  .reports-page {
+    max-width: 860px;
+    padding-inline: var(--space-5);
+  }
+
+  .reports-panel-toggle {
+    display: flex;
+  }
+}
+
+@media (max-width: 640px) {
+  .reports-page {
+    padding-inline: var(--space-4);
+  }
+
+  .reports-top-row {
+    justify-content: flex-end;
+    min-height: 40px;
+  }
+
+  .reports-toggle {
+    width: min(210px, calc(100% - 100px));
+  }
+
+  .toggle-btn {
+    padding: 0 var(--space-3);
+  }
 }

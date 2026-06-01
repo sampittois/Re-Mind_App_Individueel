@@ -196,6 +196,8 @@
   margin: 0;
 }
 
+button.icon-action-btn:hover:not(:disabled),
+button.icon-action-btn:focus-visible:not(:disabled),
 .icon-action-btn:hover,
 .icon-action-btn:focus-visible {
   background: var(--icon-action-hover-fill);
@@ -203,6 +205,8 @@
   color: var(--icon-action-hover-icon-color);
 }
 
+button.icon-action-btn:active:not(:disabled),
+button.icon-action-btn[aria-pressed="true"]:not(:disabled),
 .icon-action-btn:active,
 .icon-action-btn[aria-pressed="true"] {
   background: var(--icon-action-active-fill);

@@ -28,7 +28,16 @@ function isSliderValue(value) {
   return Number.isFinite(value) && value >= 1 && value <= 5;
 }
 
-export default function ReportsDay({ profile, user, reportUserId = null, stressLevel, energyLevel, onStressLevelChange, onEnergyLevelChange }) {
+export default function ReportsDay({
+  profile,
+  user,
+  reportUserId = null,
+  sidePanelOpen = false,
+  stressLevel,
+  energyLevel,
+  onStressLevelChange,
+  onEnergyLevelChange,
+}) {
   const [reportData, setReportData] = useState({
     timeline: [],
     stressLevel: 3,
@@ -37,9 +46,10 @@ export default function ReportsDay({ profile, user, reportUserId = null, stressL
     pausesSkipped: 0,
   });
   const [loading, setLoading] = useState(true);
+  const targetUserId = reportUserId || profile?.id || user?.id || null;
 
   async function refreshReport() {
-    const { data, error } = await loadCurrentDayTimeline(reportUserId || profile?.id || user?.id || null);
+    const { data, error } = await loadCurrentDayTimeline(targetUserId);
 
     if (error) {
       console.error("Failed to load daily report data:", error);
@@ -54,7 +64,7 @@ export default function ReportsDay({ profile, user, reportUserId = null, stressL
   async function handleStressChange(value) {
     onStressLevelChange?.(value);
     setReportData((previous) => ({ ...previous, stressLevel: value }));
-    const { error } = await addStressCheck(value, null, reportUserId || profile?.id || user?.id || null);
+    const { error } = await addStressCheck(value, null, targetUserId);
     if (error) {
       console.error("Failed to save stress check-in:", error);
       return;
@@ -66,7 +76,7 @@ export default function ReportsDay({ profile, user, reportUserId = null, stressL
   async function handleEnergyChange(value) {
     onEnergyLevelChange?.(value);
     setReportData((previous) => ({ ...previous, energyLevel: value }));
-    const { error } = await addEnergyCheck(value, null, reportUserId || profile?.id || user?.id || null);
+    const { error } = await addEnergyCheck(value, null, targetUserId);
     if (error) {
       console.error("Failed to save energy check-in:", error);
       return;
@@ -79,7 +89,7 @@ export default function ReportsDay({ profile, user, reportUserId = null, stressL
     let active = true;
 
     async function loadReport() {
-      const { data, error } = await loadCurrentDayTimeline(reportUserId || profile?.id || user?.id || null);
+      const { data, error } = await loadCurrentDayTimeline(targetUserId);
 
       if (!active) return;
 
@@ -99,7 +109,7 @@ export default function ReportsDay({ profile, user, reportUserId = null, stressL
     return () => {
       active = false;
     };
-  }, []);
+  }, [targetUserId]);
 
   const renderIcon = (item) => {
     if (item.iconType === "break") return breakIcon;
@@ -119,7 +129,7 @@ export default function ReportsDay({ profile, user, reportUserId = null, stressL
 
   return (
     <div className="reports-layout">
-      <aside className="reports-left">
+      <aside id="reports-side-panel" className={`reports-left${sidePanelOpen ? " reports-left--open" : ""}`}>
         <div className="rating-cards-container">
           <StressSlider label="Hoe hoog is je stressniveau nu?" value={activeStressLevel} onStressChange={handleStressChange} />
           <EnergySlider label="Wat is jouw energie level nu?" value={activeEnergyLevel} onEnergyChange={handleEnergyChange} />

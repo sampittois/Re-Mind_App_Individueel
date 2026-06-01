@@ -169,14 +169,6 @@
     overflow: visible;
   }
 
-  .reports-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .reports-left {
-    max-width: 100%;
-  }
-
   .reports-week-layout .reports-left {
     position: static;
     top: auto;
@@ -184,5 +176,21 @@
 
   .weekly-graphs-scroll {
     overflow: visible;
+  }
+}
+
+@media (max-width: 760px) {
+  .weekly-timeline-content {
+    grid-template-columns: 1fr;
+    row-gap: var(--space-1);
+  }
+
+  .chart-card {
+    padding: var(--space-3);
+    overflow-x: auto;
+  }
+
+  .weekly-chart {
+    min-width: 560px;
   }
 }

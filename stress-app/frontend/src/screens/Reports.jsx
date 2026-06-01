@@ -7,15 +7,29 @@ import "../styles/reports.css";
 
 export default function Reports({ setCurrentPage, profile, user, stressLevel, energyLevel, onStressLevelChange, onEnergyLevelChange }) {
   const [view, setView] = useState("day");
+  const [sidePanelOpen, setSidePanelOpen] = useState(false);
   const plan = profile?.plan || "basic";
   const reportUserId = profile?.id || user?.id || null;
 
   return (
     <main className={`reports-page page${view === "week" ? " reports-week-page" : ""}`}>
       <div className="reports-top-row">
-        <button className="back-btn reports-back icon-action-btn" onClick={() => setCurrentPage && setCurrentPage("home")} aria-label="Terug">
-          <BackIcon />
-        </button>
+        <div className="reports-top-actions">
+          <button className="back-btn reports-back icon-action-btn" onClick={() => setCurrentPage && setCurrentPage("home")} aria-label="Terug">
+            <BackIcon />
+          </button>
+
+          <button
+            className="reports-panel-toggle icon-action-btn"
+            type="button"
+            onClick={() => setSidePanelOpen((open) => !open)}
+            aria-label={sidePanelOpen ? "Sluit statistieken" : "Open statistieken"}
+            aria-expanded={sidePanelOpen}
+            aria-controls="reports-side-panel"
+          >
+            <span className="reports-panel-toggle-icon" aria-hidden="true" />
+          </button>
+        </div>
 
         <div className="reports-toggle">
           <button className={`toggle-btn ${view === "day" ? "active" : ""}`} onClick={() => setView("day")}>
@@ -44,6 +58,7 @@ export default function Reports({ setCurrentPage, profile, user, stressLevel, en
           profile={profile}
           user={user}
           reportUserId={reportUserId}
+          sidePanelOpen={sidePanelOpen}
           stressLevel={stressLevel}
           energyLevel={energyLevel}
           onStressLevelChange={onStressLevelChange}
@@ -54,6 +69,7 @@ export default function Reports({ setCurrentPage, profile, user, stressLevel, en
           profile={profile}
           user={user}
           reportUserId={reportUserId}
+          sidePanelOpen={sidePanelOpen}
           stressLevel={stressLevel}
           energyLevel={energyLevel}
           onStressLevelChange={onStressLevelChange}
