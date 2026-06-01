@@ -127,6 +127,10 @@
   stroke: var(--primary-dark);
 }
 
+.breathingLogo__segment--error {
+  stroke: var(--error-300);
+}
+
 @keyframes breatheOuter {
   0%, 100% {
     width: 280px;
