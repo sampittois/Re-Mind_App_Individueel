@@ -122,7 +122,10 @@
   }
 
   .reports-left--open {
-    display: block;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 400px);
+    gap: var(--space-5);
+    align-items: start;
     padding: var(--space-4);
     background: var(--background);
     border: var(--border-width-sm) solid var(--border);
@@ -131,9 +134,26 @@
   }
 
   .reports-left .rating-cards-container {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: flex;
+    flex-direction: column;
     gap: var(--space-4);
+    align-items: stretch;
+  }
+
+  .reports-left .stress-slider-card,
+  .reports-left .energy-slider-card {
+    max-width: none;
+  }
+
+  .reports-left .stats-section {
+    width: 100%;
+    max-width: 400px;
+    margin-top: 0;
+    padding-top: 0;
+  }
+
+  .reports-left .stats-section .section-title {
+    display: none;
   }
 }
 
@@ -143,8 +163,12 @@
     line-height: var(--text-heading-2-line-height);
   }
 
-  .reports-left .rating-cards-container {
+  .reports-left--open {
     grid-template-columns: 1fr;
+  }
+
+  .reports-left .stats-section {
+    max-width: none;
   }
 
   .timeline {

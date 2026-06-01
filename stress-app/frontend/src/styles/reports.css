@@ -52,18 +52,26 @@
   height: 18px;
 }
 
-.back-btn.reports-back:hover,
-.reports-panel-toggle:hover,
-.reports-panel-toggle:focus-visible {
+.reports-panel-toggle-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+  background: currentColor;
+  mask: url("../assets/stats.svg") center / contain no-repeat;
+  -webkit-mask: url("../assets/stats.svg") center / contain no-repeat;
+}
+
+button.back-btn.reports-back:hover:not(:disabled),
+button.reports-panel-toggle:hover:not(:disabled),
+button.reports-panel-toggle:focus-visible:not(:disabled) {
   background: var(--icon-action-hover-fill);
   border-color: var(--icon-action-hover-border);
   color: var(--icon-action-hover-icon-color);
 }
 
-.back-btn.reports-back:active,
-.back-btn.reports-back[aria-pressed="true"],
-.reports-panel-toggle:active,
-.reports-panel-toggle[aria-expanded="true"] {
+button.back-btn.reports-back:active:not(:disabled),
+button.back-btn.reports-back[aria-pressed="true"]:not(:disabled),
+button.reports-panel-toggle:active:not(:disabled) {
   background: var(--icon-action-active-fill);
   border-color: var(--icon-action-active-border);
   color: var(--icon-action-active-icon-color);

@@ -2,7 +2,6 @@ import { useState } from "react";
 import ReportsDay from "./ReportsDay";
 import ReportsWeek from "./ReportsWeek";
 import premiumIcon from "../assets/premium.svg";
-import statsIcon from "../assets/stats.svg";
 import { BackIcon } from "../components/IconActions";
 import "../styles/reports.css";
 
@@ -28,7 +27,7 @@ export default function Reports({ setCurrentPage, profile, user }) {
             aria-expanded={sidePanelOpen}
             aria-controls="reports-side-panel"
           >
-            <img src={statsIcon} alt="" aria-hidden="true" />
+            <span className="reports-panel-toggle-icon" aria-hidden="true" />
           </button>
         </div>
 
