@@ -872,16 +872,7 @@ export default function App() {
           </div>
 
           <div className="home-right-column">
-            <div className="timer-section">
-              <Timer
-                profile={profile}
-                onOpenReflection={openWorkdayReflection}
-                onBreakLogged={refreshWellbeingSnapshot}
-                onReminderDecisionLogged={refreshWellbeingSnapshot}
-                onStartBreathingExercise={() => openBreathingExercise("box", "home", true)}
-                onOpenSuggestion={(suggestion) => openPauseSuggestionFromTimer(suggestion, "timer")}
-              />
-            </div>
+            <div className="timer-section" id="home-timer-section" />
 
             <PauseSuggestions
               onViewMore={() => setCurrentPage("pause")}
@@ -1187,6 +1178,18 @@ export default function App() {
         />
       )}
       {pageContent}
+      {currentPage !== "login" && currentPage !== "register" && currentPage !== "onboarding" && (
+        <Timer
+          profile={profile}
+          onOpenReflection={openWorkdayReflection}
+          onBreakLogged={refreshWellbeingSnapshot}
+          onReminderDecisionLogged={refreshWellbeingSnapshot}
+          onStartBreathingExercise={() => openBreathingExercise("box", "home", true)}
+          onOpenSuggestion={(suggestion) => openPauseSuggestionFromTimer(suggestion, "timer")}
+          showCard={currentPage === "home"}
+          cardContainerId="home-timer-section"
+        />
+      )}
       <WorkdayReflectionOverlay
         open={workdayReflectionOpen}
         onClose={closeWorkdayReflection}
