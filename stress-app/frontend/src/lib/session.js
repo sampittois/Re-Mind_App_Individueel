@@ -187,7 +187,7 @@ function isMissingReminderEventsTableError(error) {
   );
 }
 
-export async function loadLatestWellbeingSnapshot(explicitUserId = null) {
+export async function loadTodayWellbeingSnapshot(explicitUserId = null) {
   const user = await getCurrentUser(explicitUserId);
   if (!user) return { data: null, error: new Error("No user logged in") };
 
@@ -258,6 +258,8 @@ export async function loadLatestWellbeingSnapshot(explicitUserId = null) {
     error: null,
   };
 }
+
+export const loadLatestWellbeingSnapshot = loadTodayWellbeingSnapshot;
 
 function capitalizeLabel(label) {
   if (!label) return "";

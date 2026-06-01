@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import "./styles/App.css";
 import { supabase } from "./lib/supabaseClient";
-import { addEnergyCheck, addStressCheck, loadLatestWellbeingSnapshot } from "./lib/session";
+import { addEnergyCheck, addStressCheck, loadTodayWellbeingSnapshot } from "./lib/session";
 
 import Navbar from "./components/Navbar";
 import Timer from "./components/Timer";
@@ -644,7 +644,7 @@ export default function App() {
   }, []);
 
   async function refreshWellbeingSnapshot() {
-    const { data, error } = await loadLatestWellbeingSnapshot();
+    const { data, error } = await loadTodayWellbeingSnapshot();
     if (error) {
       console.error("Failed to load wellbeing snapshot:", error);
       return;
@@ -1059,7 +1059,7 @@ export default function App() {
         return;
       }
 
-      const { data, error } = await loadLatestWellbeingSnapshot();
+      const { data, error } = await loadTodayWellbeingSnapshot();
       if (!active) return;
 
       if (error) {
