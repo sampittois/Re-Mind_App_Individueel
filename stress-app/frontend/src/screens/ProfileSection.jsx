@@ -33,7 +33,6 @@ const ALL_SUGGESTIONS = [
 const SUGGESTION_BY_ID = new Map(ALL_SUGGESTIONS.map((item) => [item.id, item]));
 const CALENDAR_PROVIDER_LABELS = {
   google: "Google",
-  microsoft: "Microsoft",
 };
 
 export default function ProfileSection({ profile, initialName = "John Doe", companyName = "", canEditCompanyName = false, onSaveName, onSaveCompanyName, onSaveAvatar, onLogout, user, onUpdateProfile, onCompanyColorsChange, hasStoredName = true, setCurrentPage, companyColorsForced = false }) {
@@ -57,7 +56,7 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
   const [linkingCalendarProvider, setLinkingCalendarProvider] = useState("");
   const [calendarLinkError, setCalendarLinkError] = useState("");
   const [calendarLinkDialogOpen, setCalendarLinkDialogOpen] = useState(false);
-  const [calendarConnectUrls, setCalendarConnectUrls] = useState({ google: "", microsoft: "" });
+  const [calendarConnectUrls, setCalendarConnectUrls] = useState({ google: "" });
   const isAdminPlan = profile?.plan === "admin";
   const canEditCompany = Boolean(canEditCompanyName);
   const canViewCompanyName = Boolean(canEditCompany || profile?.company_id);
@@ -243,7 +242,7 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
     setCalendarLinkError("");
     setCalendarLinkDialogOpen(true);
 
-    if (!calendarConnectUrls.google || !calendarConnectUrls.microsoft) {
+    if (!calendarConnectUrls.google) {
       loadCalendarConnectUrls();
     }
   }
@@ -253,17 +252,13 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
     setLinkingCalendarProvider("all");
 
     try {
-      const [googleResult, microsoftResult] = await Promise.all([
-        startCalendarLink("google"),
-        startCalendarLink("microsoft"),
-      ]);
+      const googleResult = await startCalendarLink("google");
 
-      const firstError = googleResult.error || microsoftResult.error;
+      const firstError = googleResult.error;
       if (firstError) setCalendarLinkError(firstError.message || "Agenda koppelen is mislukt.");
 
       setCalendarConnectUrls({
         google: googleResult.data?.url || "",
-        microsoft: microsoftResult.data?.url || "",
       });
     } finally {
       setIsLinkingCalendar(false);
@@ -423,9 +418,9 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
                   <img src={xIcon} alt="" aria-hidden="true" className="pause-suggestion-card__favorite-custom" />
                 </button>
                 <h2 id="calendar-link-title">Agenda koppelen</h2>
-                <p>Kies welke agenda je wil koppelen met read-only toegang.</p>
+                <p>Koppel je Google Agenda met read-only toegang.</p>
                 <div className="calendar-link-modal__actions">
-                  {["google", "microsoft"].map((provider) => {
+                  {["google"].map((provider) => {
                     const providerLabel = CALENDAR_PROVIDER_LABELS[provider];
                     const url = calendarConnectUrls[provider];
 
@@ -438,11 +433,11 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
                         onClick={closeCalendarLinkDialog}
                         key={provider}
                       >
-                        Open {providerLabel}
+                        Google Agenda koppelen
                       </a>
                     ) : (
                       <button className="action-btn calendar-link-modal__primary" type="button" disabled key={provider}>
-                        {isLinkingCalendar ? `${providerLabel} laden...` : `Open ${providerLabel}`}
+                        {isLinkingCalendar ? `${providerLabel} laden...` : "Google Agenda koppelen"}
                       </button>
                     );
                   })}
