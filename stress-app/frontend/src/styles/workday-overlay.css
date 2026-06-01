@@ -198,6 +198,18 @@
   margin-top: 28px;
 }
 
+.workday-overlay__switch-row {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.workday-overlay__switch-row .workday-overlay__switch {
+  margin-top: 0;
+}
+
 .workday-overlay__switch-btn {
   flex: 1;
   display: flex;
@@ -212,6 +224,46 @@
   color: var(--background);
   height: 32px;
   padding: 0 var(--space-5);
+}
+
+.workday-overlay__calendar-btn {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: var(--radius-md);
+  border: var(--border-width-sm) solid var(--primary-dark);
+  background: var(--highlight-light);
+  color: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  box-sizing: border-box;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.workday-overlay__calendar-icon {
+  width: 20px;
+  height: 20px;
+  display: block;
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.workday-overlay__calendar-btn.active {
+  background: var(--primary);
+  border-color: var(--primary-dark);
+  color: var(--background);
+}
+
+button.workday-overlay__calendar-btn:hover:not(:disabled),
+button.workday-overlay__calendar-btn:focus-visible,
+button.workday-overlay__calendar-btn.active:hover:not(:disabled),
+button.workday-overlay__calendar-btn.active:focus-visible {
+  background: var(--highlight);
+  border-color: var(--primary-dark);
+  color: var(--background);
 }
 
 .workday-overlay__form {
@@ -359,6 +411,11 @@ button.workday-overlay__add.icon-add-btn[aria-pressed="true"] {
   scrollbar-gutter: stable;
 }
 
+.workday-overlay__list--calendar {
+  margin-top: 28px;
+  max-height: calc((52px * 4) + (8px * 3));
+}
+
 .workday-overlay__item,
 .workday-overlay__empty {
   width: 100%;
@@ -374,6 +431,39 @@ button.workday-overlay__add.icon-add-btn[aria-pressed="true"] {
   justify-content: space-between;
   gap: 16px;
   flex-shrink: 0;
+}
+
+.workday-overlay__calendar-item {
+  height: 52px;
+  min-height: 52px;
+  justify-content: flex-start;
+  border-radius: 18px;
+}
+
+.workday-overlay__calendar-time {
+  width: 72px;
+  flex-shrink: 0;
+  color: var(--primary-dark);
+  font-family: var(--text-button-label-font-family);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+.workday-overlay__calendar-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.workday-overlay__calendar-location {
+  color: color-mix(in srgb, var(--text) 65%, transparent);
+  font-family: var(--text-body-regular-font-family);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .workday-overlay__empty {
@@ -459,4 +549,14 @@ button.workday-overlay__add.icon-add-btn[aria-pressed="true"] {
   margin-top: auto;
   align-self: center;
   min-width: 160px;
+}
+
+@media (max-width: 520px) {
+  .workday-overlay__switch-row {
+    width: 100%;
+  }
+
+  .workday-overlay__switch {
+    width: 100%;
+  }
 }

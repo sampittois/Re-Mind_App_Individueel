@@ -1205,6 +1205,7 @@ export default function App() {
         onSubmit={handleWorkdayReflectionSubmit}
         showFinishedTitle={workdayReflectionShowFinishedTitle}
         initialTab={workdayReflectionInitialTab}
+        profile={profile}
       />
     </div>
   );

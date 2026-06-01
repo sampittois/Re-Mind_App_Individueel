@@ -9,15 +9,36 @@ import {
   deleteTodo,
   formatIsoDate,
 } from "../lib/todos";
+import { fetchCalendarEventsForDay } from "../lib/calendar";
 import xIcon from "../assets/x.svg";
 
 const EMPTY_LISTS = { today: [], tomorrow: [] };
 
-export default function WorkdayReflectionOverlay({ open, onClose, onSubmit, showFinishedTitle = true, initialTab = "today" }) {
+function formatCalendarTime(event) {
+  if (event.allDay) return "Hele dag";
+  if (!event.start) return "";
+
+  return new Intl.DateTimeFormat("nl-NL", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(event.start));
+}
+
+export default function WorkdayReflectionOverlay({
+  open,
+  onClose,
+  onSubmit,
+  showFinishedTitle = true,
+  initialTab = "today",
+  profile = null,
+}) {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [draftItem, setDraftItem] = useState("");
   // items are objects: { id, text, done }
   const [itemsByTab, setItemsByTab] = useState({ today: [], tomorrow: [] });
+  const [calendarItems, setCalendarItems] = useState([]);
+  const [calendarLoading, setCalendarLoading] = useState(false);
+  const [calendarError, setCalendarError] = useState("");
 
   useEffect(() => {
     if (!open) return undefined;
@@ -25,6 +46,8 @@ export default function WorkdayReflectionOverlay({ open, onClose, onSubmit, show
     setActiveTab(initialTab);
     setDraftItem("");
     setItemsByTab(EMPTY_LISTS);
+    setCalendarItems([]);
+    setCalendarError("");
 
     // load persistent todos for today and tomorrow
     (async () => {
@@ -63,14 +86,60 @@ export default function WorkdayReflectionOverlay({ open, onClose, onSubmit, show
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open, onClose, initialTab]);
 
+  useEffect(() => {
+    if (!open || activeTab !== "calendar") return undefined;
+
+    let active = true;
+
+    async function loadCalendarItems() {
+      if (profile && !profile.calendar_linked) {
+        setCalendarItems([]);
+        setCalendarError("");
+        setCalendarLoading(false);
+        return;
+      }
+
+      setCalendarLoading(true);
+      setCalendarError("");
+
+      const { data, error } = await fetchCalendarEventsForDay(new Date());
+
+      if (!active) return;
+
+      if (error) {
+        setCalendarItems([]);
+        setCalendarError(error.message || "Agenda-items laden is mislukt.");
+      } else {
+        setCalendarItems(data?.events || []);
+      }
+
+      setCalendarLoading(false);
+    }
+
+    loadCalendarItems();
+
+    return () => {
+      active = false;
+    };
+  }, [activeTab, open, profile]);
+
   if (!open) {
     return null;
   }
 
   const currentItems = itemsByTab[activeTab] || [];
+  const isCalendarTab = activeTab === "calendar";
+  const questionText = isCalendarTab
+    ? "Wat staat er vandaag in je agenda?"
+    : activeTab === "today"
+      ? "Waar wil je vandaag aan werken?"
+      : "Waar wil je morgen aan werken?";
+  const inputLabel = activeTab === "today" ? "Taak voor vandaag" : "Taak voor morgen";
+  const inputPlaceholder = activeTab === "today" ? "Voeg een taak voor vandaag toe" : "Voeg een taak voor morgen toe";
 
   function handleAddItem(event) {
     event?.preventDefault?.();
+    if (isCalendarTab) return;
 
     const nextText = draftItem.trim();
     if (!nextText) return;
@@ -161,51 +230,111 @@ export default function WorkdayReflectionOverlay({ open, onClose, onSubmit, show
           </h2>
         ) : null}
         <p className="workday-overlay__question">
-          {activeTab === "today" ? "Waar wil je vandaag aan werken?" : "Waar wil je morgen aan werken?"}
+          {questionText}
         </p>
-        <div className="workday-overlay__switch" role="tablist" aria-label="Reflectie dagkeuze">
-          <button
-            className={`workday-overlay__switch-btn ${activeTab === "today" ? "active" : ""}`}
-            type="button"
-            onClick={() => setActiveTab("today")}
-            role="tab"
-            aria-selected={activeTab === "today"}
-          >
-            Vandaag
-          </button>
+        <div className="workday-overlay__switch-row" role="tablist" aria-label="Reflectie weergave">
+          <div className="workday-overlay__switch" aria-label="Reflectie dagkeuze">
+            <button
+              className={`workday-overlay__switch-btn ${activeTab === "today" ? "active" : ""}`}
+              type="button"
+              onClick={() => setActiveTab("today")}
+              role="tab"
+              aria-selected={activeTab === "today"}
+            >
+              Vandaag
+            </button>
+
+            <button
+              className={`workday-overlay__switch-btn ${activeTab === "tomorrow" ? "active" : ""}`}
+              type="button"
+              onClick={() => setActiveTab("tomorrow")}
+              role="tab"
+              aria-selected={activeTab === "tomorrow"}
+            >
+              Morgen
+            </button>
+          </div>
 
           <button
-            className={`workday-overlay__switch-btn ${activeTab === "tomorrow" ? "active" : ""}`}
+            className={`workday-overlay__calendar-btn ${isCalendarTab ? "active" : ""}`}
             type="button"
-            onClick={() => setActiveTab("tomorrow")}
+            onClick={() => setActiveTab("calendar")}
             role="tab"
-            aria-selected={activeTab === "tomorrow"}
+            aria-selected={isCalendarTab}
+            aria-label="Agenda-items tonen"
+            title="Agenda-items"
           >
-            Morgen
+            <svg
+              className="workday-overlay__calendar-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <rect width="18" height="18" x="3" y="4" rx="2" />
+              <path d="M16 2v4" />
+              <path d="M3 10h18" />
+              <path d="M8 2v4" />
+              <path d="M17 14h-6" />
+              <path d="M13 18H7" />
+              <path d="M7 14h.01" />
+              <path d="M17 18h.01" />
+            </svg>
           </button>
         </div>
 
-        <form className="workday-overlay__form" onSubmit={handleAddItem}>
-          <div className="workday-overlay__entry-row">
-            <input
-              className="workday-overlay__input"
-              type="text"
-              value={draftItem}
-              onChange={(event) => setDraftItem(event.target.value)}
-              placeholder={activeTab === "today" ? "Voeg een taak voor vandaag toe" : "Voeg een taak voor morgen toe"}
-              aria-label={activeTab === "today" ? "Taak voor vandaag" : "Taak voor morgen"}
-              autoFocus
-            />
+        {!isCalendarTab ? (
+          <form className="workday-overlay__form" onSubmit={handleAddItem}>
+            <div className="workday-overlay__entry-row">
+              <input
+                className="workday-overlay__input"
+                type="text"
+                value={draftItem}
+                onChange={(event) => setDraftItem(event.target.value)}
+                placeholder={inputPlaceholder}
+                aria-label={inputLabel}
+                autoFocus
+              />
 
-            <button className="workday-overlay__add icon-add-btn" type="button" onClick={handleAddItem} aria-label="Taak toevoegen">
-              <PlusIcon />
-            </button>
-          </div>
-        </form>
+              <button className="workday-overlay__add icon-add-btn" type="button" onClick={handleAddItem} aria-label="Taak toevoegen">
+                <PlusIcon />
+              </button>
+            </div>
+          </form>
+        ) : null}
 
-        <ul className="workday-overlay__list" aria-label={activeTab === "today" ? "Taken voor vandaag" : "Taken voor morgen"}>
-          {currentItems.length ? (
-            currentItems.map((item) => (
+        {isCalendarTab ? (
+          <ul className="workday-overlay__list workday-overlay__list--calendar" aria-label="Agenda-items voor vandaag">
+            {calendarLoading ? <li className="workday-overlay__empty">Agenda-items laden...</li> : null}
+            {!calendarLoading && calendarError ? <li className="workday-overlay__empty">{calendarError}</li> : null}
+            {!calendarLoading && !calendarError && calendarItems.length === 0 ? (
+              <li className="workday-overlay__empty">
+                {profile?.calendar_linked ? "Geen agenda-items voor vandaag." : "Koppel je agenda om items te tonen."}
+              </li>
+            ) : null}
+            {!calendarLoading && !calendarError
+              ? calendarItems.map((event) => (
+                  <li className="workday-overlay__item workday-overlay__calendar-item" key={event.id}>
+                    <time className="workday-overlay__calendar-time">{formatCalendarTime(event)}</time>
+                    <span className="workday-overlay__calendar-text">
+                      <span className="workday-overlay__item-label">{event.title}</span>
+                      {event.location ? <span className="workday-overlay__calendar-location">{event.location}</span> : null}
+                    </span>
+                  </li>
+                ))
+              : null}
+          </ul>
+        ) : (
+          <ul className="workday-overlay__list" aria-label={activeTab === "today" ? "Taken voor vandaag" : "Taken voor morgen"}>
+            {currentItems.length ? (
+              currentItems.map((item) => (
               <li className={`workday-overlay__item ${item.done ? "done" : ""}`} key={item.id}>
                 <button
                   className={`workday-overlay__check ${item.done ? "done" : ""}`}
@@ -233,10 +362,11 @@ export default function WorkdayReflectionOverlay({ open, onClose, onSubmit, show
                 </button>
               </li>
             ))
-          ) : (
-            <li className="workday-overlay__empty">Nog geen taken toegevoegd.</li>
-          )}
-        </ul>
+            ) : (
+              <li className="workday-overlay__empty">Nog geen taken toegevoegd.</li>
+            )}
+          </ul>
+        )}
 
         <button className="workday-overlay__submit" type="button" onClick={handleDone}>
           Klaar
