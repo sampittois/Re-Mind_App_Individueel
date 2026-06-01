@@ -121,7 +121,7 @@
 
 .pause-page-grid {
 	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 240px));
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 240px));
 	justify-content: center;
 	gap: var(--space-4);
 	justify-items: center;
@@ -149,11 +149,20 @@
 
 .pause-suggestions__grid {
 	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 240px));
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 240px));
 	gap: var(--space-4);
 	align-items: start;
 	justify-content: center;
 	justify-items: center;
+}
+
+.home-right-column .pause-suggestions {
+	width: 100%;
+}
+
+.home-right-column .pause-suggestions__grid {
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 240px));
+	max-width: calc(480px + var(--space-4));
 }
 
 .pause-suggestion-card {
@@ -516,13 +525,7 @@
 	color: var(--button-hover-text-color);
 }
 
-@media (max-width: 820px) {
-	.pause-suggestions__grid,
-	.pause-page-grid {
-		grid-template-columns: 1fr;
-		justify-items: center;
-	}
-
+@media (max-width: 680px) {
 	.pause-suggestion-card {
 		max-width: 240px;
 	}

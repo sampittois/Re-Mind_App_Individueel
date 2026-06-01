@@ -110,7 +110,7 @@
   padding: var(--space-3);
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
   .reports-layout {
     grid-template-columns: 1fr;
     gap: var(--space-6);
@@ -157,7 +157,7 @@
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 840px) {
   .reports-right h1 {
     font-size: var(--text-heading-2-font-size);
     line-height: var(--text-heading-2-line-height);
@@ -189,7 +189,7 @@
   }
 }
 
-@media (max-width: 520px) {
+@media (max-width: 600px) {
   .timeline {
     padding: var(--space-3);
   }
