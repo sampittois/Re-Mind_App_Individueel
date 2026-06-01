@@ -2,8 +2,8 @@ const path = require("node:path");
 const { app, BrowserWindow, Notification, ipcMain } = require("electron");
 
 const windowIconPath = app.isPackaged
-  ? path.join(process.resourcesPath, "app-icon.png")
-  : path.join(__dirname, "..", "frontend", "src", "assets", "logo_primary.png");
+  ? path.join(process.resourcesPath, "logo_primary-dark_icon.png")
+  : path.join(__dirname, "..", "frontend", "src", "assets", "logo_primary-dark_icon.png");
 
 const reminderIntervals = new Map();
 
