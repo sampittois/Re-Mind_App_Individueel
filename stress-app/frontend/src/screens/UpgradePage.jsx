@@ -52,7 +52,7 @@ export default function UpgradePage({ profile, onUpdateProfile, setCurrentPage }
 
     try {
       if (profile?.id) {
-        await fetch("http://localhost:3000/set-plan", {
+        await fetch(`${import.meta.env.VITE_BACKEND_URL}/set-plan`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ user_id: profile.id, plan: pendingPlan, payment_details: paymentDetails }),

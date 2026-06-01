@@ -322,7 +322,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
           query.set("manager_id", managerId);
         }
 
-        const response = await fetch(`http://localhost:3000/admin/employees?${query.toString()}`);
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/employees?${query.toString()}`);
         const payload = await response.json().catch(() => ({}));
 
         if (!response.ok || !payload?.ok) {
@@ -611,7 +611,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
       setIsCreatingEmployee(true);
       setCreateEmployeeError("");
 
-      const response = await fetch("http://localhost:3000/admin/create-employee", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/create-employee`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -697,7 +697,7 @@ export default function CompanyManagementPage({ profile, setCurrentPage, onTheme
       setIsDeletingEmployee(true);
       setDeleteEmployeeError("");
 
-      const response = await fetch("http://localhost:3000/admin/delete-employee", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/delete-employee`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

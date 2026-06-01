@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import "../styles/admin.css";
 import { BackIcon } from "../components/IconActions";
 
-const API_BASE = "http://localhost:3000";
+const API_BASE = import.meta.env.VITE_BACKEND_URL;
 
 const EMPTY_OVERVIEW = {
   stats: {

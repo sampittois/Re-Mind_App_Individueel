@@ -4,7 +4,7 @@ import Breathe from "../components/Breathe";
 import { supabase } from "../lib/supabaseClient";
 import { loadRecentLoginEmails, normalizeEmail, saveRecentLoginEmails } from "../lib/recentLoginEmails";
 
-const RECENT_EMAILS_VALIDATE_URL = "http://localhost:3000/recent-login-emails/validate";
+const RECENT_EMAILS_VALIDATE_URL = `${import.meta.env.VITE_BACKEND_URL}/recent-login-emails/validate`;
 
 export default function LoginPage({ onLogin, onGoToRegister, onSkip }) {
   const [email, setEmail] = useState("");

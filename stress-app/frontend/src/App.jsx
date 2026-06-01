@@ -140,7 +140,7 @@ async function handleBackendDeleteAccount() {
     return { error: new Error("No active session") };
   }
 
-  const response = await fetch("http://localhost:3000/delete-account", {
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/delete-account`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -992,7 +992,7 @@ export default function App() {
         return;
       }
 
-      const response = await fetch(`http://localhost:3000/admin/company?company_id=${encodeURIComponent(profileCompanyId)}`);
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/admin/company?company_id=${encodeURIComponent(profileCompanyId)}`);
       const payload = await response.json().catch(() => ({}));
 
       if (!active) return;
