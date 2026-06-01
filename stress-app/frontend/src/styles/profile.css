@@ -205,6 +205,68 @@ button.edit-pencil.icon-action-btn[aria-pressed="true"]:not(:disabled) {
   margin-top: 6px;
 }
 
+.profile-action-error {
+  margin: -4px 0 4px;
+  color: var(--danger, #b42318);
+  font-size: var(--text-body-small-font-size);
+  line-height: var(--text-body-small-line-height);
+}
+
+.calendar-link-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  background: rgba(31, 42, 36, 0.34);
+}
+
+.calendar-link-modal__card {
+  position: relative;
+  width: min(420px, 100%);
+  background: var(--background);
+  border: var(--border-width-sm) solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-6);
+}
+
+.calendar-link-modal__close {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  bottom: auto;
+}
+
+.calendar-link-modal__card h2 {
+  margin: 0 0 var(--space-3);
+  font-family: var(--text-heading-2-font-family);
+  font-size: var(--text-heading-3-font-size);
+  line-height: var(--text-heading-3-line-height);
+}
+
+.calendar-link-modal__card p {
+  margin: 0 0 var(--space-5);
+  color: var(--text-light);
+  line-height: var(--text-body-regular-line-height);
+}
+
+.calendar-link-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.calendar-link-modal__actions .action-btn {
+  font-family: var(--text-button-label-font-family);
+  font-size: var(--text-button-label-font-size);
+  line-height: var(--text-button-label-line-height);
+  font-weight: var(--text-button-label-font-weight);
+  text-decoration: none;
+}
+
 .favorites-section {
   display: flex;
   flex-direction: column;

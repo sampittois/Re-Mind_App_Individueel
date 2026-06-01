@@ -7,6 +7,7 @@ import highEnergyIcon from "../assets/highEnergy.svg";
 import highStressIcon from "../assets/highStress.svg";
 import warningIcon from "../assets/warning.svg";
 import { addEnergyCheck, addStressCheck, loadCurrentDayTimeline } from "../lib/session";
+import { fetchCalendarEventsForDay } from "../lib/calendar";
 import "../styles/reportsDay.css";
 
 function formatReportDate(dateValue) {
@@ -28,6 +29,16 @@ function isSliderValue(value) {
   return Number.isFinite(value) && value >= 1 && value <= 5;
 }
 
+function formatEventTime(event) {
+  if (event.allDay) return "Hele dag";
+  if (!event.start) return "";
+
+  return new Intl.DateTimeFormat("nl-NL", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(event.start));
+}
+
 export default function ReportsDay({
   profile,
   user,
@@ -46,6 +57,9 @@ export default function ReportsDay({
     pausesSkipped: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [agendaEvents, setAgendaEvents] = useState([]);
+  const [agendaLoading, setAgendaLoading] = useState(false);
+  const [agendaError, setAgendaError] = useState("");
   const targetUserId = reportUserId || profile?.id || user?.id || null;
 
   async function refreshReport() {
@@ -111,6 +125,39 @@ export default function ReportsDay({
     };
   }, [targetUserId]);
 
+  useEffect(() => {
+    let active = true;
+
+    async function loadAgendaEvents() {
+      if (!profile?.calendar_linked || targetUserId !== (user?.id || profile?.id)) {
+        setAgendaEvents([]);
+        setAgendaError("");
+        return;
+      }
+
+      setAgendaLoading(true);
+      setAgendaError("");
+      const { data, error } = await fetchCalendarEventsForDay(new Date());
+
+      if (!active) return;
+
+      if (error) {
+        setAgendaError(error.message || "Agenda-items laden is mislukt.");
+        setAgendaEvents([]);
+      } else {
+        setAgendaEvents(data?.events || []);
+      }
+
+      setAgendaLoading(false);
+    }
+
+    loadAgendaEvents();
+
+    return () => {
+      active = false;
+    };
+  }, [profile?.calendar_linked, profile?.id, targetUserId, user?.id]);
+
   const renderIcon = (item) => {
     if (item.iconType === "break") return breakIcon;
     if (item.iconType === "highEnergy") return highEnergyIcon;
@@ -169,6 +216,33 @@ export default function ReportsDay({
         </div>
 
         {!loading && reportData.timeline.length === 0 ? <p>Er zijn nog geen opgeslagen check-ins voor deze gebruiker.</p> : null}
+
+        {profile?.calendar_linked ? (
+          <section className="report-agenda-card" aria-label="Gekoppelde agenda">
+            <div className="report-agenda-card__header">
+              <h2>Agenda</h2>
+              {agendaLoading ? <span>laden...</span> : null}
+            </div>
+
+            {agendaError ? <p className="report-agenda-card__error">{agendaError}</p> : null}
+
+            {!agendaLoading && !agendaError && agendaEvents.length === 0 ? (
+              <p className="report-agenda-card__empty">Geen agenda-items voor vandaag.</p>
+            ) : null}
+
+            <div className="report-agenda-card__list">
+              {agendaEvents.map((event) => (
+                <article key={event.id} className="report-agenda-card__item">
+                  <time>{formatEventTime(event)}</time>
+                  <div>
+                    <h3>{event.title}</h3>
+                    {event.location ? <p>{event.location}</p> : null}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : null}
       </section>
     </div>
   );

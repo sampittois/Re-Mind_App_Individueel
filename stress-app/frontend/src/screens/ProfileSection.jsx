@@ -6,6 +6,7 @@ import SettingsSection from "../components/SettingsSection";
 import CheckIcon from "../components/CheckIcon";
 import PencilIcon from "../components/PencilIcon";
 import { supabase } from "../lib/supabaseClient";
+import { startCalendarLink } from "../lib/calendar";
 import { PlusIcon } from "../components/IconActions"
 import breathing from "../assets/ademhaling.png";
 import stretching from "../assets/stretchen.png";
@@ -48,6 +49,9 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
   const [isAvatarOpen, setIsAvatarOpen] = useState(false);
   const fileRef = useRef(null);
   const [favoriteIds, setFavoriteIds] = useState(() => []);
+  const [isLinkingCalendar, setIsLinkingCalendar] = useState(false);
+  const [calendarLinkError, setCalendarLinkError] = useState("");
+  const [calendarConnectUrl, setCalendarConnectUrl] = useState("");
   const isAdminPlan = profile?.plan === "admin";
   const canEditCompany = Boolean(canEditCompanyName);
   const canViewCompanyName = Boolean(canEditCompany || profile?.company_id);
@@ -205,6 +209,28 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
     }
   }
 
+  async function handleCalendarLink() {
+    setCalendarLinkError("");
+    setIsLinkingCalendar(true);
+
+    try {
+      const { data, error } = await startCalendarLink("google");
+      if (error) {
+        setCalendarLinkError(error.message || "Agenda koppelen is mislukt.");
+        return;
+      }
+
+      setCalendarConnectUrl(data?.url || "");
+    } finally {
+      setIsLinkingCalendar(false);
+    }
+  }
+
+  function closeCalendarLinkDialog() {
+    setCalendarConnectUrl("");
+    setCalendarLinkError("");
+  }
+
   return (
     <div className="profile-section">
       <div className="profile-info-column">
@@ -342,12 +368,29 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
             <button
               className="action-btn"
               type="button"
-              onClick={async () => {
-                await onUpdateProfile?.({ calendar_linked: !Boolean(profile?.calendar_linked) });
-              }}
+              onClick={handleCalendarLink}
+              disabled={isLinkingCalendar}
             >
-              Link Agenda
+              {profile?.calendar_linked ? "Agenda gekoppeld" : isLinkingCalendar ? "Agenda koppelen..." : "Link Agenda"}
             </button>
+          ) : null}
+          {calendarLinkError ? <p className="profile-action-error">{calendarLinkError}</p> : null}
+
+          {calendarConnectUrl ? (
+            <div className="calendar-link-modal" role="dialog" aria-modal="true" aria-labelledby="calendar-link-title" onMouseDown={closeCalendarLinkDialog}>
+              <div className="calendar-link-modal__card" onMouseDown={(event) => event.stopPropagation()}>
+                <button className="pause-suggestion-card__favorite calendar-link-modal__close" type="button" onClick={closeCalendarLinkDialog} aria-label="Sluit agenda koppelen">
+                  <img src={xIcon} alt="" aria-hidden="true" className="pause-suggestion-card__favorite-custom" />
+                </button>
+                <h2 id="calendar-link-title">Agenda koppelen</h2>
+                <p>Open Google om read-only toegang te geven. Dit scherm blijft beschikbaar, dus je kan altijd terug.</p>
+                <div className="calendar-link-modal__actions">
+                  <a className="action-btn calendar-link-modal__primary" href={calendarConnectUrl} target="remind-calendar-link" rel="opener" onClick={() => setCalendarConnectUrl("")}>
+                    Open Google
+                  </a>
+                </div>
+              </div>
+            </div>
           ) : null}
 
           {profile?.plan === "bedrijfslicentie" || isAdminPlan ? (

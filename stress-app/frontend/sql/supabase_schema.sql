@@ -213,6 +213,30 @@ alter table public.favorite_pauses add column if not exists pause_id text;
 alter table public.favorite_pauses add column if not exists created_at timestamptz not null default now();
 alter table public.favorite_pauses add column if not exists updated_at timestamptz not null default now();
 
+create table if not exists public.calendar_connections (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users (id) on delete cascade,
+  provider text not null check (provider in ('google', 'microsoft')),
+  access_token_ciphertext text,
+  encrypted_refresh_token text not null,
+  token_expires_at timestamptz,
+  connected_at timestamptz not null default now(),
+  revoked_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (user_id, provider)
+);
+
+alter table public.calendar_connections add column if not exists user_id uuid;
+alter table public.calendar_connections add column if not exists provider text;
+alter table public.calendar_connections add column if not exists access_token_ciphertext text;
+alter table public.calendar_connections add column if not exists encrypted_refresh_token text;
+alter table public.calendar_connections add column if not exists token_expires_at timestamptz;
+alter table public.calendar_connections add column if not exists connected_at timestamptz not null default now();
+alter table public.calendar_connections add column if not exists revoked_at timestamptz;
+alter table public.calendar_connections add column if not exists created_at timestamptz not null default now();
+alter table public.calendar_connections add column if not exists updated_at timestamptz not null default now();
+
 create table if not exists public.payment_details (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users (id) on delete cascade,
@@ -269,6 +293,9 @@ create index if not exists break_reminder_events_user_session_created_at_idx
 
 create index if not exists favorite_pauses_user_pause_idx
   on public.favorite_pauses (user_id, pause_id);
+
+create index if not exists calendar_connections_user_provider_idx
+  on public.calendar_connections (user_id, provider);
 
 create index if not exists payment_details_user_created_at_idx
   on public.payment_details (user_id, created_at desc);
@@ -342,6 +369,11 @@ for each row execute function public.set_updated_at();
 drop trigger if exists set_favorite_pauses_updated_at on public.favorite_pauses;
 create trigger set_favorite_pauses_updated_at
 before update on public.favorite_pauses
+for each row execute function public.set_updated_at();
+
+drop trigger if exists set_calendar_connections_updated_at on public.calendar_connections;
+create trigger set_calendar_connections_updated_at
+before update on public.calendar_connections
 for each row execute function public.set_updated_at();
 
 drop trigger if exists set_payment_details_updated_at on public.payment_details;
@@ -456,6 +488,7 @@ alter table public.energy_checkins enable row level security;
 alter table public.breaks enable row level security;
 alter table public.break_reminder_events enable row level security;
 alter table public.favorite_pauses enable row level security;
+alter table public.calendar_connections enable row level security;
 alter table public.payment_details enable row level security;
 alter table public.companies enable row level security;
 
@@ -664,6 +697,31 @@ with check (auth.uid() = user_id);
 drop policy if exists "favorite_pauses_delete_own" on public.favorite_pauses;
 create policy "favorite_pauses_delete_own"
 on public.favorite_pauses
+for delete
+using (auth.uid() = user_id);
+
+drop policy if exists "calendar_connections_select_own" on public.calendar_connections;
+create policy "calendar_connections_select_own"
+on public.calendar_connections
+for select
+using (auth.uid() = user_id);
+
+drop policy if exists "calendar_connections_insert_own" on public.calendar_connections;
+create policy "calendar_connections_insert_own"
+on public.calendar_connections
+for insert
+with check (auth.uid() = user_id);
+
+drop policy if exists "calendar_connections_update_own" on public.calendar_connections;
+create policy "calendar_connections_update_own"
+on public.calendar_connections
+for update
+using (auth.uid() = user_id)
+with check (auth.uid() = user_id);
+
+drop policy if exists "calendar_connections_delete_own" on public.calendar_connections;
+create policy "calendar_connections_delete_own"
+on public.calendar_connections
 for delete
 using (auth.uid() = user_id);
 
