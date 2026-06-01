@@ -79,38 +79,36 @@
   align-items: center;
   gap: 0;
   background: var(--highlight-light);
-  border: var(--border-width-sm) solid var(--primary-dark);
   padding: 3px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   width: 256px;
   height: 40px;
   box-sizing: border-box;
-  overflow: hidden;
 }
 .billing-option {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--button-fill);
-  border: var(--button-border-width) var(--button-border-style) var(--button-border-color);
+  gap: 6px;
+  background: transparent;
+  border: none;
   padding: 0 var(--space-3);
-  height: 32px;
-  border-radius: var(--radius-xs);
+  height: 100%;
+  border-radius: var(--radius-sm);
   font-family: var(--text-button-label-font-family);
-  font-weight: var(--text-button-label-font-weight);
-  font-size: var(--font-size-xs);
-  line-height: var(--line-height-xs);
-  color: var(--button-text-color);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--text-button-label-font-size);
+  line-height: var(--text-button-label-line-height);
+  color: var(--text);
   cursor: pointer;
   white-space: nowrap;
   box-sizing: border-box;
 }
 .billing-option--active {
-  background: var(--button-active-fill);
-  color: var(--button-active-text-color);
-  border-color: var(--button-active-border-color);
-  height: 32px;
+  background: var(--primary);
+  color: var(--background);
+  height: 100%;
   padding: 0 var(--space-3);
 }
 .billing-option,
