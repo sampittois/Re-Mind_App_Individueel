@@ -6,7 +6,7 @@ import SettingsSection from "../components/SettingsSection";
 import CheckIcon from "../components/CheckIcon";
 import PencilIcon from "../components/PencilIcon";
 import { supabase } from "../lib/supabaseClient";
-import { startCalendarLink } from "../lib/calendar";
+import { fetchCalendarConnections, startCalendarLink } from "../lib/calendar";
 import { PlusIcon } from "../components/IconActions"
 import breathing from "../assets/ademhaling.png";
 import stretching from "../assets/stretchen.png";
@@ -55,10 +55,34 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
   const isAdminPlan = profile?.plan === "admin";
   const canEditCompany = Boolean(canEditCompanyName);
   const canViewCompanyName = Boolean(canEditCompany || profile?.company_id);
+  const updateProfileRef = useRef(onUpdateProfile);
 
   useEffect(() => {
     setAvatarSrc(profile?.avatar_url ?? null);
   }, [profile?.avatar_url]);
+
+  useEffect(() => {
+    updateProfileRef.current = onUpdateProfile;
+  }, [onUpdateProfile]);
+
+  useEffect(() => {
+    let active = true;
+
+    async function syncCalendarLinkedState() {
+      if (!user?.id || profile?.plan === "basic" || profile?.calendar_linked) return;
+
+      const { data, error } = await fetchCalendarConnections();
+      if (!active || error || !data?.calendarLinked) return;
+
+      await updateProfileRef.current?.({ calendar_linked: true });
+    }
+
+    syncCalendarLinkedState();
+
+    return () => {
+      active = false;
+    };
+  }, [profile?.calendar_linked, profile?.plan, user?.id]);
 
   useEffect(() => {
     let isMounted = true;
@@ -369,7 +393,7 @@ export default function ProfileSection({ profile, initialName = "John Doe", comp
               className="action-btn"
               type="button"
               onClick={handleCalendarLink}
-              disabled={isLinkingCalendar}
+              disabled={isLinkingCalendar || profile?.calendar_linked}
             >
               {profile?.calendar_linked ? "Agenda gekoppeld" : isLinkingCalendar ? "Agenda koppelen..." : "Link Agenda"}
             </button>

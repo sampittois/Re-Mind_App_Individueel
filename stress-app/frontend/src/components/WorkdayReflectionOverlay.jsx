@@ -37,6 +37,7 @@ export default function WorkdayReflectionOverlay({
   // items are objects: { id, text, done }
   const [itemsByTab, setItemsByTab] = useState({ today: [], tomorrow: [] });
   const [calendarItems, setCalendarItems] = useState([]);
+  const [calendarLinked, setCalendarLinked] = useState(Boolean(profile?.calendar_linked));
   const [calendarLoading, setCalendarLoading] = useState(false);
   const [calendarError, setCalendarError] = useState("");
 
@@ -47,6 +48,7 @@ export default function WorkdayReflectionOverlay({
     setDraftItem("");
     setItemsByTab(EMPTY_LISTS);
     setCalendarItems([]);
+    setCalendarLinked(Boolean(profile?.calendar_linked));
     setCalendarError("");
 
     // load persistent todos for today and tomorrow
@@ -84,7 +86,7 @@ export default function WorkdayReflectionOverlay({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [open, onClose, initialTab]);
+  }, [open, onClose, initialTab, profile?.calendar_linked]);
 
   useEffect(() => {
     if (!open || activeTab !== "calendar") return undefined;
@@ -92,13 +94,6 @@ export default function WorkdayReflectionOverlay({
     let active = true;
 
     async function loadCalendarItems() {
-      if (profile && !profile.calendar_linked) {
-        setCalendarItems([]);
-        setCalendarError("");
-        setCalendarLoading(false);
-        return;
-      }
-
       setCalendarLoading(true);
       setCalendarError("");
 
@@ -111,6 +106,7 @@ export default function WorkdayReflectionOverlay({
         setCalendarError(error.message || "Agenda-items laden is mislukt.");
       } else {
         setCalendarItems(data?.events || []);
+        setCalendarLinked(Boolean(data?.calendarLinked));
       }
 
       setCalendarLoading(false);
@@ -121,7 +117,7 @@ export default function WorkdayReflectionOverlay({
     return () => {
       active = false;
     };
-  }, [activeTab, open, profile]);
+  }, [activeTab, open, profile?.calendar_linked]);
 
   if (!open) {
     return null;
@@ -316,7 +312,7 @@ export default function WorkdayReflectionOverlay({
             {!calendarLoading && calendarError ? <li className="workday-overlay__empty">{calendarError}</li> : null}
             {!calendarLoading && !calendarError && calendarItems.length === 0 ? (
               <li className="workday-overlay__empty">
-                {profile?.calendar_linked ? "Geen agenda-items voor vandaag." : "Koppel je agenda om items te tonen."}
+                {calendarLinked ? "Geen agenda-items voor vandaag." : "Koppel je agenda om items te tonen."}
               </li>
             ) : null}
             {!calendarLoading && !calendarError

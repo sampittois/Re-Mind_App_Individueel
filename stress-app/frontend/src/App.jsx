@@ -382,7 +382,7 @@ export default function App() {
       return true;
     }
 
-    const nextProfile = { id: user.id, ...(profile || {}), ...patch };
+    const nextProfile = { id: user.id, ...patch };
     const { data, error } = await supabase
       .from("profiles")
       .upsert(nextProfile, { onConflict: "id" })

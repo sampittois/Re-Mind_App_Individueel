@@ -905,15 +905,6 @@ app.get('/calendar/connect-url', async (req, res) => {
       params.set('prompt', 'consent');
     }
 
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .update({ calendar_linked: false })
-      .eq('id', user.id);
-
-    if (profileError) {
-      return res.status(500).json({ ok: false, error: profileError.message });
-    }
-
     return res.json({ ok: true, provider: name, url: `${config.authUrl}?${params.toString()}` });
   } catch (err) {
     return res.status(err.status || 500).json({ ok: false, error: err.message });
@@ -1020,7 +1011,19 @@ app.get('/calendar/connections', async (req, res) => {
       return res.status(500).json({ ok: false, error: error.message });
     }
 
-    return res.json({ ok: true, connections: data || [] });
+    const connections = data || [];
+    if (connections.length) {
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ calendar_linked: true })
+        .eq('id', user.id);
+
+      if (profileError) {
+        return res.status(500).json({ ok: false, error: profileError.message });
+      }
+    }
+
+    return res.json({ ok: true, calendarLinked: connections.length > 0, connections });
   } catch (err) {
     return res.status(err.status || 500).json({ ok: false, error: err.message });
   }
@@ -1034,20 +1037,6 @@ app.get('/calendar/events', async (req, res) => {
     const { start, end } = getDayRange(date);
     const offset = getTimeZoneOffset(start, timeZone);
 
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('calendar_linked')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    if (profileError) {
-      return res.status(500).json({ ok: false, error: profileError.message });
-    }
-
-    if (!profile?.calendar_linked) {
-      return res.json({ ok: true, events: [] });
-    }
-
     const { data: connections, error: connectionError } = await supabase
       .from('calendar_connections')
       .select('provider, encrypted_refresh_token')
@@ -1056,6 +1045,19 @@ app.get('/calendar/events', async (req, res) => {
 
     if (connectionError) {
       return res.status(500).json({ ok: false, error: connectionError.message });
+    }
+
+    if (!(connections || []).length) {
+      return res.json({ ok: true, calendarLinked: false, events: [] });
+    }
+
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .update({ calendar_linked: true })
+      .eq('id', user.id);
+
+    if (profileError) {
+      return res.status(500).json({ ok: false, error: profileError.message });
     }
 
     const eventGroups = await Promise.all((connections || []).map(async (connection) => {
@@ -1125,7 +1127,7 @@ app.get('/calendar/events', async (req, res) => {
       .flat()
       .sort((left, right) => new Date(left.start || 0) - new Date(right.start || 0));
 
-    return res.json({ ok: true, events });
+    return res.json({ ok: true, calendarLinked: true, events });
   } catch (err) {
     return res.status(err.status || 500).json({ ok: false, error: err.message });
   }
