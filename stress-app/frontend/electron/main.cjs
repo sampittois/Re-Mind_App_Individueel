@@ -1,6 +1,8 @@
 const { app, BrowserWindow, shell } = require("electron");
 const path = require("path");
 
+const appIconPath = path.join(__dirname, "../build/icon.png");
+
 function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 1200,
@@ -9,6 +11,7 @@ function createWindow() {
     minHeight: 640,
     backgroundColor: "#f7f4ef",
     autoHideMenuBar: true,
+    icon: appIconPath,
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
@@ -24,6 +27,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  app.setAppUserModelId("be.thomasmore.remind");
   createWindow();
 
   app.on("activate", () => {
