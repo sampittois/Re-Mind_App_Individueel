@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import "../styles/timer.css";
 import Breathe from "./Breathe";
 import BreakSuggestionsOverlay from "./BreakSuggestionsOverlay";
-import { addBreak, addBreakReminderDecision } from "../lib/session";
+import { addBreak, addBreakReminderDecision, startSession } from "../lib/session";
 
 const TIMER_STATE_STORAGE_KEY = "remind.timerState";
 const DAY_TARGET_SECONDS = 8 * 60 * 60;
@@ -255,7 +256,16 @@ function BreathingLogo({ progress = 0, segments = [], active = false, size = ORI
   );
 }
 
-export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecisionLogged, profile, onStartBreathingExercise, onOpenSuggestion }) {
+export default function Timer({
+  onOpenReflection,
+  onBreakLogged,
+  onReminderDecisionLogged,
+  profile,
+  onStartBreathingExercise,
+  onOpenSuggestion,
+  showCard = true,
+  cardContainerId = null,
+}) {
   const storageKey = useMemo(() => {
     return profile?.id ? `${TIMER_STATE_STORAGE_KEY}.${profile.id}` : null;
   }, [profile?.id]);
@@ -276,11 +286,21 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
   const [lastTickAt, setLastTickAt] = useState(() => initialTimerState?.lastTickAt ?? Date.now());
   const [clockNow, setClockNow] = useState(() => Date.now());
   const [breathingLogoSize, setBreathingLogoSize] = useState(ORIGINAL_BREATHING_LOGO_SIZE);
+  const [cardContainer, setCardContainer] = useState(null);
 
   const hrRowRef = useRef(null);
   const timerTimeRef = useRef(null);
   const btnStackRef = useRef(null);
   const timerCardRef = useRef(null);
+
+  useEffect(() => {
+    if (!showCard || !cardContainerId || typeof document === "undefined") {
+      setCardContainer(null);
+      return;
+    }
+
+    setCardContainer(document.getElementById(cardContainerId));
+  }, [showCard, cardContainerId]);
 
   // When the storage key changes (user switched), reload timer state for the new user
   useEffect(() => {
@@ -516,7 +536,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
     return () => {
       window.removeEventListener("resize", updateBreathingLogoSize);
     };
-  }, [workStarted, finished, onBreak]);
+  }, [workStarted, finished, onBreak, showCard, cardContainer]);
 
   // Ensure timer-card height matches the stacked sliders' height
   useEffect(() => {
@@ -546,7 +566,7 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
 
     window.addEventListener("resize", applyHeight);
     return () => window.removeEventListener("resize", applyHeight);
-  }, []);
+  }, [showCard, cardContainer]);
 
   const startDay = async () => {
     const now = Date.now();
@@ -554,6 +574,11 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
     const initialSegments = startProgress > 0
       ? [createRingSegment(0, startProgress, "var(--error)"), createRingSegment(startProgress, null, "var(--primary-dark)")]
       : [createRingSegment(0, null, "var(--primary-dark)")];
+
+    const { error: sessionError } = await startSession();
+    if (sessionError) {
+      console.error("Failed to start work session:", sessionError);
+    }
 
     setWorkStarted(true);
     setWorkStartedAt(now);
@@ -720,9 +745,9 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
     alert("Reflectie (demo)");
   };
 
-  return (
+  const timerCard = (
     <div className="timer-card" ref={timerCardRef}>
-      <div className="hrRow">
+      <div className="hrRow" ref={hrRowRef}>
         <BreathingLogo progress={progress} segments={renderedRingSegments} active={logoActive} size={breathingLogoSize} />
 
         <div ref={timerTimeRef} style={{ minWidth: 140, display: "flex", justifyContent: "center" }}>
@@ -770,6 +795,13 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
         </div>
       </div>
 
+    </div>
+  );
+
+  return (
+    <>
+      {showCard && cardContainer ? createPortal(timerCard, cardContainer) : null}
+
       {activeReminder ? (
         <div className="timer-reminder-overlay" role="dialog" aria-modal="true" aria-label="Break reminder">
           <div className="timer-reminder-card">
@@ -800,6 +832,6 @@ export default function Timer({ onOpenReflection, onBreakLogged, onReminderDecis
           onStartBreathingExercise={onStartBreathingExercise}
         />
       ) : null}
-    </div>
+    </>
   );
 }
