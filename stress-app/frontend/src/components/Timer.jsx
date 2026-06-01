@@ -6,6 +6,7 @@ import BreakSuggestionsOverlay from "./BreakSuggestionsOverlay";
 import { addBreak, addBreakReminderDecision, startSession } from "../lib/session";
 
 const TIMER_STATE_STORAGE_KEY = "remind.timerState";
+const FIXED_BREAK_REMINDERS_STORAGE_KEY = "remind.fixedBreakReminderDecisions";
 const DAY_TARGET_SECONDS = 8 * 60 * 60;
 const ORIGINAL_BREATHING_LOGO_SIZE = 280;
 const MIN_BREATHING_LOGO_SIZE = 180;
@@ -92,6 +93,23 @@ function buildReminderPayload(reminderAt, frequencyMins) {
   };
 }
 
+function buildFixedBreakReminderPayload(fixedBreak, breakIndex, dateKey) {
+  const start = typeof fixedBreak?.start === "string" ? fixedBreak.start : "";
+  const name = typeof fixedBreak?.name === "string" && fixedBreak.name.trim() ? fixedBreak.name.trim() : "pauze";
+  const normalizedName = name.toLowerCase();
+
+  return {
+    key: `fixed-${dateKey}-${fixedBreak?.id ?? breakIndex}-${normalizedName}-${start}`,
+    at: Date.now(),
+    source: "fixed",
+    breakId: fixedBreak?.id ?? breakIndex,
+    breakName: normalizedName,
+    breakStart: start,
+    dateKey,
+    label: start,
+  };
+}
+
 function parseTimeToMinutes(value) {
   if (typeof value !== "string") {
     return null;
@@ -108,13 +126,100 @@ function parseTimeToMinutes(value) {
   return hours * 60 + minutes;
 }
 
-function isNowNearFixedBreak(fixedBreaks, marginMins = 30) {
+function getLocalDateKey(dateValue = new Date()) {
+  const date = new Date(dateValue);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+function getFixedBreakReminderDecisionKey(profileId, reminder) {
+  return `${profileId || "anonymous"}:${reminder?.key || ""}`;
+}
+
+function loadFixedBreakReminderDecisions() {
+  if (typeof window === "undefined") {
+    return {};
+  }
+
+  try {
+    const raw = window.localStorage.getItem(FIXED_BREAK_REMINDERS_STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function hasFixedBreakReminderDecision(profileId, reminder) {
+  const decisions = loadFixedBreakReminderDecisions();
+  return Boolean(decisions[getFixedBreakReminderDecisionKey(profileId, reminder)]);
+}
+
+function storeFixedBreakReminderDecision(profileId, reminder, action) {
+  if (typeof window === "undefined" || reminder?.source !== "fixed") {
+    return;
+  }
+
+  try {
+    const decisions = loadFixedBreakReminderDecisions();
+    const todayKey = reminder.dateKey || getLocalDateKey();
+    const nextDecisions = Object.fromEntries(
+      Object.entries(decisions).filter(([, value]) => value?.dateKey === todayKey)
+    );
+
+    nextDecisions[getFixedBreakReminderDecisionKey(profileId, reminder)] = {
+      action,
+      dateKey: todayKey,
+      decidedAt: new Date().toISOString(),
+    };
+
+    window.localStorage.setItem(FIXED_BREAK_REMINDERS_STORAGE_KEY, JSON.stringify(nextDecisions));
+  } catch {
+    // Ignore localStorage write issues.
+  }
+}
+
+function getDueFixedBreakReminder(profile, now = new Date()) {
+  if (!Array.isArray(profile?.fixed_breaks) || profile.fixed_breaks.length === 0) {
+    return null;
+  }
+
+  const nowClock = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+  const dateKey = getLocalDateKey(now);
+
+  for (let index = 0; index < profile.fixed_breaks.length; index += 1) {
+    const fixedBreak = profile.fixed_breaks[index];
+    const start = typeof fixedBreak?.start === "string" ? fixedBreak.start.slice(0, 5) : "";
+
+    if (start !== nowClock) {
+      continue;
+    }
+
+    const reminder = buildFixedBreakReminderPayload({ ...fixedBreak, start }, index, dateKey);
+    if (!hasFixedBreakReminderDecision(profile?.id, reminder)) {
+      return reminder;
+    }
+  }
+
+  return null;
+}
+
+function isLunchReminder(reminder) {
+  return reminder?.source === "fixed" && reminder?.breakName === "lunch";
+}
+
+function isNowNearLunchBreak(fixedBreaks, marginMins = 30) {
   if (!Array.isArray(fixedBreaks) || fixedBreaks.length === 0) return false;
 
   const now = new Date();
   const nowMinutes = now.getHours() * 60 + now.getMinutes();
 
   return fixedBreaks.some((pause) => {
+    if (pause?.name !== "lunch") return false;
+
     const startMinutes = parseTimeToMinutes(pause?.start);
     const endMinutes = parseTimeToMinutes(pause?.end);
 
@@ -128,8 +233,8 @@ function isNowNearFixedBreak(fixedBreaks, marginMins = 30) {
 }
 
 function getBreakSuggestionMode(profile) {
-  // Only treat as 'lunch' when the current time is near a configured fixed break
-  if (isNowNearFixedBreak(profile?.fixed_breaks, 30)) {
+  // Only treat as 'lunch' when the current time is near a configured lunch break.
+  if (isNowNearLunchBreak(profile?.fixed_breaks, 30)) {
     return "lunch";
   }
 
@@ -455,6 +560,24 @@ export default function Timer({
     return () => clearInterval(reminderTimer);
   }, [isTimerTicking, activeReminder, nextReminderAt, reminderIntervalMs, frequencyMins]);
 
+  useEffect(() => {
+    if (!isTimerTicking || activeReminder || !profile?.id || !profile?.allow_reminders) {
+      return undefined;
+    }
+
+    const checkForFixedBreakReminder = () => {
+      const reminder = getDueFixedBreakReminder(profile);
+      if (reminder) {
+        setActiveReminder(reminder);
+      }
+    };
+
+    checkForFixedBreakReminder();
+    const fixedBreakTimer = setInterval(checkForFixedBreakReminder, 1000);
+
+    return () => clearInterval(fixedBreakTimer);
+  }, [isTimerTicking, activeReminder, profile]);
+
   const mainTime = useMemo(() => formatTime(workSeconds), [workSeconds]);
 
   const progress = useMemo(() => {
@@ -620,6 +743,8 @@ export default function Timer({
   };
 
   const continueWorking = async () => {
+    const reminder = activeReminder;
+    storeFixedBreakReminderDecision(profile?.id, reminder, "skipped");
     await logReminderDecision("skipped");
 
     setActiveReminder(null);
@@ -649,12 +774,20 @@ export default function Timer({
   };
 
   const takeBreak = (fromReminder = false) => {
+    const reminder = activeReminder;
+
     if (fromReminder) {
+      storeFixedBreakReminderDecision(profile?.id, reminder, "taken");
       void logReminderDecision("taken");
       setActiveReminder(null);
     }
 
     beginBreak();
+    if (isLunchReminder(reminder)) {
+      setActiveBreakType("lunch");
+      return;
+    }
+
     setBreakSuggestionsRequest({
       fromReminder,
       mode: getBreakSuggestionMode(profile),
@@ -805,18 +938,24 @@ export default function Timer({
       {activeReminder ? (
         <div className="timer-reminder-overlay" role="dialog" aria-modal="true" aria-label="Break reminder">
           <div className="timer-reminder-card">
-            <p className="timer-reminder-card__eyebrow">Break reminder</p>
-            <h2 className="timer-reminder-card__title">Het is tijd voor een pauze</h2>
+            <p className="timer-reminder-card__eyebrow">
+              {isLunchReminder(activeReminder) ? "Lunchpauze" : "Break reminder"}
+            </p>
+            <h2 className="timer-reminder-card__title">
+              {isLunchReminder(activeReminder) ? "Smakelijk" : "Het is tijd voor een pauze"}
+            </h2>
             <p className="timer-reminder-card__copy">
-              Je ingestelde reminder staat ingesteld op {activeReminder?.label ?? formatClockTime(new Date(activeReminder.at))}.
+              {isLunchReminder(activeReminder)
+                ? `Je lunchpauze staat ingesteld om ${activeReminder?.label ?? formatClockTime(new Date(activeReminder.at))}.`
+                : `Je ingestelde reminder staat ingesteld op ${activeReminder?.label ?? formatClockTime(new Date(activeReminder.at))}.`}
             </p>
 
             <div className="timer-reminder-card__actions">
               <button className="btn timer-reminder-card__secondary" onClick={continueWorking} type="button">
-                Doorgaan met werken
+                {isLunchReminder(activeReminder) ? "Doorwerken" : "Doorgaan met werken"}
               </button>
               <button className="btn" onClick={() => takeBreak(true)} type="button">
-                Neem een pauze
+                {isLunchReminder(activeReminder) ? "Neem de pauze" : "Neem een pauze"}
               </button>
             </div>
           </div>
