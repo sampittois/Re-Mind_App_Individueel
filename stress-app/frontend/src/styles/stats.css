@@ -10,7 +10,7 @@
 	font-family: var(--font-family-heading);
 	font-weight: var(--font-weight-semibold);
 	font-size: var(--text-heading-2-font-size);
-	color: var(--text);
+	color: var(--primary);
 }
 
 .stats-grid {

@@ -823,12 +823,11 @@ button.workday-overlay__add.icon-add-btn[aria-pressed="true"] {
   }
 
   .home-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 240px);
     grid-template-areas:
-      "timer"
-      "sliders"
-      "suggestions"
-      "stats";
+      "timer timer"
+      "sliders ."
+      "stats suggestions";
     gap: var(--space-5);
     max-width: 900px;
   }
@@ -854,11 +853,32 @@ button.workday-overlay__add.icon-add-btn[aria-pressed="true"] {
     width: 100%;
   }
 
+  .home-layout .home-right-column .pause-suggestions__grid {
+    grid-template-columns: minmax(min(100%, 220px), 240px);
+    max-width: 240px;
+  }
+
   .stats-section {
     grid-area: stats;
     width: 100%;
     max-width: none;
     margin-top: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .home-layout {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "timer"
+      "sliders"
+      "stats"
+      "suggestions";
+  }
+
+  .home-layout .home-right-column .pause-suggestions__grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 240px));
+    max-width: calc(480px + var(--space-4));
   }
 }
 
