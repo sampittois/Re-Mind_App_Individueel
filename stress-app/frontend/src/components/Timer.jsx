@@ -95,6 +95,7 @@ function buildReminderPayload(reminderAt, frequencyMins) {
 
 function buildFixedBreakReminderPayload(fixedBreak, breakIndex, dateKey) {
   const start = typeof fixedBreak?.start === "string" ? fixedBreak.start : "";
+  const end = typeof fixedBreak?.end === "string" ? fixedBreak.end : "";
   const name = typeof fixedBreak?.name === "string" && fixedBreak.name.trim() ? fixedBreak.name.trim() : "pauze";
   const normalizedName = name.toLowerCase();
 
@@ -105,6 +106,7 @@ function buildFixedBreakReminderPayload(fixedBreak, breakIndex, dateKey) {
     breakId: fixedBreak?.id ?? breakIndex,
     breakName: normalizedName,
     breakStart: start,
+    breakEnd: end,
     dateKey,
     label: start,
   };
@@ -198,7 +200,8 @@ function getDueFixedBreakReminder(profile, now = new Date()) {
       continue;
     }
 
-    const reminder = buildFixedBreakReminderPayload({ ...fixedBreak, start }, index, dateKey);
+    const end = typeof fixedBreak?.end === "string" ? fixedBreak.end.slice(0, 5) : "";
+    const reminder = buildFixedBreakReminderPayload({ ...fixedBreak, start, end }, index, dateKey);
     if (!hasFixedBreakReminderDecision(profile?.id, reminder)) {
       return reminder;
     }
@@ -209,6 +212,21 @@ function getDueFixedBreakReminder(profile, now = new Date()) {
 
 function isLunchReminder(reminder) {
   return reminder?.source === "fixed" && reminder?.breakName === "lunch";
+}
+
+function isCoffeeReminder(reminder) {
+  return reminder?.source === "fixed" && ["koffie", "kofie"].includes(reminder?.breakName);
+}
+
+function getFixedBreakDurationMinutes(reminder) {
+  const startMinutes = parseTimeToMinutes(reminder?.breakStart);
+  const endMinutes = parseTimeToMinutes(reminder?.breakEnd);
+
+  if (!Number.isFinite(startMinutes) || !Number.isFinite(endMinutes)) {
+    return null;
+  }
+
+  return endMinutes >= startMinutes ? endMinutes - startMinutes : endMinutes + 24 * 60 - startMinutes;
 }
 
 function isNowNearLunchBreak(fixedBreaks, marginMins = 30) {
@@ -248,6 +266,15 @@ function getBreakSuggestionMode(profile) {
   }
 
   return "balanced";
+}
+
+function getReminderBreakSuggestionMode(reminder, profile) {
+  if (!isCoffeeReminder(reminder)) {
+    return getBreakSuggestionMode(profile);
+  }
+
+  const durationMinutes = getFixedBreakDurationMinutes(reminder);
+  return Number.isFinite(durationMinutes) && durationMinutes <= 20 ? "short" : "long";
 }
 
 function getWorkdayDurationSeconds(profile) {
@@ -790,7 +817,7 @@ export default function Timer({
 
     setBreakSuggestionsRequest({
       fromReminder,
-      mode: getBreakSuggestionMode(profile),
+      mode: getReminderBreakSuggestionMode(reminder, profile),
     });
   };
 
