@@ -31,9 +31,10 @@ De installer gebruikt `electron-builder` en pakt automatisch de Vite build mee.
 
 GitHub release maken voor de marketing website
 1. Commit en push de wijzigingen
-2. Maak een tag, bijvoorbeeld `v1.0.0`
-3. Push de tag naar GitHub
-4. GitHub Actions bouwt automatisch `Re-Mind-Setup.exe` en zet die bij de release
+2. Zet deze GitHub Secrets klaar: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (of `VITE_SUPABASE_PUBLISHABLE_KEY`) en `VITE_BACKEND_URL`
+3. Maak een tag, bijvoorbeeld `v1.0.0`
+4. Push de tag naar GitHub
+5. GitHub Actions bouwt automatisch `Re-Mind-Setup.exe` en zet die bij de release
 
 Downloadlink voor de marketing website:
 `https://github.com/sampittois/Re-Mind_App_Individueel/releases/latest/download/Re-Mind-Setup.exe`
