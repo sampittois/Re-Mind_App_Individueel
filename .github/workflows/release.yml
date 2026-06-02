@@ -1,0 +1,48 @@
+name: Build GitHub Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag, for example v1.0.0"
+        required: true
+        type: string
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  windows-installer:
+    name: Windows installer
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        working-directory: stress-app/frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: stress-app/frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build installer
+        run: npm run dist:win
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+          name: Re-Mind ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+          files: stress-app/frontend/release/Re-Mind-Setup.exe

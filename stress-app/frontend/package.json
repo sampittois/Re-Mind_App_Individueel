@@ -38,7 +38,8 @@
     ],
     "win": {
       "target": "nsis",
-      "icon": "build/logo_primary-dark_icon.ico"
+      "icon": "build/logo_primary-dark_icon.ico",
+      "artifactName": "Re-Mind-Setup.${ext}"
     },
     "mac": {
       "target": "dmg",

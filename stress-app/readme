@@ -22,9 +22,18 @@ Electron
 
 Installer maken voor je laptop
 1. cd stress-app
-2. cd electron
+2. cd frontend
 3. npm install
-4. npm run dist
+4. npm run dist:win
 5. Open de map `release/` en start het `.exe`-bestand om te installeren
 
-De installer gebruikt `electron-builder` en pakt automatisch de Vite build van `frontend/` mee.
+De installer gebruikt `electron-builder` en pakt automatisch de Vite build mee.
+
+GitHub release maken voor de marketing website
+1. Commit en push de wijzigingen
+2. Maak een tag, bijvoorbeeld `v1.0.0`
+3. Push de tag naar GitHub
+4. GitHub Actions bouwt automatisch `Re-Mind-Setup.exe` en zet die bij de release
+
+Downloadlink voor de marketing website:
+`https://github.com/sampittois/Re-Mind_App_Individueel/releases/latest/download/Re-Mind-Setup.exe`
