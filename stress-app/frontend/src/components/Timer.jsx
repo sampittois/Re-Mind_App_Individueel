@@ -113,6 +113,34 @@ function buildFixedBreakReminderPayload(fixedBreak, breakIndex, dateKey) {
   };
 }
 
+function getReminderNotificationContent(reminder) {
+  const isLunch = isLunchReminder(reminder);
+
+  if (isLunch) {
+    return {
+      title: "Smakelijk",
+      body: `Je lunchpauze staat ingesteld om ${reminder?.label ?? formatClockTime(new Date(reminder.at))}.`,
+    };
+  }
+
+  return {
+    title: "Het is tijd voor een pauze",
+    body: `Je ingestelde reminder staat ingesteld op ${reminder?.label ?? formatClockTime(new Date(reminder.at))}.`,
+  };
+}
+
+function isFreshReminder(reminder, maxAgeMs = 10 * 60 * 1000) {
+  if (!Number.isFinite(reminder?.at)) {
+    return true;
+  }
+
+  return Date.now() - reminder.at <= maxAgeMs;
+}
+
+function getReminderKey(reminder) {
+  return reminder?.key || `${reminder?.source || "reminder"}-${reminder?.at || Date.now()}`;
+}
+
 function parseTimeToMinutes(value) {
   if (typeof value !== "string") {
     return null;
@@ -526,6 +554,8 @@ export default function Timer({
   const timerTimeRef = useRef(null);
   const btnStackRef = useRef(null);
   const timerCardRef = useRef(null);
+  const notifiedReminderKeysRef = useRef(new Set());
+  const handledNotificationActionKeysRef = useRef(new Set());
 
   useEffect(() => {
     if (!showCard || !cardContainerId || typeof document === "undefined") {
@@ -606,24 +636,27 @@ export default function Timer({
   }, [workStarted, workStartedAt, onBreak, finished, activeReminder, nextReminderAt, activeBreakType, ringSegments, workSeconds, breakSeconds, lastTickAt, storageKey]);
 
   useEffect(() => {
+    if (!activeReminder || typeof window === "undefined") {
+      return;
+    }
+
     const notificationsApi = window.electronNotifications;
     if (!notificationsApi) {
-      return undefined;
+      return;
     }
 
-    const shouldRunNotifications = isTimerTicking && Boolean(reminderIntervalMs);
-
-    if (!shouldRunNotifications) {
-      void notificationsApi.stopBreakReminders();
-      return undefined;
+    const reminderKey = getReminderKey(activeReminder);
+    if (notifiedReminderKeysRef.current.has(reminderKey) || !isFreshReminder(activeReminder)) {
+      return;
     }
 
-    void notificationsApi.startBreakReminders(reminderIntervalMs);
-
-    return () => {
-      void notificationsApi.stopBreakReminders();
-    };
-  }, [isTimerTicking, reminderIntervalMs]);
+    notifiedReminderKeysRef.current.add(reminderKey);
+    void notificationsApi.stopBreakReminders();
+    void notificationsApi.showBreakReminder({
+      ...getReminderNotificationContent(activeReminder),
+      reminderKey,
+    });
+  }, [activeReminder]);
 
   useEffect(() => {
     if (!isTimerTicking) {
@@ -919,6 +952,39 @@ export default function Timer({
       mode: getReminderBreakSuggestionMode(reminder, profile),
     });
   };
+
+  useEffect(() => {
+    const notificationsApi = window.electronNotifications;
+    if (!notificationsApi?.onBreakReminderAction) {
+      return undefined;
+    }
+
+    return notificationsApi.onBreakReminderAction((payload) => {
+      if (!activeReminder) {
+        return;
+      }
+
+      const activeReminderKey = getReminderKey(activeReminder);
+      if (handledNotificationActionKeysRef.current.has(activeReminderKey)) {
+        return;
+      }
+
+      if (payload?.reminderKey && payload.reminderKey !== activeReminderKey) {
+        return;
+      }
+
+      handledNotificationActionKeysRef.current.add(activeReminderKey);
+
+      if (payload?.action === "continue") {
+        void continueWorking();
+        return;
+      }
+
+      if (payload?.action === "take-break") {
+        takeBreak(true);
+      }
+    });
+  }, [activeReminder]);
 
   const startBreakFromSuggestion = async (suggestion) => {
     // If the suggestion is a breathing exercise, open the breathing flow instead

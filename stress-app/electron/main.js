@@ -1,9 +1,10 @@
 const path = require("node:path");
-const { app, BrowserWindow, Notification, ipcMain } = require("electron");
+const { app, BrowserWindow, Notification, ipcMain, nativeImage } = require("electron");
 
 const windowIconPath = app.isPackaged
   ? path.join(process.resourcesPath, "logo_primary-dark_icon.png")
   : path.join(__dirname, "..", "frontend", "src", "assets", "logo_primary-dark_icon.png");
+const appIcon = nativeImage.createFromPath(windowIconPath);
 
 const reminderIntervals = new Map();
 
@@ -23,6 +24,7 @@ function sendBreakNotification() {
   new Notification({
     title: "Pauzeherinnering",
     body: "Het is tijd voor een korte pauze.",
+    icon: appIcon,
   }).show();
 }
 
@@ -53,8 +55,8 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 900,
     height: 700,
-    title: "Re:Mind",
-    icon: windowIconPath,
+    title: "Re-Mind",
+    icon: appIcon,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
@@ -74,7 +76,8 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
-  app.setName("Re:Mind");
+  app.setName("Re-Mind");
+  app.setAppUserModelId("com.remind.stressapp");
   createWindow();
 });
 

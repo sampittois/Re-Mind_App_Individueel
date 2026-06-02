@@ -27,20 +27,27 @@
     "files": [
       "dist/**/*",
       "electron/**/*",
-      "build/icon.png"
+      "build/logo_primary-dark_icon.png",
+      "build/logo_primary-dark_icon.ico"
+    ],
+    "extraResources": [
+      {
+        "from": "build/logo_primary-dark_icon.png",
+        "to": "logo_primary-dark_icon.png"
+      }
     ],
     "win": {
       "target": "nsis",
-      "icon": "build/icon.png",
+      "icon": "build/logo_primary-dark_icon.ico",
       "signAndEditExecutable": false
     },
     "mac": {
       "target": "dmg",
-      "icon": "build/icon.png"
+      "icon": "build/logo_primary-dark_icon.png"
     },
     "linux": {
       "target": "AppImage",
-      "icon": "build/icon.png"
+      "icon": "build/logo_primary-dark_icon.png"
     }
   },
   "dependencies": {
