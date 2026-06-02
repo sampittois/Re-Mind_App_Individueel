@@ -125,7 +125,6 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 900,
     height: 700,
-    show: false,
     title: APP_NAME,
     icon: appIcon,
     webPreferences: {
@@ -135,14 +134,7 @@ function createWindow() {
     },
   });
 
-  win.once("ready-to-show", () => {
-    if (win.isDestroyed()) {
-      return;
-    }
-
-    win.maximize();
-    win.show();
-  });
+  win.maximize();
   enableReloadShortcuts(win);
 
   if (app.isPackaged) {

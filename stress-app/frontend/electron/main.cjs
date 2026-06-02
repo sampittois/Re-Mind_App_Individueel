@@ -204,7 +204,6 @@ function createWindow() {
     height: 800,
     minWidth: 960,
     minHeight: 640,
-    show: false,
     title: APP_NAME,
     backgroundColor: "#f7f4ef",
     autoHideMenuBar: true,
@@ -216,14 +215,7 @@ function createWindow() {
     },
   });
 
-  mainWindow.once("ready-to-show", () => {
-    if (!mainWindow || mainWindow.isDestroyed()) {
-      return;
-    }
-
-    mainWindow.maximize();
-    mainWindow.show();
-  });
+  mainWindow.maximize();
   enableReloadShortcuts(mainWindow);
 
   mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
