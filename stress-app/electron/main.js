@@ -2,9 +2,11 @@ const path = require("node:path");
 const { app, BrowserWindow, Notification, ipcMain, nativeImage, shell } = require("electron");
 
 const APP_NAME = "Re:Mind";
+const APP_DATA_NAME = "Re-Mind";
 const APP_USER_MODEL_ID = "com.remind.stressapp";
 
 app.setName(APP_NAME);
+app.setPath("userData", path.join(app.getPath("appData"), APP_DATA_NAME));
 if (process.platform === "win32") {
   app.setAppUserModelId(APP_USER_MODEL_ID);
 }
