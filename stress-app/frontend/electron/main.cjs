@@ -1,7 +1,7 @@
 const { app, BrowserWindow, shell } = require("electron");
 const path = require("path");
 
-const appIconPath = path.join(__dirname, "../build/icon.png");
+const appIconPath = path.join(__dirname, "../assets/logo_primary-dark_icon.png");
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
