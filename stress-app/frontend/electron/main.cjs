@@ -1,6 +1,14 @@
 const { app, BrowserWindow, Notification, ipcMain, nativeImage, shell } = require("electron");
 const path = require("path");
 
+const APP_NAME = "Re:Mind";
+const APP_USER_MODEL_ID = "be.thomasmore.remind";
+
+app.setName(APP_NAME);
+if (process.platform === "win32") {
+  app.setAppUserModelId(APP_USER_MODEL_ID);
+}
+
 const appIconPath = app.isPackaged
   ? path.join(process.resourcesPath, "logo_primary-dark_icon.png")
   : path.join(__dirname, "../src/assets/logo_primary-dark_icon.png");
@@ -82,6 +90,27 @@ function flushPendingBreakReminderAction() {
   sendBreakReminderAction(action.action, action.reminderKey);
 }
 
+function ensureWindowsNotificationShortcut() {
+  if (process.platform !== "win32") {
+    return;
+  }
+
+  const shortcutPath = path.join(app.getPath("appData"), "Microsoft", "Windows", "Start Menu", "Programs", "ReMind.lnk");
+  const shortcutOptions = {
+    target: process.execPath,
+    appUserModelId: APP_USER_MODEL_ID,
+    description: APP_NAME,
+    icon: appIconPath,
+    iconIndex: 0,
+  };
+
+  if (!app.isPackaged) {
+    shortcutOptions.args = `"${app.getAppPath()}"`;
+  }
+
+  shell.writeShortcutLink(shortcutPath, "replace", shortcutOptions);
+}
+
 function showBreakNotification(options = {}) {
   if (!Notification.isSupported()) {
     return false;
@@ -154,6 +183,7 @@ function createWindow() {
     height: 800,
     minWidth: 960,
     minHeight: 640,
+    title: APP_NAME,
     backgroundColor: "#f7f4ef",
     autoHideMenuBar: true,
     icon: appIcon,
@@ -199,8 +229,7 @@ if (!hasSingleInstanceLock) {
   });
 
   app.whenReady().then(() => {
-    app.setName("Re-Mind");
-    app.setAppUserModelId("be.thomasmore.remind");
+    ensureWindowsNotificationShortcut();
 
     if (process.platform === "win32" && typeof Notification.handleActivation === "function") {
       Notification.handleActivation((details) => {
