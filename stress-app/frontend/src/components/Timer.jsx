@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import "../styles/timer.css";
 import Breathe from "./Breathe";
 import BreakSuggestionsOverlay from "./BreakSuggestionsOverlay";
 import { addBreak, addBreakReminderDecision, startSession } from "../lib/session";
+import { loadRemoteTimerState, saveRemoteTimerState } from "../lib/timerState";
 
 const TIMER_STATE_STORAGE_KEY = "remind.timerState";
 const FIXED_BREAK_REMINDERS_STORAGE_KEY = "remind.fixedBreakReminderDecisions";
@@ -11,6 +12,27 @@ const DAY_TARGET_SECONDS = 8 * 60 * 60;
 const ORIGINAL_BREATHING_LOGO_SIZE = 280;
 const MIN_BREATHING_LOGO_SIZE = 180;
 const LATE_START_THRESHOLD_MINUTES = 5;
+
+function normalizeTimerState(parsed, fallbackSavedAt = null) {
+  if (!parsed || typeof parsed !== "object") {
+    return null;
+  }
+
+  return {
+    workStarted: Boolean(parsed.workStarted),
+    workStartedAt: Number.isFinite(parsed.workStartedAt) ? parsed.workStartedAt : null,
+    onBreak: Boolean(parsed.onBreak),
+    finished: Boolean(parsed.finished),
+    activeReminder: parsed.activeReminder && typeof parsed.activeReminder === "object" ? parsed.activeReminder : null,
+    nextReminderAt: Number.isFinite(parsed.nextReminderAt) ? parsed.nextReminderAt : null,
+    breakType: typeof parsed.breakType === "string" && parsed.breakType.trim() ? parsed.breakType : "walk",
+    workSeconds: Number.isFinite(parsed.workSeconds) ? Math.max(0, Math.floor(parsed.workSeconds)) : 0,
+    breakSeconds: Number.isFinite(parsed.breakSeconds) ? Math.max(0, Math.floor(parsed.breakSeconds)) : 0,
+    lastTickAt: Number.isFinite(parsed.lastTickAt) ? parsed.lastTickAt : Date.now(),
+    ringSegments: Array.isArray(parsed.ringSegments) ? parsed.ringSegments : [],
+    savedAt: Number.isFinite(parsed.savedAt) ? parsed.savedAt : fallbackSavedAt,
+  };
+}
 
 function loadTimerState(key = TIMER_STATE_STORAGE_KEY) {
   if (typeof window === "undefined") {
@@ -27,24 +49,7 @@ function loadTimerState(key = TIMER_STATE_STORAGE_KEY) {
       return null;
     }
 
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== "object") {
-      return null;
-    }
-
-    return {
-      workStarted: Boolean(parsed.workStarted),
-      workStartedAt: Number.isFinite(parsed.workStartedAt) ? parsed.workStartedAt : null,
-      onBreak: Boolean(parsed.onBreak),
-      finished: Boolean(parsed.finished),
-      activeReminder: parsed.activeReminder && typeof parsed.activeReminder === "object" ? parsed.activeReminder : null,
-      nextReminderAt: Number.isFinite(parsed.nextReminderAt) ? parsed.nextReminderAt : null,
-      breakType: typeof parsed.breakType === "string" && parsed.breakType.trim() ? parsed.breakType : "walk",
-      workSeconds: Number.isFinite(parsed.workSeconds) ? Math.max(0, Math.floor(parsed.workSeconds)) : 0,
-      breakSeconds: Number.isFinite(parsed.breakSeconds) ? Math.max(0, Math.floor(parsed.breakSeconds)) : 0,
-      lastTickAt: Number.isFinite(parsed.lastTickAt) ? parsed.lastTickAt : Date.now(),
-      ringSegments: Array.isArray(parsed.ringSegments) ? parsed.ringSegments : [],
-    };
+    return normalizeTimerState(JSON.parse(raw));
   } catch {
     return null;
   }
@@ -60,7 +65,7 @@ function saveTimerState(snapshot, key = TIMER_STATE_STORAGE_KEY) {
   }
 
   try {
-    window.localStorage.setItem(key, JSON.stringify(snapshot));
+    window.localStorage.setItem(key, JSON.stringify({ ...snapshot, savedAt: Date.now() }));
   } catch {
     // Ignore localStorage write issues.
   }
@@ -387,6 +392,18 @@ function createRingSegment(startProgress, endProgress, tone = "work") {
   return { startProgress, endProgress, tone };
 }
 
+function addRingTransitionSegment(segments, progress, tone) {
+  const nextSegments = segments.slice();
+  const activeSegment = nextSegments[nextSegments.length - 1];
+
+  if (activeSegment && activeSegment.endProgress == null) {
+    activeSegment.endProgress = progress;
+  }
+
+  nextSegments.push(createRingSegment(progress, null, tone));
+  return nextSegments;
+}
+
 function getInitialRingSegments(profile, now = Date.now()) {
   const elapsedMinutes = getMinutesAfterWorkdayStart(profile, now);
   const durationMinutes = getWorkdayDurationSeconds(profile) / 60;
@@ -563,19 +580,11 @@ export default function Timer({
   const timerCardRef = useRef(null);
   const notifiedReminderKeysRef = useRef(new Set());
   const handledNotificationActionKeysRef = useRef(new Set());
+  const latestRemoteTimerStateAtRef = useRef(0);
+  const continueWorkingRef = useRef(null);
+  const takeBreakRef = useRef(null);
 
-  useEffect(() => {
-    if (!showCard || !cardContainerId || typeof document === "undefined") {
-      setCardContainer(null);
-      return;
-    }
-
-    setCardContainer(document.getElementById(cardContainerId));
-  }, [showCard, cardContainerId]);
-
-  // When the storage key changes (user switched), reload timer state for the new user
-  useEffect(() => {
-    const state = loadTimerState(storageKey);
+  const applyTimerState = useCallback((state) => {
     if (!state) {
       setWorkStarted(false);
       setWorkStartedAt(null);
@@ -604,7 +613,138 @@ export default function Timer({
     setWorkSeconds(state.workSeconds ?? 0);
     setBreakSeconds(state.breakSeconds ?? 0);
     setLastTickAt(state.lastTickAt ?? Date.now());
-  }, [profile?.work_end, profile?.work_start, storageKey]);
+  }, [profile]);
+
+  const buildTimerSnapshot = (overrides = {}) => ({
+    workStarted,
+    workStartedAt,
+    onBreak,
+    finished,
+    activeReminder,
+    nextReminderAt,
+    breakType: activeBreakType,
+    ringSegments,
+    workSeconds,
+    breakSeconds,
+    lastTickAt,
+    ...overrides,
+    savedAt: Date.now(),
+  });
+
+  const persistTimerActionState = async (snapshot) => {
+    saveTimerState(snapshot, storageKey);
+
+    if (!profile?.id) {
+      return;
+    }
+
+    const remoteSnapshot = {
+      ...snapshot,
+      activeReminder: null,
+    };
+
+    const { data, error } = await saveRemoteTimerState(profile.id, remoteSnapshot);
+    if (error) {
+      console.error("Failed to sync timer state:", error);
+      return;
+    }
+
+    const remoteSavedAt = data?.updated_at ? new Date(data.updated_at).getTime() : null;
+    if (Number.isFinite(remoteSavedAt)) {
+      latestRemoteTimerStateAtRef.current = Math.max(latestRemoteTimerStateAtRef.current, remoteSavedAt);
+    }
+  };
+
+  useEffect(() => {
+    if (!showCard || !cardContainerId || typeof document === "undefined") {
+      setCardContainer(null);
+      return;
+    }
+
+    setCardContainer(document.getElementById(cardContainerId));
+  }, [showCard, cardContainerId]);
+
+  // When the user changes, prefer the newest remote state and keep local storage as fallback.
+  useEffect(() => {
+    let active = true;
+
+    async function loadSyncedTimerState() {
+      const localState = loadTimerState(storageKey);
+      let selectedState = localState;
+
+      if (profile?.id) {
+        const { data, error } = await loadRemoteTimerState(profile.id);
+        if (error) {
+          console.error("Failed to load synced timer state:", error);
+        }
+
+        const remoteSavedAt = data?.updated_at ? new Date(data.updated_at).getTime() : null;
+        const remoteState = normalizeTimerState(data?.state, remoteSavedAt);
+        const localSavedAt = Number.isFinite(localState?.savedAt) ? localState.savedAt : 0;
+
+        if (Number.isFinite(remoteSavedAt)) {
+          latestRemoteTimerStateAtRef.current = Math.max(latestRemoteTimerStateAtRef.current, remoteSavedAt);
+        }
+
+        if (remoteState && (!localState || (remoteSavedAt || 0) >= localSavedAt)) {
+          selectedState = remoteState;
+        }
+      }
+
+      if (!active) {
+        return;
+      }
+
+      applyTimerState(selectedState);
+    }
+
+    loadSyncedTimerState();
+
+    return () => {
+      active = false;
+    };
+  }, [applyTimerState, profile?.id, profile?.work_end, profile?.work_start, storageKey]);
+
+  useEffect(() => {
+    if (!profile?.id) {
+      return undefined;
+    }
+
+    let active = true;
+
+    const refreshRemoteTimerState = async () => {
+      const { data, error } = await loadRemoteTimerState(profile.id);
+      if (!active) {
+        return;
+      }
+
+      if (error) {
+        console.error("Failed to refresh synced timer state:", error);
+        return;
+      }
+
+      const remoteSavedAt = data?.updated_at ? new Date(data.updated_at).getTime() : null;
+      if (!Number.isFinite(remoteSavedAt) || remoteSavedAt <= latestRemoteTimerStateAtRef.current + 500) {
+        return;
+      }
+
+      const remoteState = normalizeTimerState(data?.state, remoteSavedAt);
+      if (!remoteState) {
+        return;
+      }
+
+      latestRemoteTimerStateAtRef.current = remoteSavedAt;
+      saveTimerState(remoteState, storageKey);
+      applyTimerState(remoteState);
+    };
+
+    const remoteRefreshTimer = setInterval(refreshRemoteTimerState, 15000);
+
+    return () => {
+      active = false;
+      clearInterval(remoteRefreshTimer);
+    };
+  }, [applyTimerState, profile?.id, storageKey]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -643,7 +783,7 @@ export default function Timer({
   }, [workStarted, workStartedAt, onBreak, finished, activeReminder, nextReminderAt, activeBreakType, ringSegments, workSeconds, breakSeconds, lastTickAt, storageKey]);
 
   useEffect(() => {
-    if (profile && !profile.allow_reminders) {
+    if (profile?.allow_reminders === false) {
       setActiveReminder(null);
       setNextReminderAt(null);
       window.electronNotifications?.stopBreakReminders?.();
@@ -895,6 +1035,20 @@ export default function Timer({
     setBreakSeconds(0);
     setLastTickAt(now);
 
+    void persistTimerActionState(buildTimerSnapshot({
+      workStarted: true,
+      workStartedAt: now,
+      finished: false,
+      onBreak: false,
+      activeReminder: null,
+      nextReminderAt: reminderIntervalMs ? now + reminderIntervalMs : null,
+      breakType: "walk",
+      ringSegments: initialSegments,
+      workSeconds: 0,
+      breakSeconds: 0,
+      lastTickAt: now,
+    }));
+
     // Rollover todos: move tomorrow -> today and remove today's done tasks
     try {
       const { error } = await import("../lib/todos").then((m) => m.rolloverTodosToToday());
@@ -923,33 +1077,40 @@ export default function Timer({
 
   const continueWorking = async () => {
     const reminder = activeReminder;
+    const now = Date.now();
+    const nextReminder = reminderIntervalMs ? now + reminderIntervalMs : null;
     storeFixedBreakReminderDecision(profile?.id, reminder, "skipped");
     await logReminderDecision("skipped");
 
     setActiveReminder(null);
-    setNextReminderAt(reminderIntervalMs ? Date.now() + reminderIntervalMs : null);
-    setLastTickAt(Date.now());
+    setNextReminderAt(nextReminder);
+    setLastTickAt(now);
+    void persistTimerActionState(buildTimerSnapshot({
+      activeReminder: null,
+      nextReminderAt: nextReminder,
+      lastTickAt: now,
+    }));
   };
 
   const beginBreak = () => {
     const currentProgress = getWorkdayProgress(profile, clockNow);
+    const now = Date.now();
+    const nextRingSegments = addRingTransitionSegment(ringSegments, currentProgress, "break");
 
-    setRingSegments((previous) => {
-      const nextSegments = previous.slice();
-      const activeSegment = nextSegments[nextSegments.length - 1];
-
-      if (activeSegment && activeSegment.endProgress == null) {
-        activeSegment.endProgress = currentProgress;
-      }
-
-      nextSegments.push(createRingSegment(currentProgress, null, "break"));
-      return nextSegments;
-    });
+    setRingSegments(nextRingSegments);
 
     setOnBreak(true);
     setBreakSeconds(0);
-    setLastTickAt(Date.now());
+    setLastTickAt(now);
     setNextReminderAt(null);
+    void persistTimerActionState(buildTimerSnapshot({
+      onBreak: true,
+      activeReminder: null,
+      breakSeconds: 0,
+      lastTickAt: now,
+      nextReminderAt: null,
+      ringSegments: nextRingSegments,
+    }));
   };
 
   const takeBreak = (fromReminder = false) => {
@@ -972,6 +1133,9 @@ export default function Timer({
       mode: getReminderBreakSuggestionMode(reminder, profile),
     });
   };
+
+  continueWorkingRef.current = continueWorking;
+  takeBreakRef.current = takeBreak;
 
   useEffect(() => {
     const notificationsApi = window.electronNotifications;
@@ -996,12 +1160,12 @@ export default function Timer({
       handledNotificationActionKeysRef.current.add(activeReminderKey);
 
       if (payload?.action === "continue") {
-        void continueWorking();
+        void continueWorkingRef.current?.();
         return;
       }
 
       if (payload?.action === "take-break") {
-        takeBreak(true);
+        takeBreakRef.current?.(true);
       }
     });
   }, [activeReminder]);
@@ -1027,31 +1191,39 @@ export default function Timer({
     }
 
     setBreakSuggestionsRequest(null);
-    setActiveBreakType(suggestion?.type || "walk");
+    const nextBreakType = suggestion?.type || "walk";
+    setActiveBreakType(nextBreakType);
+    void persistTimerActionState(buildTimerSnapshot({
+      onBreak: true,
+      breakType: nextBreakType,
+      activeReminder: null,
+      nextReminderAt: null,
+    }));
   };
 
   const endBreak = async () => {
     const durationMinutes = Math.max(1, Math.round(breakSeconds / 60));
     const breakType = activeBreakType || "walk";
     const currentProgress = getWorkdayProgress(profile, clockNow);
+    const now = Date.now();
+    const nextReminder = reminderIntervalMs ? now + reminderIntervalMs : null;
+    const nextRingSegments = addRingTransitionSegment(ringSegments, currentProgress, "work");
 
-    setRingSegments((previous) => {
-      const nextSegments = previous.slice();
-      const activeSegment = nextSegments[nextSegments.length - 1];
-
-      if (activeSegment && activeSegment.endProgress == null) {
-        activeSegment.endProgress = currentProgress;
-      }
-
-      nextSegments.push(createRingSegment(currentProgress, null, "work"));
-      return nextSegments;
-    });
+    setRingSegments(nextRingSegments);
 
     setOnBreak(false);
     setBreakSeconds(0);
     setActiveBreakType("walk");
-    setNextReminderAt(reminderIntervalMs ? Date.now() + reminderIntervalMs : null);
-    setLastTickAt(Date.now());
+    setNextReminderAt(nextReminder);
+    setLastTickAt(now);
+    void persistTimerActionState(buildTimerSnapshot({
+      onBreak: false,
+      breakSeconds: 0,
+      breakType: "walk",
+      nextReminderAt: nextReminder,
+      lastTickAt: now,
+      ringSegments: nextRingSegments,
+    }));
 
     const { error } = await addBreak({ type: breakType, duration_minutes: durationMinutes });
     if (error) {
@@ -1064,6 +1236,19 @@ export default function Timer({
 
   const resetTimerForReflection = () => {
     const now = Date.now();
+    const resetState = buildTimerSnapshot({
+      workStarted: false,
+      workStartedAt: null,
+      onBreak: false,
+      finished: false,
+      activeReminder: null,
+      nextReminderAt: null,
+      breakType: "walk",
+      ringSegments: [],
+      workSeconds: 0,
+      breakSeconds: 0,
+      lastTickAt: now,
+    });
 
     setWorkStarted(false);
     setWorkStartedAt(null);
@@ -1077,17 +1262,7 @@ export default function Timer({
     setWorkSeconds(0);
     setBreakSeconds(0);
     setLastTickAt(now);
-  };
-
-  const openReflection = () => {
-    resetTimerForReflection();
-
-    if (onOpenReflection) {
-      onOpenReflection();
-      return;
-    }
-
-    alert("Reflectie (demo)");
+    void persistTimerActionState(resetState);
   };
 
   const activeReminderContent = activeReminder ? getReminderNotificationContent(activeReminder) : null;

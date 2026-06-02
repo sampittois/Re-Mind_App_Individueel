@@ -199,6 +199,19 @@ alter table public.break_reminder_events add column if not exists action text;
 alter table public.break_reminder_events add column if not exists created_at timestamptz not null default now();
 alter table public.break_reminder_events add column if not exists updated_at timestamptz not null default now();
 
+create table if not exists public.timer_states (
+  user_id uuid primary key references auth.users (id) on delete cascade,
+  state jsonb not null default '{}'::jsonb,
+  updated_by text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.timer_states add column if not exists state jsonb not null default '{}'::jsonb;
+alter table public.timer_states add column if not exists updated_by text;
+alter table public.timer_states add column if not exists created_at timestamptz not null default now();
+alter table public.timer_states add column if not exists updated_at timestamptz not null default now();
+
 create table if not exists public.favorite_pauses (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users (id) on delete cascade,
@@ -291,6 +304,9 @@ create index if not exists breaks_user_session_created_at_idx
 create index if not exists break_reminder_events_user_session_created_at_idx
   on public.break_reminder_events (user_id, session_id, created_at desc);
 
+create index if not exists timer_states_updated_at_idx
+  on public.timer_states (updated_at desc);
+
 create index if not exists favorite_pauses_user_pause_idx
   on public.favorite_pauses (user_id, pause_id);
 
@@ -364,6 +380,11 @@ for each row execute function public.set_updated_at();
 drop trigger if exists set_break_reminder_events_updated_at on public.break_reminder_events;
 create trigger set_break_reminder_events_updated_at
 before update on public.break_reminder_events
+for each row execute function public.set_updated_at();
+
+drop trigger if exists set_timer_states_updated_at on public.timer_states;
+create trigger set_timer_states_updated_at
+before update on public.timer_states
 for each row execute function public.set_updated_at();
 
 drop trigger if exists set_favorite_pauses_updated_at on public.favorite_pauses;
@@ -487,6 +508,7 @@ alter table public.stress_checkins enable row level security;
 alter table public.energy_checkins enable row level security;
 alter table public.breaks enable row level security;
 alter table public.break_reminder_events enable row level security;
+alter table public.timer_states enable row level security;
 alter table public.favorite_pauses enable row level security;
 alter table public.calendar_connections enable row level security;
 alter table public.payment_details enable row level security;
@@ -672,6 +694,31 @@ with check (auth.uid() = user_id);
 drop policy if exists "break_reminder_events_delete_own" on public.break_reminder_events;
 create policy "break_reminder_events_delete_own"
 on public.break_reminder_events
+for delete
+using (auth.uid() = user_id);
+
+drop policy if exists "timer_states_select_own" on public.timer_states;
+create policy "timer_states_select_own"
+on public.timer_states
+for select
+using (auth.uid() = user_id);
+
+drop policy if exists "timer_states_insert_own" on public.timer_states;
+create policy "timer_states_insert_own"
+on public.timer_states
+for insert
+with check (auth.uid() = user_id);
+
+drop policy if exists "timer_states_update_own" on public.timer_states;
+create policy "timer_states_update_own"
+on public.timer_states
+for update
+using (auth.uid() = user_id)
+with check (auth.uid() = user_id);
+
+drop policy if exists "timer_states_delete_own" on public.timer_states;
+create policy "timer_states_delete_own"
+on public.timer_states
 for delete
 using (auth.uid() = user_id);
 
