@@ -21,6 +21,27 @@ let pendingBreakReminderAction = null;
 const activeBreakNotifications = new Map();
 const hasSingleInstanceLock = app.requestSingleInstanceLock();
 
+function enableReloadShortcuts(win) {
+  win.webContents.on("before-input-event", (event, input) => {
+    const key = input.key.toLowerCase();
+    const usesReloadModifier = input.control || input.meta;
+    const shouldReload = input.type === "keyDown" && (key === "f5" || (usesReloadModifier && key === "r"));
+
+    if (!shouldReload) {
+      return;
+    }
+
+    event.preventDefault();
+
+    if (input.shift) {
+      win.webContents.reloadIgnoringCache();
+      return;
+    }
+
+    win.webContents.reload();
+  });
+}
+
 function getBreakReminderAction(actionIndex) {
   if (actionIndex === 0) {
     return "continue";
@@ -183,6 +204,7 @@ function createWindow() {
     height: 800,
     minWidth: 960,
     minHeight: 640,
+    show: false,
     title: APP_NAME,
     backgroundColor: "#f7f4ef",
     autoHideMenuBar: true,
@@ -193,6 +215,16 @@ function createWindow() {
       preload: preloadPath,
     },
   });
+
+  mainWindow.once("ready-to-show", () => {
+    if (!mainWindow || mainWindow.isDestroyed()) {
+      return;
+    }
+
+    mainWindow.maximize();
+    mainWindow.show();
+  });
+  enableReloadShortcuts(mainWindow);
 
   mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
   mainWindow.webContents.once("did-finish-load", flushPendingBreakReminderAction);

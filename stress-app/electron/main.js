@@ -18,6 +18,27 @@ const reminderIntervals = new Map();
 let mainWindow = null;
 const hasSingleInstanceLock = app.requestSingleInstanceLock();
 
+function enableReloadShortcuts(win) {
+  win.webContents.on("before-input-event", (event, input) => {
+    const key = input.key.toLowerCase();
+    const usesReloadModifier = input.control || input.meta;
+    const shouldReload = input.type === "keyDown" && (key === "f5" || (usesReloadModifier && key === "r"));
+
+    if (!shouldReload) {
+      return;
+    }
+
+    event.preventDefault();
+
+    if (input.shift) {
+      win.webContents.reloadIgnoringCache();
+      return;
+    }
+
+    win.webContents.reload();
+  });
+}
+
 function clearReminderForContents(contentsId) {
   const intervalId = reminderIntervals.get(contentsId);
   if (intervalId) {
@@ -104,6 +125,7 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 900,
     height: 700,
+    show: false,
     title: APP_NAME,
     icon: appIcon,
     webPreferences: {
@@ -112,6 +134,16 @@ function createWindow() {
       nodeIntegration: false,
     },
   });
+
+  win.once("ready-to-show", () => {
+    if (win.isDestroyed()) {
+      return;
+    }
+
+    win.maximize();
+    win.show();
+  });
+  enableReloadShortcuts(win);
 
   if (app.isPackaged) {
     win.loadFile(path.join(process.resourcesPath, "renderer", "index.html"));
