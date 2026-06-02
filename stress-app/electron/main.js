@@ -7,6 +7,8 @@ const windowIconPath = app.isPackaged
 const appIcon = nativeImage.createFromPath(windowIconPath);
 
 const reminderIntervals = new Map();
+let mainWindow = null;
+const hasSingleInstanceLock = app.requestSingleInstanceLock();
 
 function clearReminderForContents(contentsId) {
   const intervalId = reminderIntervals.get(contentsId);
@@ -26,6 +28,20 @@ function sendBreakNotification() {
     body: "Het is tijd voor een korte pauze.",
     icon: appIcon,
   }).show();
+}
+
+function focusMainWindow() {
+  if (!mainWindow || mainWindow.isDestroyed()) {
+    return false;
+  }
+
+  if (mainWindow.isMinimized()) {
+    mainWindow.restore();
+  }
+
+  mainWindow.show();
+  mainWindow.focus();
+  return true;
 }
 
 ipcMain.handle("notifications:start-break-reminders", (event, intervalMs) => {
@@ -52,6 +68,10 @@ ipcMain.handle("notifications:stop-break-reminders", (event) => {
 });
 
 function createWindow() {
+  if (focusMainWindow()) {
+    return mainWindow;
+  }
+
   const win = new BrowserWindow({
     width: 900,
     height: 700,
@@ -73,13 +93,39 @@ function createWindow() {
   win.webContents.on("destroyed", () => {
     clearReminderForContents(win.webContents.id);
   });
+
+  win.on("closed", () => {
+    if (mainWindow === win) {
+      mainWindow = null;
+    }
+  });
+
+  mainWindow = win;
+  return win;
 }
 
-app.whenReady().then(() => {
-  app.setName("Re-Mind");
-  app.setAppUserModelId("com.remind.stressapp");
-  createWindow();
-});
+if (!hasSingleInstanceLock) {
+  app.quit();
+} else {
+  app.on("second-instance", () => {
+    focusMainWindow();
+  });
+
+  app.whenReady().then(() => {
+    app.setName("Re-Mind");
+    app.setAppUserModelId("com.remind.stressapp");
+    createWindow();
+
+    app.on("activate", () => {
+      if (BrowserWindow.getAllWindows().length === 0) {
+        createWindow();
+        return;
+      }
+
+      focusMainWindow();
+    });
+  });
+}
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {

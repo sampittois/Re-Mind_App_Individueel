@@ -10,6 +10,8 @@ const preloadPath = path.join(__dirname, "preload.cjs");
 let mainWindow = null;
 let breakReminderTimer = null;
 let pendingBreakReminderAction = null;
+const activeBreakNotifications = new Map();
+const hasSingleInstanceLock = app.requestSingleInstanceLock();
 
 function getBreakReminderAction(actionIndex) {
   if (actionIndex === 0) {
@@ -25,7 +27,7 @@ function getBreakReminderAction(actionIndex) {
 
 function focusMainWindow() {
   if (!mainWindow || mainWindow.isDestroyed()) {
-    return;
+    return false;
   }
 
   if (mainWindow.isMinimized()) {
@@ -34,19 +36,36 @@ function focusMainWindow() {
 
   mainWindow.show();
   mainWindow.focus();
+  return true;
 }
 
-function sendBreakReminderAction(action, reminderKey = null) {
+function closeBreakNotification(reminderKey = null) {
+  if (reminderKey && activeBreakNotifications.has(reminderKey)) {
+    activeBreakNotifications.get(reminderKey).close();
+    activeBreakNotifications.delete(reminderKey);
+    return;
+  }
+
+  activeBreakNotifications.forEach((notification) => notification.close());
+  activeBreakNotifications.clear();
+}
+
+function sendBreakReminderAction(action, reminderKey = null, options = {}) {
   if (!action) {
     return;
   }
+
+  closeBreakNotification(reminderKey);
 
   if (!mainWindow || mainWindow.isDestroyed()) {
     pendingBreakReminderAction = { action, reminderKey };
     return;
   }
 
-  focusMainWindow();
+  if (options.focus) {
+    focusMainWindow();
+  }
+
   mainWindow.webContents.send("notifications:break-reminder-action", {
     action,
     reminderKey,
@@ -87,8 +106,17 @@ function showBreakNotification(options = {}) {
   notification.on("click", focusMainWindow);
   notification.on("action", (event, actionIndex) => {
     const resolvedActionIndex = Number.isFinite(event?.actionIndex) ? event.actionIndex : actionIndex;
-    sendBreakReminderAction(getBreakReminderAction(resolvedActionIndex), reminderKey);
+    const action = getBreakReminderAction(resolvedActionIndex);
+    sendBreakReminderAction(action, reminderKey, { focus: action === "take-break" });
   });
+  notification.on("close", () => {
+    if (reminderKey) {
+      activeBreakNotifications.delete(reminderKey);
+    }
+  });
+  if (reminderKey) {
+    activeBreakNotifications.set(reminderKey, notification);
+  }
   notification.show();
   return true;
 }
@@ -98,6 +126,7 @@ function stopBreakReminderTimer() {
     clearInterval(breakReminderTimer);
     breakReminderTimer = null;
   }
+  closeBreakNotification();
 }
 
 function startBreakReminderTimer(intervalMs) {
@@ -116,6 +145,10 @@ function startBreakReminderTimer(intervalMs) {
 }
 
 function createWindow() {
+  if (focusMainWindow()) {
+    return mainWindow;
+  }
+
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
@@ -133,11 +166,16 @@ function createWindow() {
 
   mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
   mainWindow.webContents.once("did-finish-load", flushPendingBreakReminderAction);
+  mainWindow.on("closed", () => {
+    mainWindow = null;
+  });
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
     return { action: "deny" };
   });
+
+  return mainWindow;
 }
 
 ipcMain.handle("notifications:start-break-reminders", (_event, intervalMs) => {
@@ -153,29 +191,41 @@ ipcMain.handle("notifications:show-break-reminder", (_event, options) => {
   return { ok: showBreakNotification(options) };
 });
 
-app.whenReady().then(() => {
-  app.setName("Re-Mind");
-  app.setAppUserModelId("be.thomasmore.remind");
+if (!hasSingleInstanceLock) {
+  app.quit();
+} else {
+  app.on("second-instance", () => {
+    focusMainWindow();
+  });
 
-  if (process.platform === "win32" && typeof Notification.handleActivation === "function") {
-    Notification.handleActivation((details) => {
-      if (details.type === "action") {
-        sendBreakReminderAction(getBreakReminderAction(details.actionIndex), details.id || null);
+  app.whenReady().then(() => {
+    app.setName("Re-Mind");
+    app.setAppUserModelId("be.thomasmore.remind");
+
+    if (process.platform === "win32" && typeof Notification.handleActivation === "function") {
+      Notification.handleActivation((details) => {
+        if (details.type === "action") {
+          const action = getBreakReminderAction(details.actionIndex);
+          sendBreakReminderAction(action, details.id || null, { focus: action === "take-break" });
+          return;
+        }
+
+        focusMainWindow();
+      });
+    }
+
+    createWindow();
+
+    app.on("activate", () => {
+      if (BrowserWindow.getAllWindows().length === 0) {
+        createWindow();
         return;
       }
 
       focusMainWindow();
     });
-  }
-
-  createWindow();
-
-  app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
   });
-});
+}
 
 app.on("window-all-closed", () => {
   stopBreakReminderTimer();

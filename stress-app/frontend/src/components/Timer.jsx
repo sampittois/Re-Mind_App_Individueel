@@ -115,17 +115,24 @@ function buildFixedBreakReminderPayload(fixedBreak, breakIndex, dateKey) {
 
 function getReminderNotificationContent(reminder) {
   const isLunch = isLunchReminder(reminder);
+  const reminderTime = reminder?.label ?? formatClockTime(new Date(reminder.at));
 
   if (isLunch) {
     return {
+      eyebrow: "Lunchpauze",
       title: "Smakelijk",
-      body: `Je lunchpauze staat ingesteld om ${reminder?.label ?? formatClockTime(new Date(reminder.at))}.`,
+      body: `Je lunchpauze staat ingesteld om ${reminderTime}.`,
+      continueLabel: "Doorwerken",
+      takeBreakLabel: "Neem de pauze",
     };
   }
 
   return {
+    eyebrow: "Break reminder",
     title: "Het is tijd voor een pauze",
-    body: `Je ingestelde reminder staat ingesteld op ${reminder?.label ?? formatClockTime(new Date(reminder.at))}.`,
+    body: `Je ingestelde reminder staat ingesteld op ${reminderTime}.`,
+    continueLabel: "Doorgaan met werken",
+    takeBreakLabel: "Neem een pauze",
   };
 }
 
@@ -636,7 +643,20 @@ export default function Timer({
   }, [workStarted, workStartedAt, onBreak, finished, activeReminder, nextReminderAt, activeBreakType, ringSegments, workSeconds, breakSeconds, lastTickAt, storageKey]);
 
   useEffect(() => {
+    if (profile && !profile.allow_reminders) {
+      setActiveReminder(null);
+      setNextReminderAt(null);
+      window.electronNotifications?.stopBreakReminders?.();
+    }
+  }, [profile?.allow_reminders]);
+
+  useEffect(() => {
     if (!activeReminder || typeof window === "undefined") {
+      return;
+    }
+
+    if (!profile?.allow_reminders) {
+      void window.electronNotifications?.stopBreakReminders?.();
       return;
     }
 
@@ -656,7 +676,7 @@ export default function Timer({
       ...getReminderNotificationContent(activeReminder),
       reminderKey,
     });
-  }, [activeReminder]);
+  }, [activeReminder, profile?.allow_reminders]);
 
   useEffect(() => {
     if (!isTimerTicking) {
@@ -1070,6 +1090,8 @@ export default function Timer({
     alert("Reflectie (demo)");
   };
 
+  const activeReminderContent = activeReminder ? getReminderNotificationContent(activeReminder) : null;
+
   const timerCard = (
     <div className="timer-card" ref={timerCardRef}>
       <div className="hrRow" ref={hrRowRef}>
@@ -1131,23 +1153,21 @@ export default function Timer({
         <div className="timer-reminder-overlay" role="dialog" aria-modal="true" aria-label="Break reminder">
           <div className="timer-reminder-card">
             <p className="timer-reminder-card__eyebrow">
-              {isLunchReminder(activeReminder) ? "Lunchpauze" : "Break reminder"}
+              {activeReminderContent.eyebrow}
             </p>
             <h2 className="timer-reminder-card__title">
-              {isLunchReminder(activeReminder) ? "Smakelijk" : "Het is tijd voor een pauze"}
+              {activeReminderContent.title}
             </h2>
             <p className="timer-reminder-card__copy">
-              {isLunchReminder(activeReminder)
-                ? `Je lunchpauze staat ingesteld om ${activeReminder?.label ?? formatClockTime(new Date(activeReminder.at))}.`
-                : `Je ingestelde reminder staat ingesteld op ${activeReminder?.label ?? formatClockTime(new Date(activeReminder.at))}.`}
+              {activeReminderContent.body}
             </p>
 
             <div className="timer-reminder-card__actions">
               <button className="btn timer-reminder-card__secondary" onClick={continueWorking} type="button">
-                {isLunchReminder(activeReminder) ? "Doorwerken" : "Doorgaan met werken"}
+                {activeReminderContent.continueLabel}
               </button>
               <button className="btn" onClick={() => takeBreak(true)} type="button">
-                {isLunchReminder(activeReminder) ? "Neem de pauze" : "Neem een pauze"}
+                {activeReminderContent.takeBreakLabel}
               </button>
             </div>
           </div>
