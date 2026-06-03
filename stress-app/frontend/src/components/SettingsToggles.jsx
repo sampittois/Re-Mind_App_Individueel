@@ -20,7 +20,7 @@ export default function SettingsToggles({ profile, onUpdateProfile, onCompanyCol
 
   return (
     <div className="toggles-group">
-      <div className="toggle-row">
+      <div className="toggle-row hidden">
         <label className="toggle-label">Dark mode</label>
         <button
           className={`toggle-switch ${darkMode ? "active" : ""}`}
